@@ -298,3 +298,22 @@
     <script src="script.js"></script>
 </body>
 </html>
+<!-- AI Assistant Component UI -->
+<div class="card" style="grid-column: 1 / -1; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-color: #22d3ee;">
+    <div class="card-header">
+        <h3><i class="fa-solid fa-brain" style="color:#22d3ee;"></i> BuildTrack AI — Structural & Cost Optimizer</h3>
+        <span style="font-size:0.75rem; background:rgba(34,211,238,0.2); color:#22d3ee; padding:3px 8px; border-radius:4px; font-weight:bold;">GEMINI ENGINE</span>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:15px;">
+        <p style="margin:0; font-size:0.85rem; color:#94a3b8;">Ask BuildTrack AI about Pakistani market construction material optimization, dynamic strength testing guidelines, or procurement strategies.</p>
+        <div class="form-group">
+            <input type="text" id="ai-input-query" placeholder="e.g., How can I optimize steel budget for 5 Marla foundation without losing strength?">
+        </div>
+        <button type="button" id="btn-trigger-ai" class="btn-submit" style="background:#22d3ee; color:#0f172a;"><i class="fa-solid fa-wand-magic-sparkles"></i> Consult BuildTrack AI Broker</button>
+        
+        <!-- AI Response Box Container -->
+        <div id="ai-response-box" style="display:none; background:#0f172a; border:1px solid #334155; padding:15px; border-radius:6px; font-size:0.9rem; color:#e2e8f0; line-height:1.5;">
+            <!-- Live AI text injection token -->
+        </div>
+    </div>
+</div>
