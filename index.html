@@ -235,6 +235,72 @@
             z-index: 2;
         }
 
+        /* AI CHATBOX CONTAINER */
+        .ai-chatbox {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            height: 320px;
+            overflow: hidden;
+        }
+
+        .ai-messages-area {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .ai-msg {
+            max-width: 85%;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        .ai-msg.bot {
+            background: rgba(34, 211, 238, 0.1);
+            border: 1px solid rgba(34, 211, 238, 0.2);
+            color: var(--text-primary);
+            align-self: flex-start;
+        }
+
+        .ai-msg.user {
+            background: var(--border-color);
+            color: var(--text-primary);
+            align-self: flex-end;
+        }
+
+        .ai-input-bar {
+            display: flex;
+            border-top: 1px solid var(--border-color);
+            background: var(--bg-card);
+        }
+
+        .ai-input-bar input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 14px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .ai-input-bar button {
+            background: var(--accent-cyan);
+            color: #0b0f19;
+            border: none;
+            padding: 0 20px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
         /* PHASE BANNER & LIST */
         .active-phase-banner {
             background: var(--bg-input);
@@ -350,7 +416,7 @@
         <div id="page-dashboard" class="page-content active">
             <div class="dashboard-layout-matrix">
                 <div>
-                    <!-- LIVE CAMERA OVERVIEW ON DASHBOARD WITH REAL CONSTRUCTION PICTURES -->
+                    <!-- LIVE CAMERA OVERVIEW ON DASHBOARD -->
                     <div class="panel-card">
                         <div class="panel-title"><i class="fa-solid fa-video"></i> Live Site Camera Feeds (Multi-Angle)</div>
                         <div class="camera-grid-layout">
@@ -358,20 +424,34 @@
                             <div class="camera-feed-box">
                                 <div class="camera-overlay-tag"><i class="fa-solid fa-circle" style="color:var(--accent-green); font-size:6px;"></i> LIVE</div>
                                 <div class="camera-angle-label">Angle 1: Main Gate</div>
-                                <img src="https://images.unsplash.com/photo-1541888946425-d0fbb18f86f6?auto=format&fit=crop&w=600&q=80" alt="Construction Site Cam 1">
+                                <img src="https://images.unsplash.com/photo-1541888946425-d0fbb18f86f6?auto=format&fit=crop&w=600&q=80" alt="Cam 1">
                             </div>
                             <!-- Angle 2 -->
                             <div class="camera-feed-box">
                                 <div class="camera-overlay-tag"><i class="fa-solid fa-circle" style="color:var(--accent-green); font-size:6px;"></i> LIVE</div>
                                 <div class="camera-angle-label">Angle 2: Foundation Zone</div>
-                                <img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=600&q=80" alt="Construction Site Cam 2">
+                                <img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=600&q=80" alt="Cam 2">
                             </div>
                             <!-- Angle 3 -->
                             <div class="camera-feed-box">
                                 <div class="camera-overlay-tag"><i class="fa-solid fa-circle" style="color:var(--accent-green); font-size:6px;"></i> LIVE</div>
                                 <div class="camera-angle-label">Angle 3: Material Storage</div>
-                                <img src="https://images.unsplash.com/photo-1590069261209-f8e9b8642343?auto=format&fit=crop&w=600&q=80" alt="Construction Site Cam 3">
+                                <img src="https://images.unsplash.com/photo-1590069261209-f8e9b8642343?auto=format&fit=crop&w=600&q=80" alt="Cam 3">
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- AI ASSISTANT PANEL (English & Roman Urdu Support) -->
+                    <div class="panel-card">
+                        <div class="panel-title"><i class="fa-solid fa-robot"></i> AI Ops Assistant (English / Roman Urdu)</div>
+                        <div class="ai-chatbox">
+                            <div class="ai-messages-area" id="ai-chat-messages">
+                                <div class="ai-msg bot">Hello Najam! Main aapka AI assistant hoon. Aap mujhse English ya Roman Urdu mein kuch bhi pooch sakte hain (e.g. "Escrow balance kitna hai?" or "Log cement cost 100000").</div>
+                            </div>
+                            <form class="ai-input-bar" id="ai-chat-form">
+                                <input type="text" id="ai-user-input" placeholder="Type message or command in English / Roman Urdu..." autocomplete="off">
+                                <button type="submit"><i class="fa-solid fa-paper-plane"></i></button>
+                            </form>
                         </div>
                     </div>
 
@@ -536,6 +616,46 @@
             }
         }
 
+        // AI ASSISTANT LOGIC (English & Roman Urdu)
+        function handleAIBrain(userInput) {
+            const query = userInput.toLowerCase().trim();
+            let reply = "";
+
+            if (query.includes('escrow') || query.includes('balance') || query.includes('paisa') || query.includes('pese') || query.includes('kitna bacha')) {
+                let currentBal = appState.totalEscrowPool - appState.totalExpensesLogged;
+                reply = `Current Escrow balance PKR ${currentBal.toLocaleString()} hai. Total pool PKR 5,000,000 se funded hai.`;
+            } 
+            else if (query.includes('progress') || query.includes('phase') || query.includes('kaam kahan tak') || query.includes('stage')) {
+                let active = constructionPhases[appState.currentPhaseIndex];
+                reply = `Current active phase "${active.name}" hai aur overall progress ${appState.progressPercentage}% ho chuki hai.`;
+            }
+            else if (query.includes('expense') || query.includes('spend') || query.includes('kharcha') || query.includes('total kharch')) {
+                reply = `Ab tak total PKR ${appState.totalExpensesLogged.toLocaleString()} ka kharcha log ho chuka hai.`;
+            }
+            else if (query.includes('log') || query.includes('add') || query.includes('khareeda')) {
+                // Extract number if present
+                let matchNum = query.match(/\d+/);
+                let costVal = matchNum ? parseInt(matchNum[0]) : 50000;
+                let itemName = "AI Logged Material";
+                if(query.includes('cement')) itemName = "Cement Bags";
+                else if(query.includes('steel') || query.includes('sariya')) itemName = "Steel Rebar";
+                else if(query.includes('bricks') || query.includes('eint')) itemName = "Red Bricks";
+
+                reportsData.unshift({ name: itemName, cost: costVal, status: "Passed Verification" });
+                appState.totalExpensesLogged += costVal;
+                updateUI();
+                reply = `Theek hai Najam! "${itemName}" worth PKR ${costVal.toLocaleString()} successfully ledger mein add kar diya gaya hai.`;
+            }
+            else if (query.includes('salam') || query.includes('hello') || query.includes('hi')) {
+                reply = `Walaikum Assalam Najam! Main BuildTrack AI hoon. Bataiye site par kya help chahiye? Aap balance, progress ya material log karne ka bol sakte hain.`;
+            }
+            else {
+                reply = `Main samajh gaya hoon. Aap site status, escrow balance, ya material log karne ke liye mujh se pooch sakte hain (e.g. "Escrow balance kitna hai?").`;
+            }
+
+            return reply;
+        }
+
         document.addEventListener("DOMContentLoaded", () => {
             updateUI();
 
@@ -568,6 +688,7 @@
                 });
             });
 
+            // Procurement Form Handler
             const form = document.getElementById('log-form');
             if (form) {
                 form.addEventListener('submit', (e) => {
@@ -580,6 +701,31 @@
                     appState.totalExpensesLogged += cost;
                     updateUI();
                     form.reset();
+                });
+            }
+
+            // AI Chat Form Handler
+            const aiForm = document.getElementById('ai-chat-form');
+            const aiInput = document.getElementById('ai-user-input');
+            const aiMessages = document.getElementById('ai-chat-messages');
+
+            if (aiForm) {
+                aiForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const text = aiInput.value.trim();
+                    if (!text) return;
+
+                    // Append user message
+                    aiMessages.innerHTML += `<div class="ai-msg user">${text}</div>`;
+                    aiInput.value = "";
+                    aiMessages.scrollTop = aiMessages.scrollHeight;
+
+                    // Generate AI response
+                    setTimeout(() => {
+                        const botReply = handleAIBrain(text);
+                        aiMessages.innerHTML += `<div class="ai-msg bot">${botReply}</div>`;
+                        aiMessages.scrollTop = aiMessages.scrollHeight;
+                    }, 400);
                 });
             }
         });
