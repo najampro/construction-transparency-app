@@ -48,18 +48,29 @@ function checkActiveSession() {
     }
 }
 
-function setupAuthListeners() {
-    const switchLink = document.getElementById("auth-switch-link");
-    const authForm = document.getElementById("auth-form");
+switchLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    isSignUpMode = !isSignUpMode;
     
-    switchLink.addEventListener("click", (e) => {
-        e.preventDefault();
-        isSignUpMode = !isSignUpMode;
-        document.getElementById("auth-subtitle").innerText = isSignUpMode ? "Register secure credentials" : "Secure client node gateway";
-        document.getElementById("name-group").style.display = isSignUpMode ? "block" : "none";
-        document.getElementById("auth-submit-btn").innerText = isSignUpMode ? "Register Node" : "Authenticate System";
-        switchLink.innerText = isSignUpMode ? "Log In" : "Create Account";
-    });
+    const nameGroup = document.getElementById("name-group");
+    const authSubtitle = document.getElementById("auth-subtitle");
+    const submitBtn = document.getElementById("auth-submit-btn");
+    const switchText = document.getElementById("auth-switch-text");
+    
+    if (isSignUpMode) {
+        authSubtitle.innerText = "Register secure credentials";
+        if(nameGroup) nameGroup.style.display = "block";
+        submitBtn.innerText = "Register Node";
+        if(switchText) switchText.innerText = "Already registered? ";
+        switchLink.innerText = "Log In";
+    } else {
+        authSubtitle.innerText = "Secure client node gateway";
+        if(nameGroup) nameGroup.style.display = "none";
+        submitBtn.innerText = "Authenticate System";
+        if(switchText) switchText.innerText = "New Client Project Node? ";
+        switchLink.innerText = "Create Account";
+    }
+});
 
     authForm.addEventListener("submit", (e) => {
         e.preventDefault();
