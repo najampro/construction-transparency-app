@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BuildTrack Nexus — AI Construction & Operational Suite</title>
+    <title>BuildTrack Nexus — Construction Suite</title>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -20,391 +20,178 @@
             --accent-red: #f87171;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg-main); color: var(--text-primary); display: flex; min-height: 100vh; }
 
-        body {
-            background-color: var(--bg-main);
-            color: var(--text-primary);
-            display: flex;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* SIDEBAR LAYOUT */
-        .sidebar {
-            width: 280px;
-            background-color: var(--bg-card);
-            border-right: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            position: fixed;
-            height: 100vh;
-            z-index: 100;
-        }
-
-        .sidebar-brand {
-            padding: 24px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
+        /* Sidebar Styling */
+        .sidebar { width: 280px; background-color: var(--bg-card); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; position: fixed; height: 100vh; z-index: 10; }
+        .sidebar-brand { padding: 24px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border-color); }
         .sidebar-brand i { color: var(--accent-cyan); font-size: 1.5rem; }
-        .sidebar-brand h1 { font-size: 1.25rem; font-weight: 700; }
+        .sidebar-brand h1 { font-size: 1.15rem; font-weight: 700; }
 
-        .user-profile-node {
-            padding: 20px 24px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            background: rgba(34, 211, 238, 0.02);
-        }
+        .user-profile { padding: 20px 24px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 12px; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--accent-cyan); color: #0b0f19; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .user-info h4 { font-size: 0.9rem; }
+        .user-info span { font-size: 0.75rem; color: var(--accent-green); }
 
-        .avatar {
-            width: 42px; height: 42px; border-radius: 50%;
-            background: var(--accent-cyan); color: #0b0f19;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: bold; font-size: 1.1rem;
-        }
+        .sidebar-menu { list-style: none; padding: 20px 16px; display: flex; flex-direction: column; gap: 8px; }
+        .menu-item { display: flex; align-items: center; gap: 14px; padding: 12px 16px; color: var(--text-secondary); text-decoration: none; border-radius: 8px; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: 0.2s; }
+        .menu-item:hover, .menu-item.active { color: var(--text-primary); background-color: var(--bg-input); }
+        .menu-item.active { border-left: 3px solid var(--accent-cyan); background: rgba(34, 211, 238, 0.05); }
 
-        .profile-info h4 { font-size: 0.9rem; font-weight: 600; }
-        .profile-info span { font-size: 0.75rem; color: var(--accent-cyan); display: block; }
+        /* Main Workspace */
+        .main-content { margin-left: 280px; flex: 1; padding: 40px; }
+        .header-title { margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 16px; }
+        .header-title h2 { font-size: 1.5rem; font-weight: 600; }
+        .header-title p { color: var(--text-secondary); font-size: 0.85rem; }
 
-        .sidebar-menu {
-            list-style: none;
-            padding: 24px 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
+        /* Views (Pages) */
+        .page-section { display: none; }
+        .page-section.active { display: block; }
 
-        .sidebar-menu .menu-item {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 12px 16px;
-            color: var(--text-secondary);
-            text-decoration: none;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-
-        .sidebar-menu .menu-item:hover, .sidebar-menu .menu-item.active {
-            color: var(--text-primary);
-            background-color: var(--bg-input);
-        }
-
-        .sidebar-menu .menu-item.active {
-            border-left: 3px solid var(--accent-cyan);
-            background: rgba(34, 211, 238, 0.05);
-        }
-
-        /* MAIN CANVAS */
-        .main-content {
-            margin-left: 280px;
-            flex: 1;
-            padding: 40px;
-            min-height: 100vh;
-        }
-
-        .header-action-bar {
-            margin-bottom: 32px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 20px;
-        }
-
-        .header-action-bar h2 { font-size: 1.75rem; font-weight: 600; margin-bottom: 4px; }
-        .header-action-bar p { color: var(--text-secondary); font-size: 0.9rem; }
-
-        /* STATS GRID */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 24px;
-            margin-bottom: 32px;
-        }
-
-        .stat-card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .stat-meta h3 { font-size: 0.85rem; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 8px; }
-        .stat-meta .number-display { font-size: 1.75rem; font-weight: 700; color: var(--text-primary); }
-        .stat-icon { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; }
-        .stat-card.escrow .stat-icon { background: rgba(52, 211, 153, 0.1); color: var(--accent-green); }
-        .stat-card.expense .stat-icon { background: rgba(248, 113, 113, 0.1); color: var(--accent-red); }
-        .stat-card.progress .stat-icon { background: rgba(34, 211, 238, 0.1); color: var(--accent-cyan); }
-
-        /* DASHBOARD LAYOUT */
-        .dashboard-layout-matrix {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 24px;
-            margin-bottom: 32px;
-        }
-
-        @media (max-width: 1100px) {
-            .dashboard-layout-matrix { grid-template-columns: 1fr; }
-        }
-
-        .panel-card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 24px;
-        }
-
-        .panel-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 12px;
-        }
-
+        /* Cards & Panels */
+        .panel { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+        .panel-title { font-size: 1rem; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
         .panel-title i { color: var(--accent-cyan); }
 
-        /* PHASE BANNER & LIST */
-        .active-phase-banner {
-            background: var(--bg-input);
-            border: 1px solid var(--border-color);
-            border-left: 4px solid var(--accent-cyan);
-            padding: 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        /* Grid Layout */
+        .grid-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+        @media(max-width: 1000px) { .grid-2 { grid-template-columns: 1fr; } }
 
-        .active-phase-banner span { font-size: 0.75rem; text-transform: uppercase; color: var(--text-secondary); display: block; }
-        .active-phase-banner strong { font-size: 1.05rem; color: var(--text-primary); }
+        /* Phase List UI */
+        .phase-row { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: var(--bg-input); border-radius: 8px; margin-bottom: 8px; border: 1px solid var(--border-color); }
+        .phase-row.active-node { border-color: var(--accent-cyan); }
+        .phase-info { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; }
+        .badge { font-size: 0.75rem; padding: 3px 8px; border-radius: 4px; font-weight: 600; }
+        .badge.completed { color: var(--accent-green); background: rgba(52, 211, 153, 0.1); }
+        .badge.inprogress { color: var(--accent-amber); background: rgba(251, 191, 36, 0.1); }
+        .badge.pending { color: var(--text-secondary); background: rgba(148, 163, 184, 0.05); }
 
-        #milestone-phases-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        /* FORMS & INPUTS */
-        .form-grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-        .form-group { display: flex; flex-direction: column; gap: 8px; }
-        .form-group label { font-size: 0.85rem; color: var(--text-secondary); font-weight: 500; }
-        .form-group input, .form-group select {
-            background-color: var(--bg-input);
-            border: 1px solid var(--border-color);
-            padding: 12px; border-radius: 8px;
-            color: var(--text-primary); font-size: 0.9rem; outline: none;
-        }
-        .form-group input:focus, .form-group select:focus { border-color: var(--accent-cyan); }
-
-        .submit-btn-node {
-            background: var(--accent-cyan); color: #0b0f19;
-            border: none; padding: 14px 24px; border-radius: 8px;
-            font-weight: 600; font-size: 0.95rem; cursor: pointer; width: 100%;
-        }
-
-        /* AI TERMINAL */
-        .ai-input-wrapper { display: flex; gap: 10px; margin-bottom: 16px; }
-        #ai-input-query { flex: 1; background-color: var(--bg-input); border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; color: var(--text-primary); outline: none; }
-        #btn-trigger-ai { background: rgba(34, 211, 238, 0.1); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); padding: 12px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
-        #ai-response-box { background: var(--bg-input); border: 1px solid var(--border-color); padding: 16px; border-radius: 8px; font-size: 0.88rem; display: none; color: #e2e8f0; }
-
-        /* VIEWS ROUTER */
-        .page-content { display: none; }
-        .page-content.active { display: block; }
-
-        /* LEDGER ITEMS */
-        .report-item {
-            background: var(--bg-input); border: 1px solid var(--border-color);
-            padding: 14px; border-radius: 8px; display: flex;
-            justify-content: space-between; align-items: center; margin-bottom: 8px;
-        }
-        #material-reports-container { max-height: 280px; overflow-y: auto; }
+        /* Form Inputs */
+        .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+        .form-group label { font-size: 0.8rem; color: var(--text-secondary); }
+        .form-group input { background: var(--bg-input); border: 1px solid var(--border-color); padding: 10px; border-radius: 6px; color: #fff; outline: none; }
+        .form-group input:focus { border-color: var(--accent-cyan); }
+        .btn-submit { background: var(--accent-cyan); color: #0b0f19; border: none; padding: 12px; border-radius: 6px; font-weight: 600; cursor: pointer; width: 100%; }
     </style>
 </head>
 <body>
 
-    <!-- SIDEBAR -->
+    <!-- SIDEBAR NAVIGATION -->
     <div class="sidebar">
         <div class="sidebar-brand">
-            <i class="fa-solid fa-cubes-nw"></i>
-            <h1>BuildTrack Engine</h1>
+            <i class="fa-solid fa-cube"></i>
+            <h1>BuildTrack System</h1>
         </div>
-
-        <div class="user-profile-node">
-            <div class="avatar" id="avatar-letters">N</div>
-            <div class="profile-info">
-                <h4 id="user-display-name">Najam (Supervisor)</h4>
-                <span id="auth-action-text" style="color: var(--accent-green);">Active Session</span>
+        <div class="user-profile">
+            <div class="avatar">N</div>
+            <div class="user-info">
+                <h4>Najam (Supervisor)</h4>
+                <span>● Live Engine</span>
             </div>
         </div>
-
         <ul class="sidebar-menu">
-            <li><a href="#" class="menu-item active" data-target="page-dashboard"><i class="fa-solid fa-chart-pie"></i> Site Dashboard</a></li>
-            <li><a href="#" class="menu-item" data-target="page-security"><i class="fa-solid fa-shield-halved"></i> Security Controls</a></li>
-            <li><a href="#" class="menu-item" data-target="page-escrow"><i class="fa-solid fa-wallet"></i> Financial Escrow</a></li>
-            <li><a href="#" class="menu-item" data-target="page-settings"><i class="fa-solid fa-sliders"></i> System Settings</a></li>
+            <li><a class="menu-item active" onclick="switchTab('dashboard', this)"><i class="fa-solid fa-chart-pie"></i> Site Dashboard</a></li>
+            <li><a class="menu-item" onclick="switchTab('security', this)"><i class="fa-solid fa-shield-halved"></i> Security Controls</a></li>
+            <li><a class="menu-item" onclick="switchTab('escrow', this)"><i class="fa-solid fa-wallet"></i> Financial Escrow</a></li>
+            <li><a class="menu-item" onclick="switchTab('settings', this)"><i class="fa-solid fa-sliders"></i> System Settings</a></li>
         </ul>
     </div>
 
-    <!-- MAIN CONTENT -->
+    <!-- MAIN SCREEN AREA -->
     <div class="main-content">
         
-        <div class="header-action-bar">
-            <h2 id="current-view-title">Site Overview & Logs</h2>
-            <p id="current-view-desc">Real-time construction operational stream</p>
+        <div class="header-title">
+            <h2 id="page-heading">Site Dashboard & Overview</h2>
+            <p id="page-subheading">Managing 5 Marla construction milestones and tracking progress</p>
         </div>
 
-        <!-- STATS -->
-        <div class="stats-grid">
-            <div class="stat-card escrow">
-                <div class="stat-meta">
-                    <h3>Escrow Balance (PKR)</h3>
-                    <div class="number-display" id="stat-escrow-balance">5,000,000</div>
-                </div>
-                <div class="stat-icon"><i class="fa-solid fa-building-columns"></i></div>
-            </div>
-            <div class="stat-card expense">
-                <div class="stat-meta">
-                    <h3>Total Logged Spend</h3>
-                    <div class="number-display" id="stat-total-expense">0</div>
-                </div>
-                <div class="stat-icon"><i class="fa-solid fa-receipt"></i></div>
-            </div>
-            <div class="stat-card progress">
-                <div class="stat-meta">
-                    <h3>Overall Progress</h3>
-                    <div class="number-display" id="stat-total-progress">16%</div>
-                </div>
-                <div class="stat-icon"><i class="fa-solid fa-trowel-bricks"></i></div>
-            </div>
-        </div>
-
-        <!-- DASHBOARD VIEW -->
-        <div id="page-dashboard" class="page-content active">
-            <div class="dashboard-layout-matrix">
+        <!-- 1. DASHBOARD TAB -->
+        <div id="dashboard" class="page-section active">
+            <div class="grid-2">
                 <div>
-                    <!-- Procurement Form -->
-                    <div class="panel-card">
-                        <div class="panel-title"><i class="fa-solid fa-file-invoice-dollar"></i> Log Material Procurement</div>
-                        <form id="log-form">
-                            <div class="form-grid-inputs">
-                                <div class="form-group">
-                                    <label>Material Name</label>
-                                    <input type="text" id="material-name" placeholder="e.g., Grade-60 Steel Rebar" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>Cost (PKR)</label>
-                                    <input type="number" id="material-cost" placeholder="e.g., 250000" required>
-                                </div>
-                            </div>
-                            <div class="form-group" style="margin-bottom: 20px;">
-                                <label>Quality Verification</label>
-                                <select id="material-quality">
-                                    <option value="Passed Verification">Passed Structural Integrity Check</option>
-                                    <option value="Warning: Review Needed">Warning: Pending Lab Test</option>
-                                </select>
-                            </div>
-                            <button type="submit" class="submit-btn-node">Commit & Sync Entry</button>
-                        </form>
+                    <!-- Cost Logging Panel -->
+                    <div class="panel">
+                        <div class="panel-title"><i class="fa-solid fa-receipt"></i> Log Material Cost</div>
+                        <div class="form-group">
+                            <label>Expense Name / Material</label>
+                            <input type="text" id="expense-name" placeholder="e.g., Bricks or Cement bags">
+                        </div>
+                        <div class="form-group">
+                            <label>Cost Amount (PKR)</label>
+                            <input type="number" id="expense-cost" placeholder="e.g., 150000">
+                        </div>
+                        <button class="btn-submit" onclick="addExpense()">Add to Construction Progress</button>
                     </div>
 
-                    <!-- AI Assistant -->
-                    <div class="panel-card">
-                        <div class="panel-title"><i class="fa-solid fa-microchip-ai"></i> BuildTrack AI Civil Assistant</div>
-                        <div class="ai-input-wrapper">
-                            <input type="text" id="ai-input-query" placeholder="Ask about 5 Marla layouts or costs...">
-                            <button id="btn-trigger-ai">Consult AI</button>
-                        </div>
-                        <div id="ai-response-box"></div>
+                    <!-- Logged Items List -->
+                    <div class="panel">
+                        <div class="panel-title"><i class="fa-solid fa-list-check"></i> Logged Expenses Ledger</div>
+                        <div id="expense-ledger-list" style="font-size: 0.85rem; color: var(--text-secondary);">No expenses logged yet.</div>
                     </div>
                 </div>
 
                 <div>
-                    <!-- 6-Point Phase Milestone Tracker -->
-                    <div class="panel-card">
-                        <div class="panel-title"><i class="fa-solid fa-list-check"></i> 6-Point Milestone Tracker</div>
-                        
-                        <div class="active-phase-banner">
-                            <div>
-                                <span>Active Node</span>
-                                <strong id="active-phase-title">Phase 1: Excavation & Layout</strong>
-                            </div>
-                            <span id="active-phase-status" style="font-weight: bold; color: var(--accent-amber);">In Progress</span>
+                    <!-- 6-Point Construction Phases -->
+                    <div class="panel">
+                        <div class="panel-title"><i class="fa-solid</i> <i class="fa-solid fa-stairs"></i> 6-Phase Construction Tracker</div>
+                        <div id="phases-container">
+                            <!-- Injected via JavaScript -->
                         </div>
-
-                        <!-- 6 Phases Will Render Here Automatically -->
-                        <div id="milestone-phases-list"></div>
-                    </div>
-
-                    <!-- Ledger -->
-                    <div class="panel-card">
-                        <div class="panel-title"><i class="fa-solid fa-cloud-arrow-up"></i> Live Cloud Ledger</div>
-                        <div id="material-reports-container"></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- SECURITY VIEW -->
-        <div id="page-security" class="page-content">
-            <div class="panel-card">
-                <div class="panel-title"><i class="fa-solid fa-shield-halved"></i> Site Security Operations</div>
-                <p style="color: var(--text-secondary);">Perimeter sensors and automated access controls are fully online.</p>
+        <!-- 2. SECURITY TAB -->
+        <div id="security" class="page-section">
+            <div class="panel">
+                <div class="panel-title"><i class="fa-solid fa-shield-halved"></i> Security & Perimeter Controls</div>
+                <p style="color: var(--text-secondary); font-size: 0.9rem;">CCTV monitoring streams and automated gate barriers are active and online.</p>
             </div>
         </div>
 
-        <!-- ESCROW VIEW -->
-        <div id="page-escrow" class="page-content">
-            <div class="panel-card">
+        <!-- 3. ESCROW TAB -->
+        <div id="escrow" class="page-section">
+            <div class="panel">
                 <div class="panel-title"><i class="fa-solid fa-wallet"></i> Financial Escrow Pool</div>
-                <p style="color: var(--text-secondary);">Total decentralized allocation pool: PKR 5,000,000.</p>
+                <p style="color: var(--text-secondary); font-size: 0.9rem;">Total allocated budget pool: <strong>PKR 5,000,000</strong>. Funds release according to verified phase completion.</p>
             </div>
         </div>
 
-        <!-- SETTINGS VIEW -->
-        <div id="page-settings" class="page-content">
-            <div class="panel-card">
+        <!-- 4. SETTINGS TAB -->
+        <div id="settings" class="page-section">
+            <div class="panel">
                 <div class="panel-title"><i class="fa-solid fa-sliders"></i> System Settings</div>
-                <p style="color: var(--text-secondary);">Application running in high-performance local sandbox state.</p>
+                <p style="color: var(--text-secondary); font-size: 0.9rem;">Configure user preferences, notification alerts, and cloud synchronization.</p>
             </div>
         </div>
 
     </div>
 
-    <!-- EMBEDDED JAVASCRIPT ENGINE -->
+    <!-- JAVASCRIPT LOGIC -->
     <script>
-        // 1. STATE & PHASES MATRIX DATA
-        let appState = {
-            totalEscrowPool: 5000000,
-            totalExpensesLogged: 0,
-            progressPercentage: 16,
-            currentPhaseIndex: 0
-        };
+        // Tab Switcher Logic (Makes sidebar options working)
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            element.classList.add('active');
 
-        const constructionPhases = [
+            const headers = {
+                'dashboard': { title: "Site Dashboard & Overview", sub: "Managing 5 Marla construction milestones and tracking progress" },
+                'security': { title: "Security & Perimeter Controls", sub: "Live site surveillance and automated barrier management" },
+                'escrow': { title: "Financial Escrow Pool", sub: "Milestone-linked capital disbursement and tracking" },
+                'settings': { title: "System Settings", sub: "Manage application configuration and preferences" }
+            };
+
+            document.getElementById('page-heading').textContent = headers[tabId].title;
+            document.getElementById('page-subheading').textContent = headers[tabId].sub;
+        }
+
+        // 6 Phases Data Array
+        let phases = [
             { name: "Phase 1: Excavation & Layout", status: "In Progress" },
             { name: "Phase 2: Foundation Wall Pouring", status: "Pending" },
             { name: "Phase 3: Plinth Beam & DPC Level", status: "Pending" },
@@ -413,149 +200,77 @@
             { name: "Phase 6: Finishing & Infrastructure", status: "Pending" }
         ];
 
-        let reportsData = [];
+        let totalSpent = 0;
+        let expensesList = [];
 
-        // 2. PHASE EVALUATION ENGINE
-        function evaluatePhases() {
-            let expenseSum = appState.totalExpensesLogged;
-            if (expenseSum <= 500000) { appState.currentPhaseIndex = 0; appState.progressPercentage = 16; }
-            else if (expenseSum <= 1200000) { appState.currentPhaseIndex = 1; appState.progressPercentage = 33; }
-            else if (expenseSum <= 2200000) { appState.currentPhaseIndex = 2; appState.progressPercentage = 50; }
-            else if (expenseSum <= 3200000) { appState.currentPhaseIndex = 3; appState.progressPercentage = 66; }
-            else if (expenseSum <= 4200000) { appState.currentPhaseIndex = 4; appState.progressPercentage = 83; }
-            else { appState.currentPhaseIndex = 5; appState.progressPercentage = 100; }
+        function renderPhases() {
+            const container = document.getElementById('phases-container');
+            container.innerHTML = phases.map((p, index) => {
+                let badgeClass = p.status === 'Completed' ? 'completed' : p.status === 'In Progress' ? 'inprogress' : 'pending';
+                let icon = p.status === 'Completed' ? 'fa-circle-check' : p.status === 'In Progress' ? 'fa-circle-dot' : 'fa-circle';
+                let color = p.status === 'Completed' ? '#34d399' : p.status === 'In Progress' ? '#fbbf24' : '#64748b';
 
-            constructionPhases.forEach((phase, idx) => {
-                if (idx < appState.currentPhaseIndex) phase.status = "Completed";
-                else if (idx === appState.currentPhaseIndex) phase.status = "In Progress";
-                else phase.status = "Pending";
-            });
-        }
-
-        // 3. DOM SYNCHRONIZER & RENDERER
-        function updateUI() {
-            evaluatePhases();
-
-            // Stats Update
-            document.getElementById('stat-escrow-balance').textContent = (appState.totalEscrowPool - appState.totalExpensesLogged).toLocaleString();
-            document.getElementById('stat-total-expense').textContent = appState.totalExpensesLogged.toLocaleString();
-            document.getElementById('stat-total-progress').textContent = `${appState.progressPercentage}%`;
-
-            // Active Phase Banner Update
-            const activePhase = constructionPhases[appState.currentPhaseIndex];
-            document.getElementById('active-phase-title').textContent = activePhase.name;
-            const statusDOM = document.getElementById('active-phase-status');
-            statusDOM.textContent = activePhase.status;
-            statusDOM.style.color = activePhase.status === 'Completed' ? '#34d399' : activePhase.status === 'In Progress' ? '#fbbf24' : '#64748b';
-
-            // Render All 6 Points in Milestone Tracker
-            const container = document.getElementById('milestone-phases-list');
-            container.innerHTML = constructionPhases.map((phase, idx) => {
-                let icon = idx < appState.currentPhaseIndex ? 'fa-circle-check' : idx === appState.currentPhaseIndex ? 'fa-circle-dot' : 'fa-circle';
-                let color = idx < appState.currentPhaseIndex ? '#34d399' : idx === appState.currentPhaseIndex ? '#22d3ee' : '#64748b';
-                
                 return `
-                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #0f172a; border-radius: 6px; border: 1px solid ${idx === appState.currentPhaseIndex ? '#22d3ee' : '#1e293b'}">
-                        <div style="display:flex; align-items:center; gap:10px;">
-                            <i class="fa-solid ${icon}" style="color: ${color}"></i>
-                            <span style="color: ${idx === appState.currentPhaseIndex ? '#fff' : '#94a3b8'}; font-size: 0.85rem; font-weight: ${idx === appState.currentPhaseIndex ? '600' : '400'}">${phase.name}</span>
+                    <div class="phase-row ${p.status === 'In Progress' ? 'active-node' : ''}">
+                        <div class="phase-info">
+                            <i class="fa-solid ${icon}" style="color: ${color};"></i>
+                            <span style="color: ${p.status === 'In Progress' ? '#fff' : 'var(--text-secondary)'}; font-weight: ${p.status === 'In Progress' ? '600' : '400'};">${p.name}</span>
                         </div>
-                        <span style="font-size: 0.75rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; ${
-                            phase.status === 'Completed' ? 'color:#34d399; background:rgba(52,211,153,0.1);' : phase.status === 'In Progress' ? 'color:#fbbf24; background:rgba(251,191,36,0.1);' : 'color:#64748b;'
-                        }">${phase.status}</span>
+                        <span class="badge ${badgeClass}">${p.status}</span>
                     </div>
                 `;
             }).join('');
-
-            // Render Ledger Reports
-            const reportContainer = document.getElementById('material-reports-container');
-            if (reportsData.length === 0) {
-                reportContainer.innerHTML = `<p style="color:#64748b; font-size:0.85rem; padding:10px;">No procurement entries logged yet.</p>';
-            } else {
-                reportContainer.innerHTML = reportsData.map(r => `
-                    <div class="report-item">
-                        <div>
-                            <strong style="color: #fff; display:block; font-size:0.9rem;">${r.name}</strong>
-                            <span style="font-size:0.75rem; color:#94a3b8;">PKR ${r.cost.toLocaleString()}</span>
-                        </div>
-                        <span style="padding:4px 8px; border-radius:4px; font-size:0.75rem; font-weight:600; background:rgba(16,185,129,0.15); color:#34d399;">${r.status}</span>
-                    </div>
-                `).join('');
-            }
         }
 
-        // 4. EVENT LISTENERS & ROUTER INITIALIZATION
-        document.addEventListener("DOMContentLoaded", () => {
-            // Initial render run
-            updateUI();
+        function addExpense() {
+            const name = document.getElementById('expense-name').value.trim();
+            const cost = parseInt(document.getElementById('expense-cost').value);
 
-            // Sidebar Menu Routing
-            const menuItems = document.querySelectorAll('.sidebar-menu .menu-item');
-            const pageContents = document.querySelectorAll('.page-content');
-            const viewTitle = document.getElementById('current-view-title');
-            const viewDesc = document.getElementById('current-view-desc');
-
-            const meta = {
-                'page-dashboard': { title: "Site Overview & Logs", desc: "Real-time construction operational stream" },
-                'page-security': { title: "Site Security & Perimeter Node", desc: "Access control systems and automated breach management" },
-                'page-escrow': { title: "Financial Escrow Pools", desc: "Automated funds release tracking and milestone verification" },
-                'page-settings': { title: "System Settings", desc: "Configure core parameters and application layout" }
-            };
-
-            menuItems.forEach(item => {
-                item.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    menuItems.forEach(i => i.classList.remove('active'));
-                    item.classList.add('active');
-
-                    const target = item.getAttribute('data-target');
-                    pageContents.forEach(p => p.classList.remove('active'));
-                    document.getElementById(target).classList.add('active');
-
-                    if (meta[target]) {
-                        viewTitle.textContent = meta[target].title;
-                        viewDesc.textContent = meta[target].desc;
-                    }
-                });
-            });
-
-            // Expense Log Form Submission
-            const form = document.getElementById('log-form');
-            if (form) {
-                form.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    const name = document.getElementById('material-name').value;
-                    const cost = parseInt(document.getElementById('material-cost').value) || 0;
-                    const status = document.getElementById('material-quality').value;
-
-                    reportsData.unshift({ name, cost, status });
-                    appState.totalExpensesLogged += cost;
-                    updateUI();
-                    form.reset();
-                });
+            if (!name || isNaN(cost)) {
+                alert("Please enter valid expense name and cost.");
+                return;
             }
 
-            // AI Simulation Trigger
-            const aiBtn = document.getElementById('btn-trigger-ai');
-            if (aiBtn) {
-                aiBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const q = document.getElementById('ai-input-query').value.trim();
-                    if (!q) return alert("Please type your query!");
+            expensesList.unshift({ name, cost });
+            totalSpent += cost;
 
-                    const box = document.getElementById('ai-response-box');
-                    box.style.display = "block";
-                    box.innerHTML = "<em>Analyzing structural parameters...</em>";
-
-                    setTimeout(() => {
-                        box.innerHTML = `
-                            <strong style="color:var(--accent-cyan);">BuildTrack AI Response:</strong><br>
-                            For query <strong>"${q}"</strong>: Ensure Grade-60 steel rebar utilization and maintain strict 1:2:4 foundation mix ratios for optimal 5 Marla structural durability.
-                        `;
-                    }, 1000);
-                });
+            // Automatically shift phases based on spending total
+            if (totalSpent > 500000 && totalSpent <= 1200000) {
+                phases[0].status = "Completed"; phases[1].status = "In Progress";
+            } else if (totalSpent > 1200000 && totalSpent <= 2200000) {
+                phases[0].status = "Completed"; phases[1].status = "Completed"; phases[2].status = "In Progress";
+            } else if (totalSpent > 2200000 && totalSpent <= 3200000) {
+                phases[0].status = phases[1].status = phases[2].status = "Completed"; phases[3].status = "In Progress";
+            } else if (totalSpent > 3200000 && totalSpent <= 4200000) {
+                phases[0].status = phases[1].status = phases[2].status = phases[3].status = "Completed"; phases[4].status = "In Progress";
+            } else if (totalSpent > 4200000) {
+                phases.forEach(p => p.status = "Completed");
+                phases[5].status = "Completed";
             }
-        });
+
+            renderPhases();
+            renderLedger();
+
+            document.getElementById('expense-name').value = '';
+            document.getElementById('expense-cost').value = '';
+        }
+
+        function renderLedger() {
+            const ledgerContainer = document.getElementById('expense-ledger-list');
+            if (expensesList.length === 0) {
+                ledgerContainer.innerHTML = "No expenses logged yet.";
+                return;
+            }
+            ledgerContainer.innerHTML = expensesList.map(item => `
+                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
+                    <span style="color:#fff;">${item.name}</span>
+                    <span style="color:var(--accent-cyan);">PKR ${item.cost.toLocaleString()}</span>
+                </div>
+            `).join('');
+        }
+
+        // Initial render execution on load
+        renderPhases();
     </script>
 </body>
 </html>
