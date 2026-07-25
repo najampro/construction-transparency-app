@@ -1,4 +1,8 @@
-// INITIAL DATA WITH ADVANCED ATTRIBUTES
+// ==========================================
+// CONSTRACK PRO — APPLICATION CORE ENGINE
+// ==========================================
+
+// Global Memory State Engine
 let siteUpdates = [
     {
         id: 1,
@@ -18,89 +22,128 @@ let siteUpdates = [
     }
 ];
 
-let initialEscrowPool = 5000000; // 50 Lakh total starting escrow pool
-let currentClient = null;
+let initialEscrowPool = 5000000; // 50 Lakh Master Budget Pool
 let isSignUpMode = false;
 
+// CRITICAL: DOM Safety Initialization Gateway
 document.addEventListener("DOMContentLoaded", () => {
+    // Fast boot configurations
     checkActiveSession();
-    setupAuthListeners();
-    setupCoreAppListeners();
+    setupSecurityEngine();
+    setupTransactionLogs();
     calculateLiveMetrics();
     renderTimeline();
 });
 
-// SYSTEM AUTH PARSER
+// 🔒 SESSION & SYSTEM ACCESS CONTROL
 function checkActiveSession() {
     const savedUser = localStorage.getItem("track_client_session");
     const authModal = document.getElementById("auth-modal");
     const appLayout = document.getElementById("main-app-layout");
     
     if (savedUser) {
-        currentClient = JSON.parse(savedUser);
-        authModal.style.display = "none";
-        appLayout.classList.remove("main-blurred");
-        document.getElementById("user-display-name").innerText = currentClient.name || "Najam";
-        document.getElementById("avatar-letters").innerText = (currentClient.name || "NJ").substring(0,2).toUpperCase();
-    } else {
-        authModal.style.display = "flex";
-        appLayout.classList.add("main-blurred");
-    }
-}
-
-switchLink.addEventListener("click", (e) => {
-    e.preventDefault();
-    isSignUpMode = !isSignUpMode;
-    
-    const nameGroup = document.getElementById("name-group");
-    const authSubtitle = document.getElementById("auth-subtitle");
-    const submitBtn = document.getElementById("auth-submit-btn");
-    const switchText = document.getElementById("auth-switch-text");
-    
-    if (isSignUpMode) {
-        authSubtitle.innerText = "Register secure credentials";
-        if(nameGroup) nameGroup.style.display = "block";
-        submitBtn.innerText = "Register Node";
-        if(switchText) switchText.innerText = "Already registered? ";
-        switchLink.innerText = "Log In";
-    } else {
-        authSubtitle.innerText = "Secure client node gateway";
-        if(nameGroup) nameGroup.style.display = "none";
-        submitBtn.innerText = "Authenticate System";
-        if(switchText) switchText.innerText = "New Client Project Node? ";
-        switchLink.innerText = "Create Account";
-    }
-});
-
-    authForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const email = document.getElementById("auth-email").value;
-        const password = document.getElementById("auth-pass").value;
-        let name = document.getElementById("auth-name").value || "Najam";
+        const currentClient = JSON.parse(savedUser);
+        if (authModal) authModal.style.display = "none";
+        if (appLayout) appLayout.classList.remove("main-blurred");
         
-        if (isSignUpMode) {
-            const userData = { name, email, pass: password };
-            localStorage.setItem(`client_reg_${email}`, JSON.stringify(userData));
-            localStorage.setItem("track_client_session", JSON.stringify(userData));
-        } else {
-            const stored = localStorage.getItem(`client_reg_${email}`);
-            if (!stored || JSON.parse(stored).pass !== password) {
-                alert("Invalid verification credentials.");
-                return;
-            }
-            localStorage.setItem("track_client_session", stored);
+        // Dynamically assign names safely
+        const displayName = document.getElementById("user-display-name");
+        const avatarLetters = document.getElementById("avatar-letters");
+        
+        if (displayName) displayName.innerText = currentClient.name || "Najam";
+        if (avatarLetters) {
+            const initial = (currentClient.name || "NJ").substring(0, 2).toUpperCase();
+            avatarLetters.innerText = initial;
         }
-        authForm.reset();
-        checkActiveSession();
-    });
-
-    document.getElementById("logout-btn").addEventListener("click", () => {
-        localStorage.removeItem("track_client_session");
-        checkActiveSession();
-    });
+    } else {
+        if (authModal) authModal.style.display = "flex";
+        if (appLayout) appLayout.classList.add("main-blurred");
+    }
 }
 
-// REAL-TIME WALLET & MATERIAL INTELLIGENCE
+// 🛡️ SECURITY CONTROLLER & SIGNUP FIX
+function setupSecurityEngine() {
+    const switchLink = document.getElementById("auth-switch-link");
+    const authForm = document.getElementById("auth-form");
+    const logoutBtn = document.getElementById("logout-btn");
+
+    if (switchLink) {
+        switchLink.onclick = (e) => {
+            e.preventDefault();
+            isSignUpMode = !isSignUpMode;
+            
+            const nameGroup = document.getElementById("name-group");
+            const authSubtitle = document.getElementById("auth-subtitle");
+            const submitBtn = document.getElementById("auth-submit-btn");
+            const switchText = document.getElementById("auth-switch-text");
+            
+            if (isSignUpMode) {
+                if (authSubtitle) authSubtitle.innerText = "Register secure credentials";
+                if (nameGroup) nameGroup.style.display = "block";
+                if (submitBtn) submitBtn.innerText = "Register Node";
+                if (switchText) switchText.innerText = "Already registered? ";
+                switchLink.innerText = "Log In";
+            } else {
+                if (authSubtitle) authSubtitle.innerText = "Secure client node gateway";
+                if (nameGroup) nameGroup.style.display = "none";
+                if (submitBtn) submitBtn.innerText = "Authenticate System";
+                if (switchText) switchText.innerText = "New Client Project Node? ";
+                switchLink.innerText = "Create Account";
+            }
+        };
+    }
+
+    if (authForm) {
+        authForm.onsubmit = (e) => {
+            e.preventDefault();
+            const email = document.getElementById("auth-email").value.trim();
+            const password = document.getElementById("auth-pass").value;
+            const nameInput = document.getElementById("auth-name").value.trim();
+            let name = nameInput || "Najam";
+            
+            if (isSignUpMode) {
+                const userData = { name, email, pass: password };
+                localStorage.setItem(`client_reg_${email}`, JSON.stringify(userData));
+                localStorage.setItem("track_client_session", JSON.stringify(userData));
+            } else {
+                const stored = localStorage.getItem(`client_reg_${email}`);
+                if (!stored || JSON.parse(stored).pass !== password) {
+                    alert("Authentication failure: Invalid verification credentials.");
+                    return;
+                }
+                localStorage.setItem("track_client_session", stored);
+            }
+            authForm.reset();
+            checkActiveSession();
+        };
+    }
+
+    if (logoutBtn) {
+        logoutBtn.onclick = () => {
+            localStorage.removeItem("track_client_session");
+            isSignUpMode = false;
+            
+            // UI elements structural reset
+            const nameGroup = document.getElementById("name-group");
+            if (nameGroup) nameGroup.style.display = "none";
+            
+            const authSubtitle = document.getElementById("auth-subtitle");
+            if (authSubtitle) authSubtitle.innerText = "Secure client node gateway";
+            
+            const submitBtn = document.getElementById("auth-submit-btn");
+            if (submitBtn) submitBtn.innerText = "Authenticate System";
+            
+            const switchText = document.getElementById("auth-switch-text");
+            if (switchText) switchText.innerText = "New Client Project Node? ";
+            
+            if (switchLink) switchLink.innerText = "Create Account";
+            
+            checkActiveSession();
+        };
+    }
+}
+
+// 💰 DYNAMIC WALLET CALCULATOR
 function calculateLiveMetrics() {
     let totalSpent = 0;
     
@@ -109,18 +152,22 @@ function calculateLiveMetrics() {
         totalSpent += isNaN(val) ? 0 : val;
     });
     
-    // Dynamic Escrow Reduction Logic
     let currentBalance = initialEscrowPool - totalSpent;
-    if(currentBalance < 0) currentBalance = 0;
+    if (currentBalance < 0) currentBalance = 0;
     
-    document.getElementById("stat-escrow-balance").innerText = currentBalance.toLocaleString();
+    const escrowDisplay = document.getElementById("stat-escrow-balance");
+    if (escrowDisplay) {
+        escrowDisplay.innerText = currentBalance.toLocaleString();
+    }
 }
 
-// LOGGING FORM INTERACTION
-function setupCoreAppListeners() {
+// 📝 TRANSACTION AND LOG CONTROL
+function setupTransactionLogs() {
     const logForm = document.getElementById("log-form");
+    const closeBtn = document.querySelector(".close-btn");
+
     if (logForm) {
-        logForm.addEventListener("submit", (e) => {
+        logForm.onsubmit = (e) => {
             e.preventDefault();
             const title = document.getElementById("material-name").value;
             const costVal = parseInt(document.getElementById("material-cost").value);
@@ -129,29 +176,32 @@ function setupCoreAppListeners() {
             const receipt = document.getElementById("receipt-text").value;
             const imgVal = document.getElementById("site-image").value;
             
-            // Fallback default material visual placeholder if URL missing
             const imageUrl = imgVal ? imgVal : "https://images.unsplash.com/photo-1590069261209-f8e9b8642343?auto=format&fit=crop&w=800&q=80";
             
-            // Automatically push to dynamic ledger stream
             siteUpdates.unshift({
                 id: Date.now(), title, cost, date: new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }),
                 quality, receipt, imageUrl, audit: null
             });
             
-            // Dynamic CCTV Camera Mirror Effect: change CCTV image to the latest input proof instantly to show real-time synchronization
-            document.getElementById("cctv-stream-img").src = imageUrl;
+            // Telemetry Mirror Sync
+            const cctvImg = document.getElementById("cctv-stream-img");
+            if (cctvImg) cctvImg.src = imageUrl;
             
             calculateLiveMetrics();
             renderTimeline();
             logForm.reset();
-        });
+        };
     }
-    document.querySelector(".close-btn").addEventListener("click", () => {
-        document.getElementById("audit-modal").style.display = "none";
-    });
+
+    if (closeBtn) {
+        closeBtn.onclick = () => {
+            const auditModal = document.getElementById("audit-modal");
+            if (auditModal) auditModal.style.display = "none";
+        };
+    }
 }
 
-// RENDER TIMELINE ENTRIES WITH BRAND QUALITY ASSURANCE STAMPS
+// 📊 RUNTIME LEDGER DISPLAY STREAMS
 function renderTimeline() {
     const container = document.getElementById("timeline-container");
     if (!container) return;
@@ -163,28 +213,37 @@ function renderTimeline() {
         item.innerHTML = `
             <div class="timeline-date"><i class="fa-regular fa-clock"></i> ${update.date}</div>
             <h3>${update.title}</h3>
-            <div style="display:flex; gap:8px; align-items:center;">
+            <div style="display:flex; gap:8px; align-items:center; margin-bottom: 8px;">
                 <span class="cost-tag">PKR ${update.cost}</span>
                 <span class="quality-indicator-stamp"><i class="fa-solid fa-circle-check"></i> ${update.quality}</span>
             </div>
             <img src="${update.imageUrl}" class="timeline-img">
-            <button class="btn-audit-trigger" onclick="triggerAiAudit(${update.id})">
+            <button class="btn-audit-trigger" data-id="${update.id}">
                 <i class="fa-solid fa-microchip"></i> ${update.audit ? 'View Audit Metadata' : 'Launch Engine Audit'}
             </button>
         `;
         container.appendChild(item);
     });
+
+    // Event Delegation Matrix for Audits
+    const buttons = container.querySelectorAll(".btn-audit-trigger");
+    buttons.forEach(btn => {
+        btn.onclick = () => {
+            const updateId = parseInt(btn.getAttribute("data-id"));
+            triggerAiAudit(updateId);
+        };
+    });
 }
 
-// DYNAMIC RUNTIME TELEMETRY AUDIT
+// 🤖 DIGITAL SURVEILLANCE ENGINE AUDITS
 function triggerAiAudit(id) {
     const modal = document.getElementById("audit-modal");
     const loading = document.getElementById("modal-loading");
     const resultDiv = document.getElementById("modal-result");
     
-    modal.style.display = "flex";
-    loading.style.display = "flex";
-    resultDiv.style.display = "none";
+    if (modal) modal.style.display = "flex";
+    if (loading) loading.style.display = "flex";
+    if (resultDiv) resultDiv.style.display = "none";
     
     const item = siteUpdates.find(u => u.id === id);
     if (!item) return;
@@ -230,12 +289,15 @@ function triggerAiAudit(id) {
 }
 
 function displayAuditResult(audit) {
-    document.getElementById("modal-loading").style.display = "none";
+    const loading = document.getElementById("modal-loading");
     const res = document.getElementById("modal-result");
-    res.style.display = "block";
     
+    if (loading) loading.style.display = "none";
+    if (!res) return;
+    
+    res.style.display = "block";
     let color = "var(--neon-green)";
-    if(audit.status === "Discrepancy Detected") color = "var(--neon-red)";
+    if (audit.status === "Discrepancy Detected") color = "var(--neon-red)";
     
     res.innerHTML = `
         <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
