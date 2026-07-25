@@ -3,317 +3,766 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BuildTrack Suite - Realtime Operations</title>
+    <title>BuildTrack Nexus — AI Construction & Operational Suite</title>
+    <!-- FontAwesome Elements for Icons Matrix -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Core UI Foundation Layouts */
-        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { margin: 0; padding: 0; background-color: #0f172a; color: #f8fafc; overflow-x: hidden; }
-        
-        .app-container { display: flex; min-height: 100vh; }
-        .sidebar { width: 260px; flex-shrink: 0; background: #1e293b; display: flex; flex-direction: column; border-right: 1px solid #334155; }
-        .main-content { flex-grow: 1; padding: 25px; min-width: 0; background: #0f172a; }
+        :root {
+            --bg-main: #0b0f19;
+            --bg-card: #131c2e;
+            --bg-input: #0f172a;
+            --border-color: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-cyan: #22d3ee;
+            --accent-green: #34d399;
+            --accent-amber: #fbbf24;
+            --accent-red: #f87171;
+        }
 
-        .page-content { display: none; animation: fadeIn 0.25s ease-in-out; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ================= SIDEBAR LAYOUT FRAMEWORK ================= */
+        .sidebar {
+            width: 280px;
+            background-color: var(--bg-card);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+        }
+
+        .sidebar-brand {
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sidebar-brand i {
+            color: var(--accent-cyan);
+            font-size: 1.5rem;
+        }
+
+        .sidebar-brand h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .user-profile-node {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            background: rgba(34, 211, 238, 0.02);
+            transition: all 0.2s ease;
+        }
+
+        .user-profile-node:hover {
+            background: rgba(34, 211, 238, 0.05);
+        }
+
+        .avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: var(--accent-cyan);
+            color: #0b0f19;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .profile-info {
+            flex-direction: column;
+        }
+
+        .profile-info h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .profile-info span {
+            font-size: 0.75rem;
+            color: var(--accent-cyan);
+            display: block;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .sidebar-menu .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-menu .menu-item:hover, .sidebar-menu .menu-item.active {
+            color: var(--text-primary);
+            background-color: var(--bg-input);
+        }
+
+        .sidebar-menu .menu-item.active {
+            border-left: 3px solid var(--accent-cyan);
+            background: rgba(34, 211, 238, 0.05);
+        }
+
+        /* ================= MAIN INTERFACE WRAPPER ================= */
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 40px;
+            min-height: 100vh;
+        }
+
+        .header-action-bar {
+            margin-bottom: 32px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+        }
+
+        .header-action-bar h2 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .header-action-bar p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* ================= STATS WIDGET GRID ================= */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .stat-meta h3 {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .stat-meta .number-display {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .stat-card.escrow .stat-icon { background: rgba(52, 211, 153, 0.1); color: var(--accent-green); }
+        .stat-card.expense .stat-icon { background: rgba(248, 113, 113, 0.1); color: var(--accent-red); }
+        .stat-card.progress .stat-icon { background: rgba(34, 211, 238, 0.1); color: var(--accent-cyan); }
+
+        /* ================= OPERATIONAL APP MULTI-GRID layout ================= */
+        .dashboard-layout-matrix {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        @media (max-width: 1100px) {
+            .dashboard-layout-matrix { grid-template-columns: 1fr; }
+        }
+
+        .panel-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .panel-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+
+        .panel-title i { color: var(--accent-cyan); }
+
+        /* ================= 6-PHASE PROGRESS TRACKER CSS ================= */
+        .active-phase-banner {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-cyan);
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .active-phase-banner span {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            display: block;
+        }
+
+        .active-phase-banner strong {
+            font-size: 1.05rem;
+            color: var(--text-primary);
+        }
+
+        /* Container target block rendered directly by JS logic array */
+        #milestone-phases-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* ================= CORE FORM ENGINE INTERFACES ================= */
+        .form-grid-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        @media (max-width: 600px) {
+            .form-grid-inputs { grid-template-columns: 1fr; }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            outline: none;
+            transition: border 0.2s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--accent-cyan);
+        }
+
+        .submit-btn-node {
+            background: var(--accent-cyan);
+            color: #0b0f19;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            width: 100%;
+            transition: opacity 0.2s ease;
+        }
+
+        .submit-btn-node:hover { opacity: 0.9; }
+
+        /* ================= CCTV CHANNEL MONITOR INTERFACE ================= */
+        .cctv-frame-container {
+            position: relative;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            aspect-ratio: 16/9;
+            border: 1px solid var(--border-color);
+            margin-bottom: 16px;
+        }
+
+        #cctv-main-feed {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.85);
+            transition: filter 0.2s ease;
+        }
+
+        .cctv-overlay-tag {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(15, 23, 42, 0.75);
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-family: monospace;
+            letter-spacing: 1px;
+            border-left: 3px solid var(--accent-red);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cctv-overlay-tag span::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: var(--accent-red);
+            border-radius: 50%;
+            margin-right: 6px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.3; }
+            50% { opacity: 1; }
+            100% { opacity: 0.3; }
+        }
+
+        /* ================= SECURITY TOGGLE MATRIX SWAP ================= */
+        .toggle-switch-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px;
+            background: var(--bg-input);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 10px;
+        }
+
+        .toggle-switch-wrapper span { font-size: 0.9rem; }
+        
+        .switch-input-node {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 22px;
+        }
+
+        .switch-input-node input { opacity: 0; width: 0; height: 0; }
+        .slider-round-block {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #334155;
+            transition: .3s;
+            border-radius: 34px;
+        }
+
+        .slider-round-block:before {
+            position: absolute;
+            content: "";
+            height: 16px; width: 16px;
+            left: 3px; bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider-round-block { background-color: var(--accent-cyan); }
+        input:checked + .slider-round-block:before { transform: translateX(22px); }
+
+        /* ================= AI MODULE TERMINAL INTERFACE ================= */
+        .ai-input-wrapper {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        #ai-input-query {
+            flex: 1;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        #btn-trigger-ai {
+            background: rgba(34, 211, 238, 0.1);
+            color: var(--accent-cyan);
+            border: 1px solid var(--accent-cyan);
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        #btn-trigger-ai:hover {
+            background: var(--accent-cyan);
+            color: #0b0f19;
+        }
+
+        #ai-response-box {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            display: none;
+            color: #e2e8f0;
+        }
+
+        /* ================= CONDITIONAL LAYER VIEWS CONTROL ================= */
+        .page-content { display: none; }
         .page-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Metrics Grid Elements */
-        .metrics-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 25px; }
-        .metric-card { background: #1e293b; padding: 20px; border-radius: 8px; display: flex; align-items: center; gap: 15px; border: 1px solid #334155; transition: all 0.3s; }
-        .metric-card:hover { border-color: #22d3ee; }
+        /* ================= AUTH SECURITY MODAL CONTAINER ================= */
+        .modal-overlay {
+            position: fixed;
+            top:0; left:0; right:0; bottom:0;
+            background: rgba(11, 15, 25, 0.85);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0; pointer-events: none;
+            transition: all 0.3s ease;
+        }
 
-        /* Master Spatial Layout Rules */
-        .surveillance-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 25px; align-items: start; margin-bottom: 25px; }
-        @media (max-width: 1024px) { .surveillance-grid { grid-template-columns: 1fr; } }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
 
-        .card { background: #1e293b; border-radius: 8px; border: 1px solid #334155; padding: 20px; display: flex; flex-direction: column; margin-bottom: 25px; }
-        .card-header { border-bottom: 1px solid #334155; padding-bottom: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .card-header h3 { margin: 0; font-size: 1.1rem; display: flex; align-items: center; gap: 10px; color: #f1f5f9; }
+        .modal-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            padding: 28px;
+            position: relative;
+        }
 
-        /* Live Camera Controls */
-        .video-container-mock { position: relative; width: 100%; border-radius: 6px; overflow: hidden; background: #000; aspect-ratio: 16/9; }
-        .video-container-mock img { width: 100%; height: 100%; object-fit: cover; opacity: 0.85; transition: filter 0.3s; }
-        .cctv-overlay-text { position: absolute; top: 12px; left: 12px; background: rgba(15, 23, 42, 0.85); color: #22d3ee; padding: 4px 10px; font-size: 0.75rem; border-radius: 4px; font-family: monospace; font-weight: bold; border: 1px solid rgba(34, 211, 238, 0.3); }
+        .modal-close-btn {
+            position: absolute;
+            top: 20px; right: 20px;
+            background: transparent; border:none;
+            color: var(--text-secondary);
+            font-size: 1.2rem; cursor: pointer;
+        }
 
-        /* Fixed Heights Scrolls for Deep Milestones */
-        .milestone-scroll-container { max-height: 400px; overflow-y: auto; padding-right: 8px; }
-        .milestone-scroll-container::-webkit-scrollbar { width: 6px; }
-        .milestone-scroll-container::-webkit-scrollbar-track { background: #1e293b; }
-        .milestone-scroll-container::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
-
-        .phase-category-block { margin-bottom: 20px; background: #0f172a; padding: 15px; border-radius: 6px; border: 1px solid #334155; }
-        .phase-category-title { font-size: 0.85rem; color: #22d3ee; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #1e293b; padding-bottom: 6px; font-weight: 700; }
-        .milestone-item { margin-bottom: 10px; background: #1e293b; padding: 8px 12px; border-radius: 4px; border-left: 3px solid #475569; }
-        .milestone-item.completed { border-left-color: #10b981; }
-        .milestone-item.in-progress { border-left-color: #f59e0b; }
-
-        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
-        @media (max-width: 768px) { .dashboard-grid { grid-template-columns: 1fr; } }
+        /* ================= EXPENSE REPORTS LEDGER SCROLLABLE CARDS ================= */
+        .report-item {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            padding: 14px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
         
-        .report-item { background: #0f172a; padding: 12px; border-radius: 6px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #334155; }
-        .report-item.passed { border-left: 4px solid #10b981; }
-        .report-item.warning { border-left: 4px solid #f59e0b; }
-        
-        /* Interactive Utilities CSS */
-        .menu-item { display: flex; align-items: center; gap: 12px; color: #94a3b8; text-decoration: none; padding: 12px 15px; border-radius: 6px; margin-bottom: 4px; font-size: 0.95rem; transition: all 0.2s; }
-        .menu-item:hover { color: #fff; background: rgba(51, 65, 85, 0.4); }
-        .menu-item.active { background: #334155; color: #fff; font-weight: 600; border-left: 4px solid #22d3ee; }
+        #material-reports-container, #security-incident-logs {
+            max-height: 280px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
 
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-size: 0.85rem; color: #94a3b8; margin-bottom: 6px; }
-        .form-group input, .form-group select { width: 100%; background: #0f172a; border: 1px solid #334155; padding: 10px 12px; border-radius: 4px; color: #fff; font-size: 0.9rem; transition: border-color 0.2s; }
-        .form-group input:focus, .form-group select:focus { outline: none; border-color: #22d3ee; }
-        .form-group-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .btn-submit { background: #22d3ee; color: #0f172a; border: none; padding: 12px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s; }
-        .btn-submit:hover { background: #06b6d4; }
-
-        /* Security Console Interactive Badges */
-        .sec-switch { position: relative; display: inline-block; width: 50px; height: 26px; }
-        .sec-switch input { opacity: 0; width: 0; height: 0; }
-        .slider-round { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #475569; transition: .3s; border-radius: 34px; }
-        .slider-round:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .3s; border-radius: 50%; }
-        input:checked + .slider-round { background-color: #10b981; }
-        input:checked + .slider-round:before { transform: translateX(24px); }
-
-        /* Modal Layout Structures */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 9999; }
-        .modal-overlay.active { display: flex !important; }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-main); }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
     </style>
 </head>
 <body>
 
-    <div class="app-container">
-        <!-- SIDEBAR CONTAINER SYSTEM -->
-        <aside class="sidebar" style="padding: 20px 0; justify-content: space-between;">
-            <div>
-                <div class="sidebar-brand" style="padding: 0 20px 20px 20px; display: flex; align-items: center; gap: 12px;">
-                    <i class="fa-solid fa-helmet-safety" style="font-size: 1.8rem; color: #22d3ee;"></i>
-                    <div>
-                        <h2 style="margin:0; font-size:1.2rem; letter-spacing:0.5px;">BuildTrack</h2>
-                        <span style="font-size:0.75rem; color:#94a3b8;">Construction Suite</span>
-                    </div>
-                </div>
+    <!-- SIDEBAR APPLICATION WRAPPER ELEMENT -->
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <i class="fa-solid fa-cubes-nw"></i>
+            <h1>BuildTrack Engine</h1>
+        </div>
 
-                <nav class="sidebar-menu" style="padding: 10px;">
-                    <a href="#" class="menu-item active" data-target="page-dashboard"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
-                    <a href="#" class="menu-item" data-target="page-security"><i class="fa-solid fa-building-shield"></i> Site Security</a>
-                    <a href="#" class="menu-item" data-target="page-escrow"><i class="fa-solid fa-file-invoice-dollar"></i> Escrow Pools</a>
-                    <a href="#" class="menu-item" data-target="page-settings"><i class="fa-solid fa-gears"></i> App Settings</a>
-                </nav>
+        <!-- AUTH PROFILE INGESTION TARGET BLOCK -->
+        <div class="user-profile-node" id="login-trigger-btn">
+            <div class="avatar" id="avatar-letters">G</div>
+            <div class="profile-info">
+                <h4 id="user-display-name">Guest Mode</h4>
+                <span id="auth-action-text">Click to Login</span>
             </div>
+        </div>
 
-            <!-- IDENTITY AUTHORIZATION BLOCK -->
-            <div class="sidebar-user" id="login-trigger-btn" style="cursor: pointer; margin: 0 10px; padding: 12px; background: #0f172a; border-radius: 6px; border: 1px solid #334155;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div id="avatar-letters" style="width:35px; height:35px; background:#475569; display:flex; align-items:center; justify-content:center; border-radius:50%; font-weight:bold; color:#fff;">G</div>
-                    <div>
-                        <h4 id="user-display-name" style="margin:0; font-size:0.85rem;">Guest Mode</h4>
-                        <p id="auth-action-text" style="margin:0; font-size:0.75rem; color:#22d3ee; text-decoration: underline;">Click to Login</p>
-                    </div>
-                </div>
-            </div>
-        </aside>
-
-        <!-- MASTER REAL-TIME ROUTING MAIN VIEW -->
-        <main class="main-content">
-            <div class="top-bar" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #334155; padding-bottom:15px; margin-bottom:25px;">
-                <div>
-                    <h2 id="current-view-title" style="margin:0; font-size:1.5rem;">Site Overview & Logs</h2>
-                    <p id="current-view-desc" style="margin:5px 0 0 0; font-size:0.85rem; color:#94a3b8;">Real-time construction operational stream</p>
-                </div>
-                <div class="status-summary-card" style="background:#1e293b; padding:8px 15px; border-radius:6px; border:1px solid #334155; display:flex; align-items:center; gap:8px; font-size:0.85rem;">
-                    <div style="width:8px; height:8px; background:#10b981; border-radius:50%; animation: pulse 1.5s infinite;"></div>
-                    <span>Transmission: <span style="color:#10b981; font-weight:bold;">LIVE SYNC</span></span>
-                </div>
-            </div>
-
-            <!-- ================= SCREEN 1: DASHBOARD ACTIVE ================= -->
-            <div id="page-dashboard" class="page-content active">
-                <section class="metrics-row">
-                    <div class="metric-card">
-                        <i class="fa-solid fa-vault" style="font-size:1.5rem; color:#3b82f6;"></i>
-                        <div><h3 style="margin:0; font-size:1.3rem;" id="stat-escrow-balance">4,660,000</h3><p style="margin:0; font-size:0.8rem; color:#94a3b8;">Remaining Balance (PKR)</p></div>
-                    </div>
-                    <div class="metric-card">
-                        <i class="fa-solid fa-list-check" style="font-size:1.5rem; color:#10b981;"></i>
-                        <div><h3 style="margin:0; font-size:1.3rem;" id="stat-total-progress">35%</h3><p style="margin:0; font-size:0.8rem; color:#94a3b8;">Total Progress Calculated</p></div>
-                    </div>
-                    <div class="metric-card">
-                        <i class="fa-solid fa-wallet" style="font-size:1.5rem; color:#f59e0b;"></i>
-                        <div><h3 style="margin:0; font-size:1.3rem;" id="stat-total-expense">340,000</h3><p style="margin:0; font-size:0.8rem; color:#94a3b8;">Logged Expenditures (PKR)</p></div>
-                    </div>
-                </section>
-
-                <section class="surveillance-grid">
-                    <!-- CCTV DYNAMIC VIEWER -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h3><i class="fa-solid fa-video"></i> Live Surveillance Matrix</h3>
-                            <select id="cctv-channel-select" style="background:#0f172a; color:#fff; border:1px solid #334155; padding:4px 8px; border-radius:4px; font-size:0.8rem; cursor:pointer;">
-                                <option value="0">Camera 01 - Foundation Axis</option>
-                                <option value="1">Camera 02 - Storage & Rebar Bay</option>
-                                <option value="2">Camera 03 - Boundary Perimeter</option>
-                            </select>
-                        </div>
-                        <div class="video-container-mock">
-                            <div class="cctv-overlay-text" id="cctv-camera-tag">CAM 01 — FOUNDATION AXIS</div>
-                            <img id="cctv-main-feed" src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=800&q=80" alt="Site Feed">
-                        </div>
-                    </div>
-
-                    <!-- PROGRESS LIST PHASES -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h3><i class="fa-solid fa-bars-progress"></i> Phase Progress Tracker</h3>
-                        </div>
-                        <div class="milestone-scroll-container" id="milestones-wrapper">
-                            <!-- Injected dynamically via script -->
-                        </div>
-                    </div>
-                </section>
-
-                <!-- PIPELINE INPUT & LOG OUTPUT CONTROLS -->
-                <section class="dashboard-grid">
-                    <div class="card">
-                        <div class="card-header"><h3><i class="fa-solid fa-flask-vial"></i> Material Verification Ledger</h3></div>
-                        <div style="flex-grow: 1; max-height: 290px; overflow-y: auto;" id="material-reports-container">
-                            <!-- Dynamic logs loaded via JavaScript -->
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header"><h3><i class="fa-solid fa-square-plus"></i> Ingest New Site Expense</h3></div>
-                        <form id="log-form">
-                            <div class="form-group">
-                                <label>Material Name / Event Description</label>
-                                <input type="text" id="material-name" placeholder="e.g., Alpha Premium ReadyMix Load" required>
-                            </div>
-                            <div class="form-group-row">
-                                <div class="form-group">
-                                    <label>Cost Deduction (PKR)</label>
-                                    <input type="number" id="material-cost" placeholder="e.g., 45000" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>Inspection / Quality Category</label>
-                                    <select id="material-quality">
-                                        <option value="Lab Certified / Passed">Lab Certified / Passed</option>
-                                        <option value="Standard Inspection">Standard Inspection</option>
-                                        <option value="Passed with Warning">Passed with Warning</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <button type="submit" class="btn-submit"><i class="fa-solid fa-cloud-arrow-up"></i> Push & Recalculate Financials</button>
-                        </form>
-                    </div>
-                </section>
-            </div>
-
-            <!-- ================= SCREEN 2: SITE SECURITY CONTROL PANEL ================= -->
-            <div id="page-security" class="page-content">
-                <div class="surveillance-grid">
-                    <div class="card">
-                        <div class="card-header"><h3><i class="fa-solid fa-door-open"></i> Gate Access & IoT Telemetry</h3></div>
-                        <div style="display:flex; flex-direction:column; gap:15px;">
-                            <div style="display:flex; justify-content:space-between; align-items:center; background:#0f172a; padding:15px; border-radius:6px; border:1px solid #334155;">
-                                <div><strong>Main RFID Vehicle Barrier</strong><p style="margin:5px 0 0 0; font-size:0.8rem; color:#94a3b8;">Automatic opening mechanism for supply trucks.</p></div>
-                                <label class="sec-switch"><input type="checkbox" id="gate-barrier-toggle"><span class="slider-round"></span></label>
-                            </div>
-                            <div style="display:flex; justify-content:space-between; align-items:center; background:#0f172a; padding:15px; border-radius:6px; border:1px solid #334155;">
-                                <div><strong>Laser Perimeter Defense Alarm</strong><p style="margin:5px 0 0 0; font-size:0.8rem; color:#94a3b8;">Trigger high-decibel hooter on unauthorized night entry.</p></div>
-                                <label class="sec-switch"><input type="checkbox" id="perimeter-laser-toggle" checked><span class="slider-round"></span></label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header"><h3><i class="fa-solid fa-clock-rotate-left"></i> Security Access Incidents</h3></div>
-                        <div id="security-incident-logs" style="display:flex; flex-direction:column; gap:10px;">
-                            <!-- Injected dynamically via JS -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ================= SCREEN 3: ESCROW POOLS REAL-TIME BALANCING ================= -->
-            <div id="page-escrow" class="page-content">
-                <div class="card">
-                    <div class="card-header"><h3><i class="fa-solid fa-money-bill-transfer"></i> Smart Escrow Contract Milestone Payouts</h3></div>
-                    <p style="color:#94a3b8; font-size:0.9rem; margin-top:0;">These milestones allocate automatically. Click to simulate immediate payout distribution to contractors:</p>
-                    <div style="display:flex; flex-direction:column; gap:12px;" id="escrow-milestone-list">
-                        <!-- Dynamic payment items rendered via JS -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- ================= SCREEN 4: GLOBAL APP CONFIGURATIONS ================= -->
-            <div id="page-settings" class="page-content">
-                <div class="card" style="max-width: 600px;">
-                    <div class="card-header"><h3><i class="fa-solid fa-sliders"></i> System Parameters Settings</h3></div>
-                    <form id="settings-config-form">
-                        <div class="form-group">
-                            <label>Automated Backup Interval Server</label>
-                            <select id="setting-backup-interval">
-                                <option value="Realtime Loop">Every Action (Realtime Loop)</option>
-                                <option value="Hourly Synced">Hourly Synced Increments</option>
-                                <option value="Daily Midnight">Daily Midnight Execution</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Default Currency Display Symbol</label>
-                            <input type="text" id="setting-currency-lbl" value="PKR (Pakistani Rupee)">
-                        </div>
-                        <div class="form-group">
-                            <label>Supervisor Contact Notification Router</label>
-                            <input type="email" id="setting-email-router" value="najam.ai.engineer@gmail.com">
-                        </div>
-                        <button type="submit" class="btn-submit"><i class="fa-solid fa-floppy-disk"></i> Apply Global Constraints</button>
-                    </form>
-                </div>
-            </div>
-        </main>
+        <ul class="sidebar-menu">
+            <li><a href="#" class="menu-item active" data-target="page-dashboard"><i class="fa-solid fa-chart-pie"></i> Site Dashboard</a></li>
+            <li><a href="#" class="menu-item" data-target="page-security"><i class="fa-solid fa-shield-halved"></i> Security Controls</a></li>
+            <li><a href="#" class="menu-item" data-target="page-escrow"><i class="fa-solid fa-wallet"></i> Financial Escrow</a></li>
+            <li><a href="#" class="menu-item" data-target="page-settings"><i class="fa-solid fa-sliders"></i> System Settings</a></li>
+        </ul>
     </div>
 
-    <!-- ACCESS CONTROL CREDENTIALS MODAL -->
-    <div class="modal-overlay" id="account-auth-modal">
-        <div style="background: #1e293b; border: 1px solid #334155; padding: 25px; border-radius: 8px; max-width: 400px; width: 90%;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h3 style="margin:0;"><i class="fa-solid fa-shield-halved" style="color:#22d3ee;"></i> Identity Verification</h3>
-                <button id="close-auth-modal" style="background:none; border:none; color:#94a3b8; font-size:1.5rem; cursor:pointer;">&times;</button>
+    <!-- MAIN VIEWS INTERFACE CANVAS -->
+    <div class="main-content">
+        
+        <!-- HEADER STATE ROUTER META -->
+        <div class="header-action-bar">
+            <h2 id="current-view-title">Site Overview & Logs</h2>
+            <p id="current-view-desc">Real-time construction operational stream</p>
+        </div>
+
+        <!-- STATS DISPLAYS METRICS MATRIX -->
+        <div class="stats-grid">
+            <div class="stat-card escrow">
+                <div class="stat-meta">
+                    <h3>Escrow Balance (PKR)</h3>
+                    <div class="number-display" id="stat-escrow-balance">5,000,000</div>
+                </div>
+                <div class="stat-icon"><i class="fa-solid fa-building-columns"></i></div>
             </div>
+            <div class="stat-card expense">
+                <div class="stat-meta">
+                    <h3>Total Logged Spend</h3>
+                    <div class="number-display" id="stat-total-expense">0</div>
+                </div>
+                <div class="stat-icon"><i class="fa-solid fa-receipt"></i></div>
+            </div>
+            <div class="stat-card progress">
+                <div class="stat-meta">
+                    <h3>Overall Progress</h3>
+                    <div class="number-display" id="stat-total-progress">16%</div>
+                </div>
+                <div class="stat-icon"><i class="fa-solid fa-trowel-bricks"></i></div>
+            </div>
+        </div>
+
+        <!-- ================= LAYER 1: VIEW ROUTER MAIN DASHBOARD ================= -->
+        <div id="page-dashboard" class="page-content active">
+            <div class="dashboard-layout-matrix">
+                
+                <!-- Left Operations Column -->
+                <div>
+                    <!-- Procurement Log form Input Matrix -->
+                    <div class="panel-card">
+                        <div class="panel-title"><i class="fa-solid fa-file-invoice-dollar"></i> Log Material Procurement</div>
+                        <form id="log-form">
+                            <div class="form-grid-inputs">
+                                <div class="form-group">
+                                    <label>Material Name / Description</label>
+                                    <input type="text" id="material-name" placeholder="e.g., Grade-60 Deformed Steel Rebar" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Total Invoiced Cost (PKR)</label>
+                                    <input type="number" id="material-cost" placeholder="e.g., 250000" required>
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <label>Quality Verification Matrix Entry</label>
+                                <select id="material-quality">
+                                    <option value="Passed Verification">Passed Structural Integrity Check</option>
+                                    <option value="Warning: Review Needed">Warning: Pending Secondary Lab Test</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="submit-btn-node">Commit & Sync to Cloud</button>
+                        </form>
+                    </div>
+
+                    <!-- Graded AI Engineer Core Interface Box -->
+                    <div class="panel-card">
+                        <div class="panel-title"><i class="fa-solid fa-microchip-ai"></i> BuildTrack AI Civil Assistant</div>
+                        <div class="ai-input-wrapper">
+                            <input type="text" id="ai-input-query" placeholder="Ask about 5 Marla layouts, structural optimization or costs...">
+                            <button id="btn-trigger-ai">Consult AI</button>
+                        </div>
+                        <div id="ai-response-box"></div>
+                    </div>
+                </div>
+
+                <!-- Right Sidebar Column: Contains the 6-Phase Milestone System -->
+                <div>
+                    <div class="panel-card">
+                        <div class="panel-title"><i class="fa-solid fa-list-check"></i> 6-Point Milestone Tracker</div>
+                        
+                        <!-- Top Active Banner Node -->
+                        <div class="active-phase-banner">
+                            <div>
+                                <span>Active Node</span>
+                                <strong id="active-phase-title">Phase 1: Excavation & Layout</strong>
+                            </div>
+                            <span id="active-phase-status" style="font-weight: bold;">In Progress</span>
+                        </div>
+
+                        <!-- 6-Phase Sequence Matrix Array Target Element Injection Node -->
+                        <div id="milestone-phases-list">
+                            <!-- Programmatic code will safely rewrite and render components live here -->
+                        </div>
+                    </div>
+
+                    <!-- Material Ingested Ledger Feed -->
+                    <div class="panel-card">
+                        <div class="panel-title"><i class="fa-solid fa-cloud-arrow-up"></i> Live Cloud Ledger</div>
+                        <div id="material-reports-container"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ================= LAYER 2: VIEW ROUTER SITE SECURITY SYSTEMS ================= -->
+        <div id="page-security" class="page-content">
+            <div class="dashboard-layout-matrix">
+                <div>
+                    <!-- Surveillance Video Screen Monitor Player -->
+                    <div class="panel-card">
+                        <div class="panel-title"><i class="fa-solid fa-video"></i> Live Operational CCTV Stream</div>
+                        <div class="cctv-frame-container">
+                            <div class="cctv-overlay-tag"><span></span><div id="cctv-camera-tag">CAM 01 — FOUNDATION AXIS</div></div>
+                            <img id="cctv-main-feed" src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=800&q=80" alt="CCTV Stream">
+                        </div>
+                        <div class="form-group">
+                            <label>Switch Surveillance Target Node Feed</label>
+                            <select id="cctv-channel-select" style="margin-top: 8px;">
+                                <option value="0">Channel 01 — Foundation Axis Matrix</option>
+                                <option value="1">Channel 02 — Material Storage & Rebar Bay</option>
+                                <option value="2">Channel 03 — Boundary Perimeter Zone</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <!-- Hardware Toggle Relays Matrix Controllers -->
+                    <div class="panel-card">
+                        <div class="panel-title"><i class="fa-solid fa-toggle-on"></i> Hardware Actuator Relays</div>
+                        
+                        <div class="toggle-switch-wrapper">
+                            <span>RFID Main Access Gate Barrier</span>
+                            <label class="switch-input-node">
+                                <input type="checkbox" id="gate-barrier-toggle">
+                                <span class="slider-round-block"></span>
+                            </label>
+                        </div>
+
+                        <div class="toggle-switch-wrapper">
+                            <span>Perimeter Laser Breach Detection</span>
+                            <label class="switch-input-node">
+                                <input type="checkbox" id="perimeter-laser-toggle" checked>
+                                <span class="slider-round-block"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Live Security Access Incident Terminal Logs -->
+                    <div class="panel-card">
+                        <div class="panel-title"><i class="fa-solid fa-terminal"></i> Security Logs Node Feed</div>
+                        <div id="security-incident-logs"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= LAYER 3: VIEW ROUTER FINANCIAL ESCROW POOLS ================= -->
+        <div id="page-escrow" class="page-content">
+            <div class="panel-card">
+                <div class="panel-title"><i class="fa-solid fa-vault"></i> Smart Escrow Pool Parameters</div>
+                <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 0.95rem; line-height: 1.6;">
+                    This app module tracks safe multi-staged legal financing releases linked directly to dynamic 6-Phase milestone triggers validated through structural reports algorithms.
+                </p>
+                <div style="background: var(--bg-input); padding: 20px; border-radius: 8px; border: 1px solid var(--border-color);">
+                    <h4 style="color: var(--accent-green); font-size: 1.1rem; margin-bottom: 10px;">Security Lock Active</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary);">All asset movements match decentralized verification metrics. Funds release rules evaluate procurement ledger summaries against budget slab constraints.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= LAYER 4: VIEW ROUTER SYSTEM PARAMS SETTINGS ================= -->
+        <div id="page-settings" class="page-content">
+            <div class="panel-card">
+                <div class="panel-title"><i class="fa-solid fa-gears"></i> Core Architecture Config parameters</div>
+                <div class="form-group" style="max-width: 400px;">
+                    <label>Application Connectivity Sandbox Mode</label>
+                    <select style="margin-top: 8px;">
+                        <option>Local In-Memory Matrix Array (Active Fallback)</option>
+                        <option>Live Cloud Firestore Sync Pipeline</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ================= IDENTITY ACCESS AUTH MODAL WINDOW ================= -->
+    <div class="modal-overlay" id="account-auth-modal">
+        <div class="modal-card">
+            <button class="modal-close-btn" id="close-auth-modal"><i class="fa-solid fa-xmark"></i></button>
+            <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 8px; color:#fff;">Supervisor Identity Sign-In</h3>
+            <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 20px;">Provide secure authorization PIN matrix keys to modify application cloud parameters.</p>
+            
             <form id="modal-auth-form">
-                <div class="form-group">
-                    <label>Access Security Key</label>
-                    <input type="text" value="Najam" readonly style="background: #0f172a; color: #94a3b8; cursor: not-allowed;">
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label>Security PIN Key Node</label>
+                    <input type="password" id="auth-pin-input" placeholder="••••" maxlength="4" style="text-align: center; font-size: 1.5rem; letter-spacing: 8px;" required>
                 </div>
-                <div class="form-group" style="margin-bottom:20px;">
-                    <label>Password PIN Code (Enter any PIN to test)</label>
-                    <input type="password" placeholder="••••••••" id="auth-pin-input" required>
-                </div>
-                <button type="submit" class="btn-submit">Verify Session Credentials</button>
+                <button type="submit" class="submit-btn-node">Authorize Identity</button>
             </form>
         </div>
     </div>
 
-    <script src="script.js"></script>
 </body>
 </html>
-<!-- AI Assistant Component UI -->
-<div class="card" style="grid-column: 1 / -1; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-color: #22d3ee;">
-    <div class="card-header">
-        <h3><i class="fa-solid fa-brain" style="color:#22d3ee;"></i> BuildTrack AI — Structural & Cost Optimizer</h3>
-        <span style="font-size:0.75rem; background:rgba(34,211,238,0.2); color:#22d3ee; padding:3px 8px; border-radius:4px; font-weight:bold;">GEMINI ENGINE</span>
-    </div>
-    <div style="display:flex; flex-direction:column; gap:15px;">
-        <p style="margin:0; font-size:0.85rem; color:#94a3b8;">Ask BuildTrack AI about Pakistani market construction material optimization, dynamic strength testing guidelines, or procurement strategies.</p>
-        <div class="form-group">
-            <input type="text" id="ai-input-query" placeholder="e.g., How can I optimize steel budget for 5 Marla foundation without losing strength?">
-        </div>
-        <button type="button" id="btn-trigger-ai" class="btn-submit" style="background:#22d3ee; color:#0f172a;"><i class="fa-solid fa-wand-magic-sparkles"></i> Consult BuildTrack AI Broker</button>
-        
-        <!-- AI Response Box Container -->
-        <div id="ai-response-box" style="display:none; background:#0f172a; border:1px solid #334155; padding:15px; border-radius:6px; font-size:0.9rem; color:#e2e8f0; line-height:1.5;">
-            <!-- Live AI text injection token -->
-        </div>
-    </div>
-</div>
