@@ -184,7 +184,14 @@
 
         .panel-title i { color: var(--accent-cyan); }
 
-        /* CAMERA FEED VIEWBOX */
+        /* CAMERA FEED VIEWBOX & ANGLES */
+        .camera-grid-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
         .camera-feed-box {
             width: 100%;
             height: 220px;
@@ -196,17 +203,28 @@
             justify-content: center;
             position: relative;
             overflow: hidden;
-            margin-bottom: 16px;
         }
+
         .camera-overlay-tag {
             position: absolute;
             top: 12px; left: 12px;
-            background: rgba(0,0,0,0.6);
+            background: rgba(0,0,0,0.7);
             padding: 4px 10px;
             border-radius: 4px;
             font-size: 0.75rem;
             color: var(--accent-green);
             border: 1px solid rgba(52,211,153,0.3);
+            z-index: 2;
+        }
+
+        .camera-angle-label {
+            position: absolute;
+            bottom: 12px; left: 12px;
+            background: rgba(0,0,0,0.7);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: var(--text-primary);
         }
 
         /* PHASE BANNER & LIST */
@@ -376,16 +394,35 @@
             </div>
         </div>
 
-        <!-- CAMERA VIEW (SECURITY) -->
+        <!-- CAMERA VIEW (SECURITY) WITH MULTIPLE ANGLES -->
         <div id="page-security" class="page-content">
             <div class="panel-card">
-                <div class="panel-title"><i class="fa-solid fa-video"></i> Live Site Camera Feed</div>
-                <div class="camera-feed-box">
-                    <div class="camera-overlay-tag"><i class="fa-solid fa-circle" style="color:var(--accent-green); font-size:8px;"></i> CAM-01 LIVE (5 Marla Site)</div>
-                    <i class="fa-solid fa-video-slash" style="font-size: 2.5rem; color: var(--text-secondary);"></i>
-                    <span style="position: absolute; bottom: 16px; color: var(--text-secondary); font-size: 0.8rem;">Connecting to IP Camera Stream...</span>
+                <div class="panel-title"><i class="fa-solid fa-video"></i> Live Site Camera Feeds (Multi-Angle Surveillance)</div>
+                
+                <div class="camera-grid-layout">
+                    <!-- Angle 1 -->
+                    <div class="camera-feed-box">
+                        <div class="camera-overlay-tag"><i class="fa-solid fa-circle" style="color:var(--accent-green); font-size:7px;"></i> LIVE</div>
+                        <div class="camera-angle-label"><i class="fa-solid fa-camera"></i> Angle 1: Main Gate & Excavation</div>
+                        <i class="fa-solid fa-video-slash" style="font-size: 2rem; color: var(--text-secondary);"></i>
+                    </div>
+
+                    <!-- Angle 2 -->
+                    <div class="camera-feed-box">
+                        <div class="camera-overlay-tag"><i class="fa-solid fa-circle" style="color:var(--accent-green); font-size:7px;"></i> LIVE</div>
+                        <div class="camera-angle-label"><i class="fa-solid fa-camera"></i> Angle 2: Foundation & Rebar Zone</div>
+                        <i class="fa-solid fa-video-slash" style="font-size: 2rem; color: var(--text-secondary);"></i>
+                    </div>
+
+                    <!-- Angle 3 -->
+                    <div class="camera-feed-box">
+                        <div class="camera-overlay-tag"><i class="fa-solid fa-circle" style="color:var(--accent-green); font-size:7px;"></i> LIVE</div>
+                        <div class="camera-angle-label"><i class="fa-solid fa-camera"></i> Angle 3: Street & Material Storage</div>
+                        <i class="fa-solid fa-video-slash" style="font-size: 2rem; color: var(--text-secondary);"></i>
+                    </div>
                 </div>
-                <p style="color: var(--text-secondary); font-size: 0.9rem;">Perimeter surveillance cameras are monitoring construction progress and safety protocols.</p>
+
+                <p style="color: var(--text-secondary); font-size: 0.9rem;">High-definition multi-angle perimeter surveillance is active for 5 Marla construction oversight.</p>
             </div>
         </div>
 
@@ -500,7 +537,7 @@
 
             const meta = {
                 'page-dashboard': { title: "Site Overview & Logs", desc: "Real-time construction operational stream" },
-                'page-security': { title: "Site Camera Feed", desc: "Live surveillance and perimeter security monitoring" },
+                'page-security': { title: "Site Camera Feeds", desc: "Multi-angle live surveillance and perimeter monitoring" },
                 'page-escrow': { title: "Financial Escrow Pools", desc: "Automated funds release tracking and milestone verification" },
                 'page-settings': { title: "System Settings", desc: "Configure core parameters and application layout" }
             };
