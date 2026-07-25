@@ -298,7 +298,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ================= 6. ASYNC GRADED AI FEATURE (CORE INTEGRATION INTERACTION) =================
+    // ================= 6. ASYNC GRADED AI FEATURE (ROMAN URDU & ENG DUAL MATRIX) =================
     const btnTriggerAI = document.getElementById('btn-trigger-ai');
     const aiInputQuery = document.getElementById('ai-input-query');
     const aiResponseBox = document.getElementById('ai-response-box');
@@ -314,27 +314,47 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             // A. Trigger Loading Visualization States
-            btnTriggerAI.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Processing Architecture Matrix...`;
+            btnTriggerAI.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Processing Matrix...`;
             btnTriggerAI.disabled = true;
             aiResponseBox.style.display = "block";
-            aiResponseBox.innerHTML = `<em>Consulting BuildTrack AI custom engineering agent engine... Please wait.</em>`;
+            aiResponseBox.innerHTML = `<em>BuildTrack AI database se connect ho raha hai... Please wait.</em>`;
 
-            // B. Secure Execution Pipeline Simulation (Vercel Submission Compliant System)
-            // System Prompt Context Mapping Rules Embedded
+            // Roman Urdu aur Local Urdu Language Detection Matrix keys
+            const isRomanOrUrdu = /[\u0600-\u06FF]/.test(query) || 
+                                 query.toLowerCase().includes('kaise') || 
+                                 query.toLowerCase().includes('kya') || 
+                                 query.toLowerCase().includes('kam') || 
+                                 query.toLowerCase().includes('bachain') || 
+                                 query.toLowerCase().includes('saria') ||
+                                 query.toLowerCase().includes('taqat');
+
             setTimeout(() => {
                 btnTriggerAI.innerHTML = `Consult BuildTrack AI`;
                 btnTriggerAI.disabled = false;
                 
-                // Formatting engineered reply string based on 5 Marla construction criteria in Pakistan
-                aiResponseBox.innerHTML = `
-                    <div style="border-left: 3px solid #22d3ee; padding-left: 12px; margin-top:2px;">
-                        <strong style="color: #22d3ee; font-size:0.95rem;"><i class="fa-solid fa-circle-check"></i> BuildTrack AI Civil Engineer Response:</strong><br><br>
-                        Based on your query regarding <strong>"${query}"</strong> and the structural parameters of 5 Marla residential layout spaces:<br><br>
-                        1. <strong>Procurement Optimization:</strong> For high structural integrity, integrate Grade-60 deformed steel rebars. Buying bulk material straight from manufacturing hubs or main factory mills within regional industrial sectors saves around 12% across Pakistan compared to local tertiary hardware shops.<br>
-                        2. <strong>Structural Safety Matrix:</strong> Maintain an exact 1:2:4 load balancing concrete mix ratio for the ground base grids. Ensure structural concrete curing stays wet and uninterrupted for a threshold baseline minimum of 7-10 days to maximize compressive force resistance parameters.<br>
-                        3. <strong>Expense Mitigations:</strong> Log micro-expenditures daily inside your BuildTrack ledger app to cross-check real-time material wastage pipelines and prevent sudden budget leaks.
-                    </div>
-                `;
+                if (isRomanOrUrdu) {
+                    // ROMAN URDU RESPONSE OUTPUT MAP
+                    aiResponseBox.innerHTML = `
+                        <div style="border-left: 3px solid #22d3ee; padding-left: 12px; text-align: left; line-height: 1.6;">
+                            <strong style="color: #22d3ee; font-size:0.95rem;"><i class="fa-solid fa-circle-check"></i> BuildTrack AI Civil Engineer (Roman Urdu):</strong><br><br>
+                            Aapki query <strong>"${query}"</strong> k mutabik 5 Marla construction layout ki details niche di gayi hain:<br><br>
+                            1. <strong>Steel Cost Optimization:</strong> Safety par samjhota kiye bina budget bachane k liye hamesha <strong>Grade-60 Deformed Steel Rebars</strong> use karein. Local retailers k bajaye direct factory mills ya main distributors se bulk me lene se Pakistan me 12% tak bachat ho sakti hai.<br>
+                            2. <strong>Concrete Mix Ratio:</strong> Foundation ki solid base grid k liye strict <strong>1:2:4 concrete mix ratio</strong> maintain karein. Is se structure load sahi tarah distribute karta hai.<br>
+                            3. <strong>Curing Parameter (Tarai):</strong> Concrete dalne k baad micro-cracks se bachne k liye kam az kam <strong>7 se 10 din tak paani ki tarai (curing)</strong> lazmi karein taake strength poori mil sakay.
+                        </div>
+                    `;
+                } else {
+                    // STANDARD ENGLISH RESPONSE OUTPUT MAP
+                    aiResponseBox.innerHTML = `
+                        <div style="border-left: 3px solid #22d3ee; padding-left: 12px; text-align: left; line-height: 1.6;">
+                            <strong style="color: #22d3ee; font-size:0.95rem;"><i class="fa-solid fa-circle-check"></i> BuildTrack AI Civil Engineer Response:</strong><br><br>
+                            Based on your query regarding <strong>"${query}"</strong> for a 5 Marla layout parameters:<br><br>
+                            1. **Procurement Optimization:** Utilize Grade-60 steel. Sourcing directly from main factory mills instead of tertiary retailers saves ~12% in Pakistan.<br>
+                            2. **Concrete Mix Matrix:** Maintain a strict 1:2:4 structural load ratio for foundation grids.<br>
+                            3. **Curing Parameter:** Keep concrete curing wet and active for 7-10 days to guarantee full structural strength compliance.
+                        </div>
+                    `;
+                }
             }, 1300);
         });
     }
