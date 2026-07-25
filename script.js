@@ -1,9 +1,10 @@
-// --- DOM ELEMENTS REFERENCE ---
-const authActionText = document.getElementById('auth-action-text');
+// --- DOM ELEMENTS TARGETING ---
+const loginTriggerBtn = document.getElementById('login-trigger-btn');
 const accountAuthModal = document.getElementById('account-auth-modal');
 const closeAuthModal = document.getElementById('close-auth-modal');
 const modalAuthForm = document.getElementById('modal-auth-form');
 const userDisplayName = document.getElementById('user-display-name');
+const authActionText = document.getElementById('auth-action-text');
 const avatarLetters = document.getElementById('avatar-letters');
 
 const currentViewTitle = document.getElementById('current-view-title');
@@ -11,7 +12,46 @@ const currentViewDesc = document.getElementById('current-view-desc');
 const logForm = document.getElementById('log-form');
 const materialReportsContainer = document.getElementById('material-reports-container');
 
-// --- 1. DYNAMIC PAGE CONTROLLER ---
+let isLoggedIn = false;
+
+// --- 1. FIXED AUTH SWITCHER CONTROLLER ---
+if (loginTriggerBtn) {
+    loginTriggerBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // Stops event bubbling issues
+        if (!isLoggedIn) {
+            console.log("Opening Modal Matrix...");
+            accountAuthModal.classList.add('active');
+        } else {
+            isLoggedIn = false;
+            userDisplayName.textContent = "Guest Mode";
+            authActionText.textContent = "Click to Login";
+            authActionText.style.color = "cyan";
+            avatarLetters.textContent = "G";
+            alert("Logged out successfully.");
+        }
+    });
+}
+
+if (closeAuthModal) {
+    closeAuthModal.addEventListener('click', (e) => {
+        e.stopPropagation();
+        accountAuthModal.classList.remove('active');
+    });
+}
+
+if (modalAuthForm) {
+    modalAuthForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        isLoggedIn = true;
+        userDisplayName.textContent = "Najam (Supervisor)";
+        authActionText.textContent = "Click to Logout";
+        authActionText.style.color = "#fc8181";
+        avatarLetters.textContent = "N";
+        accountAuthModal.classList.remove('active');
+    });
+}
+
+// --- 2. MULTI-PAGE VIEW CONTROLLER ---
 const menuItems = document.querySelectorAll('.sidebar-menu .menu-item');
 const pageContents = document.querySelectorAll('.page-content');
 
@@ -38,53 +78,10 @@ menuItems.forEach(item => {
     });
 });
 
-// --- 2. AUTHENTICATION MODULE (FIXED) ---
-let isLoggedIn = false;
-
-// Modal Open / Logout Handler
-authActionText.addEventListener('click', (e) => {
-    e.preventDefault();
-    if (!isLoggedIn) {
-        // Active class add karne se CSS ka modal screen par show ho jata hai
-        accountAuthModal.classList.add('active');
-    } else {
-        isLoggedIn = false;
-        userDisplayName.textContent = "Guest Mode";
-        authActionText.textContent = "Click to Login";
-        authActionText.style.color = "var(--accent)";
-        avatarLetters.textContent = "G";
-        avatarLetters.classList.add('guest-mode');
-        alert("Session cleared. You have logged out successfully.");
-    }
-});
-
-// Close Modal Button (FIX COMPONENT)
-if (closeAuthModal) {
-    closeAuthModal.addEventListener('click', () => {
-        // Yahan glitch fix kiya hai — ab modal smoothly hide ho jayega
-        accountAuthModal.classList.remove('active');
-    });
-}
-
-// Handle Form Submission for Login
-if (modalAuthForm) {
-    modalAuthForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        isLoggedIn = true;
-        userDisplayName.textContent = "Najam (Supervisor)";
-        authActionText.textContent = "Click to Logout";
-        authActionText.style.color = "#fc8181";
-        avatarLetters.textContent = "N";
-        avatarLetters.classList.remove('guest-mode');
-        accountAuthModal.classList.remove('active');
-    });
-}
-
-// --- 3. MATERIAL TESTING REPORTS DATA ENGINE ---
+// --- 3. REPORTS AND EXPENSES PIPELINE ---
 let reportsData = [
     { name: "Mughal Steel Grade 60 Rebar", status: "Lab Certified / Passed", type: "passed" },
-    { name: "Lucky Cement Ordinary Portland", status: "Standard Inspection", type: "passed" },
-    { name: "Awwal Clay Bricks Batch 04", status: "Passed with Warning", type: "warning" }
+    { name: "Lucky Cement Ordinary Portland", status: "Standard Inspection", type: "passed" }
 ];
 
 function renderReports() {
@@ -100,7 +97,6 @@ function renderReports() {
     `).join('');
 }
 
-// Handle Expense Form Submission to live inject reports
 if (logForm) {
     logForm.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -113,46 +109,30 @@ if (logForm) {
             type: qualityInput.includes('Warning') ? 'warning' : 'passed'
         };
         
-        reportsData.unshift(newReport); 
+        reportsData.unshift(newReport);
         renderReports();
-        
         logForm.reset();
-        alert("Log successfully pushed to Testing Reports Stream!");
+        alert("Log pushed to Reports Stream!");
     });
 }
 
-// Initial Ingestion Execution
 renderReports();
 
-// --- 4. DYNAMIC MILESTONES RENDERER ---
+// --- 4. MILESTONES RENDERER ---
 const milestonesWrapper = document.getElementById('milestones-wrapper');
 if (milestonesWrapper) {
     const milestones = [
         { name: "Excavation & Structural Footings", progress: 100, color: "#48bb78" },
-        { name: "Plinth Beam Construction", progress: 75, color: "#38b2ac" },
-        { name: "Brickwork Columns Layer 01", progress: 20, color: "#ecc94b" }
+        { name: "Plinth Beam Construction", progress: 75, color: "#38b2ac" }
     ];
-
     milestonesWrapper.innerHTML = milestones.map(m => `
-        <div class="milestone-item" style="margin-bottom:15px;">
+        <div style="margin-bottom:15px;">
             <div style="display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:5px;">
-                <span>${m.name}</span>
-                <strong>${m.progress}%</strong>
+                <span>${m.name}</span><strong>${m.progress}%</strong>
             </div>
             <div style="background:#2d3748; height:8px; border-radius:4px; overflow:hidden;">
-                <div style="background:${m.color}; width:${m.progress}%; height:100%; transition: width 0.5s;"></div>
+                <div style="background:${m.color}; width:${m.progress}%; height:100%;"></div>
             </div>
         </div>
     `).join('');
-}
-
-// --- 5. SURVEILLANCE MATRIX SWITCHER ---
-const cameraTags = ["CAM 01 — FOUNDATION AXIS", "CAM 02 — ROOF MESH VIEW", "CAM 03 — MATERIAL STORAGE"];
-const cctvCameraTag = document.getElementById('cctv-camera-tag');
-if (cctvCameraTag) {
-    let index = 0;
-    setInterval(() => {
-        index = (index + 1) % cameraTags.length;
-        cctvCameraTag.textContent = cameraTags[index];
-    }, 4000);
 }
