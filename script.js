@@ -14,12 +14,11 @@ const materialReportsContainer = document.getElementById('material-reports-conta
 
 let isLoggedIn = false;
 
-// --- 1. FIXED AUTH SWITCHER CONTROLLER ---
+// --- 1. AUTH CONTROLLER ---
 if (loginTriggerBtn) {
     loginTriggerBtn.addEventListener('click', (e) => {
-        e.stopPropagation(); // Stops event bubbling issues
+        e.stopPropagation();
         if (!isLoggedIn) {
-            console.log("Opening Modal Matrix...");
             accountAuthModal.classList.add('active');
         } else {
             isLoggedIn = false;
@@ -118,21 +117,83 @@ if (logForm) {
 
 renderReports();
 
-// --- 4. MILESTONES RENDERER ---
+// --- 4. DEEP MICRO-PHASE CONSTRUCTION BUILD ENGINE ---
 const milestonesWrapper = document.getElementById('milestones-wrapper');
 if (milestonesWrapper) {
-    const milestones = [
-        { name: "Excavation & Structural Footings", progress: 100, color: "#48bb78" },
-        { name: "Plinth Beam Construction", progress: 75, color: "#38b2ac" }
+    const deepConstructionMatrix = [
+        {
+            category: "1. Substructure Groundwork",
+            icon: "fa-compass",
+            items: [
+                { name: "Site Layout, Plot Marking & Demarcation", progress: 100, color: "#48bb78", status: "completed" },
+                { name: "Excavation & Earthwork Digging", progress: 100, color: "#48bb78", status: "completed" },
+                { name: "Termite Proofing Treatment & Lean Concrete Base", progress: 100, color: "#48bb78", status: "completed" }
+            ]
+        },
+        {
+            category: "2. Foundation Structural Core",
+            icon: "fa-cubes",
+            items: [
+                { name: "Footing Steel Mesh Rebars & Box Laying", progress: 90, color: "#38b2ac", status: "in-progress" },
+                { name: "Plinth Beam Casting & R.C.C Pouring", progress: 60, color: "#38b2ac", status: "in-progress" },
+                { name: "Damp Proof Course (DPC) & Bitumen Layer", progress: 0, color: "#4a5568", status: "pending" }
+            ]
+        },
+        {
+            category: "3. Superstructure (Gray Shell)",
+            icon: "fa-trowel-bricks",
+            items: [
+                { name: "Load-Bearing Brickwork Walls (Ground Floor)", progress: 40, color: "#ecc94b", status: "in-progress" },
+                { name: "Lintel Beams & Door Frame Shuttering Fixation", progress: 10, color: "#ecc94b", status: "in-progress" },
+                { name: "Roof Slab (Lanter) Casting & Shuttering Support", progress: 0, color: "#4a5568", status: "pending" }
+            ]
+        },
+        {
+            category: "4. MEP Concealed Pipelines",
+            icon: "fa-faucet-drip",
+            items: [
+                { name: "Concealed Conduit Wall Chipping (Electrical)", progress: 30, color: "#ecc94b", status: "in-progress" },
+                { name: "Water Supply PPR Pipes Internal Laying", progress: 50, color: "#38b2ac", status: "in-progress" },
+                { name: "Main Drainage & Under-Floor Sewerage Lines", progress: 80, color: "#38b2ac", status: "in-progress" }
+            ]
+        },
+        {
+            category: "5. Internal Plastering & Wet Finishes",
+            icon: "fa-border-all",
+            items: [
+                { name: "Cement Plastering (Walls & Ceilings)", progress: 0, color: "#4a5568", status: "pending" },
+                { name: "Floor Screeding & Tile Bond Layout Base", progress: 0, color: "#4a5568", status: "pending" },
+                { name: "Main Elevation Front Design Plasterwork", progress: 0, color: "#4a5568", status: "pending" }
+            ]
+        },
+        {
+            category: "6. Trim Finishes & Automation Nodes",
+            icon: "fa-robot",
+            items: [
+                { name: "Wall Putty & Primer Base Coat Application", progress: 0, color: "#4a5568", status: "pending" },
+                { name: "Sanitary Ware & Switch Plates Installation", progress: 0, color: "#4a5568", status: "pending" },
+                { name: "Smart Gate Lock & n8n Automation Server Node", progress: 0, color: "#4a5568", status: "pending" }
+            ]
+        }
     ];
-    milestonesWrapper.innerHTML = milestones.map(m => `
-        <div style="margin-bottom:15px;">
-            <div style="display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:5px;">
-                <span>${m.name}</span><strong>${m.progress}%</strong>
+
+    // Generate deep operational layout nodes
+    milestonesWrapper.innerHTML = deepConstructionMatrix.map(phase => `
+        <div class="phase-category-block">
+            <div class="phase-category-title">
+                <i class="fa-solid ${phase.icon}"></i> ${phase.category}
             </div>
-            <div style="background:#2d3748; height:8px; border-radius:4px; overflow:hidden;">
-                <div style="background:${m.color}; width:${m.progress}%; height:100%;"></div>
-            </div>
+            ${phase.items.map(m => `
+                <div class="milestone-item ${m.status}">
+                    <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:5px;">
+                        <span style="color:#e2e8f0; font-weight:500;">${m.name}</span>
+                        <strong style="color:${m.progress > 0 ? '#38b2ac' : '#718096'};">${m.progress}%</strong>
+                    </div>
+                    <div style="background:#111827; height:5px; border-radius:3px; overflow:hidden;">
+                        <div style="background:${m.color}; width:${m.progress}%; height:100%; transition: width 0.8s ease;"></div>
+                    </div>
+                </div>
+            `).join('')}
         </div>
     `).join('');
 }
