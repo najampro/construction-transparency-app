@@ -133,9 +133,8 @@ async function triggerAiAudit(id) {
         displayAuditResult(item.audit);
         return;
     }
-    
-    const keyInput = document.getElementById("gemini-key") || document.getElementById("api-key");
-    const apiKey = keyInput ? keyInput.value.trim() : "";
+    const apiKey = "AQ.Ab8RN6LjzRiemIgdv_KfYjCoJFnbT2ITYN3qrlm7hIFgPlU_sQ";
+   
     
     // Testing Simulation Fallback
     if (!apiKey) {
