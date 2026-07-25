@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <style>
-        /* CSS patches for instant multi-page switching view */
+        /* CSS patches for instant multi-page switching view & grids */
         .page-content { display: none; animation: fadeIn 0.3s ease-in-out; }
         .page-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
@@ -15,8 +15,14 @@
         .status-badge { padding: 5px 10px; border-radius: 4px; font-size: 0.85rem; font-weight: 600; }
         .status-ok { background: rgba(72, 187, 120, 0.2); color: #48bb78; }
         .status-alert { background: rgba(245, 101, 101, 0.2); color: #f56565; }
+        .status-pending { background: rgba(236, 201, 75, 0.2); color: #ecc94b; }
         .log-list { list-style: none; padding: 0; }
         .log-list li { padding: 10px 0; border-bottom: 1px solid #2d3748; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* Reports styling */
+        .report-item { background: #1a2333; padding: 12px; border-radius: 6px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #4a5568; }
+        .report-item.passed { border-left-color: #48bb78; }
+        .report-item.warning { border-left-color: #ecc94b; }
     </style>
 </head>
 <body>
@@ -33,7 +39,6 @@
             </div>
 
             <nav class="sidebar-menu">
-                <!-- data-target attribute handles the real-time dynamic rendering -->
                 <a href="#" class="menu-item active" data-target="page-dashboard"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
                 <a href="#" class="menu-item" data-target="page-security"><i class="fa-solid fa-building-shield"></i> Site Security</a>
                 <a href="#" class="menu-item" data-target="page-escrow"><i class="fa-solid fa-file-invoice-dollar"></i> Escrow Pools</a>
@@ -108,6 +113,46 @@
                         </div>
                     </div>
                 </section>
+
+                <!-- MATERIAL TESTING REPORTS & NEW LOG INPUT -->
+                <section class="dashboard-grid" style="margin-top: 20px;">
+                    <!-- MATERIAL REPORTS BLOCK (WAPIS ADDED) -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-flask-vial"></i> Material Testing Reports</h3>
+                        </div>
+                        <div style="margin-top: 15px;" id="material-reports-container">
+                            <!-- Dynamic Testing Logs injected by JS -->
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-square-plus"></i> Log New Site Expense</h3>
+                        </div>
+                        <form id="log-form">
+                            <div class="form-group">
+                                <label>Material Name / Event Description</label>
+                                <input type="text" id="material-name" placeholder="e.g., Mughal Steel Load Delivery" required>
+                            </div>
+                            <div class="form-group-row">
+                                <div class="form-group">
+                                    <label>Cost Deductions (PKR)</label>
+                                    <input type="number" id="material-cost" placeholder="Amount" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Lab Quality Clearance</label>
+                                    <select id="material-quality">
+                                        <option value="Lab Certified / Passed">Lab Certified / Passed</option>
+                                        <option value="Standard Inspection">Standard Inspection</option>
+                                        <option value="Passed with Warning">Passed with Warning</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn-submit">Authorize & Push to Audit Ledger</button>
+                        </form>
+                    </div>
+                </section>
             </div>
 
             <!-- ================= SCREEN 2: SITE SECURITY ================= -->
@@ -174,10 +219,6 @@
                         <label style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; margin-bottom:15px;">
                             <span>Push WhatsApp Alerts to Contractor</span>
                             <input type="checkbox" checked style="width:20px; height:20px;">
-                        </label>
-                        <label style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;">
-                            <span>High-Definition Surveillance Stream</span>
-                            <input type="checkbox" style="width:20px; height:20px;">
                         </label>
                     </div>
                 </div>
