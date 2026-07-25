@@ -8,12 +8,13 @@ const avatarLetters = document.getElementById('avatar-letters');
 
 const currentViewTitle = document.getElementById('current-view-title');
 const currentViewDesc = document.getElementById('current-view-desc');
+const logForm = document.getElementById('log-form');
+const materialReportsContainer = document.getElementById('material-reports-container');
 
-// --- 1. DYNAMIC PAGE CONTROLLER (REAL-TIME FEATURE DISPLAY) ---
+// --- 1. DYNAMIC PAGE CONTROLLER ---
 const menuItems = document.querySelectorAll('.sidebar-menu .menu-item');
 const pageContents = document.querySelectorAll('.page-content');
 
-// Dynamic view definitions mapping details
 const viewMeta = {
     'page-dashboard': { title: "Site Overview & Logs", desc: "Real-time construction operational stream" },
     'page-security': { title: "Site Security & Perimeter Node", desc: "Access control systems and automated breach management" },
@@ -24,20 +25,14 @@ const viewMeta = {
 menuItems.forEach(item => {
     item.addEventListener('click', (e) => {
         e.preventDefault();
-        
         const targetPageId = item.getAttribute('data-target');
         
-        // 1. Sidebar visually update karo
         menuItems.forEach(i => i.classList.remove('active'));
         item.classList.add('active');
         
-        // 2. Pure frames ko hide/show karo instantly
-        pageContents.forEach(page => {
-            page.classList.remove('active');
-        });
+        pageContents.forEach(page => page.classList.remove('active'));
         document.getElementById(targetPageId).classList.add('active');
         
-        // 3. Header Titles dynamically switch kar do
         currentViewTitle.textContent = viewMeta[targetPageId].title;
         currentViewDesc.textContent = viewMeta[targetPageId].desc;
     });
@@ -62,7 +57,6 @@ authActionText.addEventListener('click', (e) => {
 });
 
 closeAuthModal.addEventListener('click', () => {
-    accountAuthModal.classList.remove('remove');
     accountAuthModal.classList.remove('active');
 });
 
@@ -77,7 +71,51 @@ modalAuthForm.addEventListener('submit', (e) => {
     accountAuthModal.classList.remove('active');
 });
 
-// --- 3. DYNAMIC MILESTONES RENDERER ---
+// --- 3. MATERIAL TESTING REPORTS DATA ENGINE ---
+let reportsData = [
+    { name: "Mughal Steel Grade 60 Rebar", status: "Lab Certified / Passed", type: "passed" },
+    { name: "Lucky Cement Ordinary Portland", status: "Standard Inspection", type: "passed" },
+    { name: "Awwal Clay Bricks Batch 04", status: "Passed with Warning", type: "warning" }
+];
+
+function renderReports() {
+    if (!materialReportsContainer) return;
+    materialReportsContainer.innerHTML = reportsData.map(r => `
+        <div class="report-item ${r.type}">
+            <div>
+                <strong style="color: #fff; display:block;">${r.name}</strong>
+                <span style="font-size:0.85rem; color:#a0aec0;">Verification status recorded</span>
+            </div>
+            <span class="status-badge ${r.type === 'passed' ? 'status-ok' : 'status-pending'}">${r.status}</span>
+        </div>
+    `).join('');
+}
+
+// Handle Form Submission to live inject reports
+if (logForm) {
+    logForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const nameInput = document.getElementById('material-name').value;
+        const qualityInput = document.getElementById('material-quality').value;
+        
+        const newReport = {
+            name: nameInput,
+            status: qualityInput,
+            type: qualityInput.includes('Warning') ? 'warning' : 'passed'
+        };
+        
+        reportsData.unshift(newReport); // Add to top
+        renderReports();
+        
+        logForm.reset();
+        alert("Log successfully pushed to Testing Reports Stream!");
+    });
+}
+
+// Initial Call
+renderReports();
+
+// --- 4. DYNAMIC MILESTONES RENDERER ---
 const milestonesWrapper = document.getElementById('milestones-wrapper');
 if (milestonesWrapper) {
     const milestones = [
@@ -99,7 +137,7 @@ if (milestonesWrapper) {
     `).join('');
 }
 
-// --- 4. SURVEILLANCE MATRIX SWITCHER ---
+// --- 5. SURVEILLANCE MATRIX SWITCHER ---
 const cameraTags = ["CAM 01 — FOUNDATION AXIS", "CAM 02 — ROOF MESH VIEW", "CAM 03 — MATERIAL STORAGE"];
 const cctvCameraTag = document.getElementById('cctv-camera-tag');
 if (cctvCameraTag) {
