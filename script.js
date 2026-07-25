@@ -38,12 +38,14 @@ menuItems.forEach(item => {
     });
 });
 
-// --- 2. AUTHENTICATION MODULE ---
+// --- 2. AUTHENTICATION MODULE (FIXED) ---
 let isLoggedIn = false;
 
+// Modal Open / Logout Handler
 authActionText.addEventListener('click', (e) => {
     e.preventDefault();
     if (!isLoggedIn) {
+        // Active class add karne se CSS ka modal screen par show ho jata hai
         accountAuthModal.classList.add('active');
     } else {
         isLoggedIn = false;
@@ -56,20 +58,27 @@ authActionText.addEventListener('click', (e) => {
     }
 });
 
-closeAuthModal.addEventListener('click', () => {
-    accountAuthModal.classList.remove('active');
-});
+// Close Modal Button (FIX COMPONENT)
+if (closeAuthModal) {
+    closeAuthModal.addEventListener('click', () => {
+        // Yahan glitch fix kiya hai — ab modal smoothly hide ho jayega
+        accountAuthModal.classList.remove('active');
+    });
+}
 
-modalAuthForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    isLoggedIn = true;
-    userDisplayName.textContent = "Najam (Supervisor)";
-    authActionText.textContent = "Click to Logout";
-    authActionText.style.color = "#fc8181";
-    avatarLetters.textContent = "N";
-    avatarLetters.classList.remove('guest-mode');
-    accountAuthModal.classList.remove('active');
-});
+// Handle Form Submission for Login
+if (modalAuthForm) {
+    modalAuthForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        isLoggedIn = true;
+        userDisplayName.textContent = "Najam (Supervisor)";
+        authActionText.textContent = "Click to Logout";
+        authActionText.style.color = "#fc8181";
+        avatarLetters.textContent = "N";
+        avatarLetters.classList.remove('guest-mode');
+        accountAuthModal.classList.remove('active');
+    });
+}
 
 // --- 3. MATERIAL TESTING REPORTS DATA ENGINE ---
 let reportsData = [
@@ -91,7 +100,7 @@ function renderReports() {
     `).join('');
 }
 
-// Handle Form Submission to live inject reports
+// Handle Expense Form Submission to live inject reports
 if (logForm) {
     logForm.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -104,7 +113,7 @@ if (logForm) {
             type: qualityInput.includes('Warning') ? 'warning' : 'passed'
         };
         
-        reportsData.unshift(newReport); // Add to top
+        reportsData.unshift(newReport); 
         renderReports();
         
         logForm.reset();
@@ -112,7 +121,7 @@ if (logForm) {
     });
 }
 
-// Initial Call
+// Initial Ingestion Execution
 renderReports();
 
 // --- 4. DYNAMIC MILESTONES RENDERER ---
