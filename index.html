@@ -9,13 +9,11 @@
 </head>
 <body>
 
-    <!-- MAIN APP WRAPPER (Direct Access - No Login Screen Needed) -->
-    <div class="app-container" id="main-app-layout">
-        
-        <!-- Premium Minimal Sidebar -->
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
         <aside class="sidebar">
             <div class="sidebar-brand">
-                <div class="brand-logo"><i class="fa-solid fa-cubes"></i></div>
+                <div class="brand-logo"><i class="fa-solid fa-compass-drafting"></i></div>
                 <div>
                     <h1>ConsTrack Pro</h1>
                     <span>5-Marla Ecosystem</span>
@@ -23,163 +21,161 @@
             </div>
             
             <nav class="sidebar-menu">
-                <a href="#" class="menu-item active"><i class="fa-solid fa-house-laptop"></i> Control Room</a>
-                <a href="#" class="menu-item"><i class="fa-solid fa-video"></i> Live CCTV Stream</a>
-                <a href="#" class="menu-item"><i class="fa-solid fa-wallet"></i> Escrow Wallet</a>
-                <a href="#" class="menu-item"><i class="fa-solid fa-magnifying-glass-chart"></i> Smart Audits</a>
+                <a href="#" class="menu-item active"><i class="fa-solid fa-chart-pie"></i> Executive Suite</a>
+                <a href="#" class="menu-item"><i class="fa-solid fa-video"></i> CCTV Feeds</a>
+                <a href="#" class="menu-item"><i class="fa-solid fa-wallet"></i> Escrow Streams</a>
+                <a href="#" class="menu-item"><i class="fa-solid fa-clipboard-check"></i> Quality Reports</a>
             </nav>
 
-            <div class="sidebar-user">
-                <div class="user-avatar" id="avatar-letters">NJ</div>
+            <div class="sidebar-user" id="auth-trigger-zone">
+                <div class="user-avatar guest-mode" id="avatar-letters"><i class="fa-solid fa-user-gear"></i></div>
                 <div class="user-info">
-                    <h4 id="user-display-name">Najam</h4>
-                    <p>Verified Client</p>
+                    <h4 id="user-display-name">Guest Mode</h4>
+                    <p id="auth-action-text" style="color: var(--accent); cursor: pointer; font-weight: 600;">Sign In / Register</p>
                 </div>
             </div>
         </aside>
 
-        <!-- Main Stream Workspace -->
+        <!-- Main Dashboard Workspace -->
         <main class="main-content">
             <header class="top-bar">
                 <div class="page-title">
-                    <h2>Ecosystem Dashboard</h2>
-                    <p>Real-time analytics & remote surveillance</p>
+                    <h2>Live Site Operations & Telemetry</h2>
+                    <p>Real-time contractor execution audit & budget streams</p>
                 </div>
                 <div class="status-summary-card">
                     <div class="indicator-dot"></div>
-                    <span>Live CCTV Cam 01:</span>
-                    <strong class="status-badge transmission-green">FEED ONLINE</strong>
+                    <span>System Status:</span>
+                    <strong class="transmission-green">Ecosystem Secured</strong>
                 </div>
             </header>
 
-            <!-- TRUST & TRANSPARENCY METRICS PANEL -->
+            <!-- ESCROW WALLET & FUNDS METRICS MATRIX -->
             <div class="metrics-row">
                 <div class="metric-card">
                     <div class="metric-icon spec-blue"><i class="fa-solid fa-vault"></i></div>
                     <div>
                         <h3>PKR <span id="stat-escrow-balance">4,660,000</span></h3>
-                        <p>Escrow Available</p>
+                        <p>Remaining Escrow Budget</p>
                     </div>
                 </div>
                 <div class="metric-card">
-                    <div class="metric-icon spec-green"><i class="fa-solid fa-chart-line"></i></div>
+                    <div class="metric-icon spec-green"><i class="fa-solid fa-list-check"></i></div>
                     <div>
-                        <h3><span id="stat-project-progress">28%</span></h3>
-                        <p>Total Site Build Progress</p>
+                        <h3><span id="stat-project-progress">35%</span></h3>
+                        <p>Grey Structure Progress</p>
                     </div>
                 </div>
                 <div class="metric-card">
-                    <div class="metric-icon spec-red"><i class="fa-solid fa-shield-halved"></i></div>
+                    <div class="metric-icon spec-red"><i class="fa-solid fa-circle-check"></i></div>
                     <div>
-                        <h3><span id="stat-quality-index">98.4%</span></h3>
-                        <p>Material Quality Index</p>
+                        <h3><span id="stat-quality-index">98.9%</span></h3>
+                        <p>Material Quality Score</p>
                     </div>
                 </div>
             </div>
 
-            <!-- SURVEILLANCE & LIVE TIMELINE -->
+            <!-- CCTV & TIMELINE REVOLUTION WINDOWS -->
             <div class="surveillance-grid">
-                <!-- Live Cam Node -->
-                <div class="card surveillance-card">
+                <!-- Live Site CCTV Telemetry Module -->
+                <div class="card">
                     <div class="card-header flex-header">
-                        <h3><i class="fa-solid fa-video"></i> Remote Telemetry Feed (Cam 01)</h3>
-                        <span class="timestamp-badge">Live Update</span>
+                        <h3><i class="fa-solid fa-video"></i> Live Site CCTV Telemetry (Daily Snapshots)</h3>
+                        <span class="timestamp-badge" id="cctv-camera-tag">CAM 01 — FRONT AREA</span>
                     </div>
                     <div class="video-container-mock">
-                        <div class="cctv-overlay-text">SITE NODE: 5-MARLA PLOT / AXIS-B</div>
-                        <img id="cctv-stream-img" src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=800&q=80" alt="Live Site Feed">
+                        <div class="cctv-overlay-text">5-MARLA PLOT | LIVE REFRESHED TELEMETRY FEED</div>
+                        <img id="cctv-stream-img" src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=800&q=80" alt="CCTV Feed Snapshot">
                     </div>
                 </div>
 
-                <!-- PROGRESS MILESTONES -->
-                <div class="card milestone-card">
+                <!-- Phase-Wise Construction Timeline (Grey Structure Milestones) -->
+                <div class="card">
                     <div class="card-header">
-                        <h3><i class="fa-solid fa-bars-progress"></i> Grey Structure Phase Tracker</h3>
+                        <h3><i class="fa-solid fa-route"></i> Grey Structure Phase Tracker</h3>
                     </div>
-                    <div class="milestone-list">
-                        <div class="milestone-item-bar completed">
-                            <div class="milestone-info"><span>1. Excavation & Layout</span> <strong>100%</strong></div>
-                            <div class="progress-track"><div class="progress-fill" style="width: 100%;"></div></div>
-                        </div>
-                        <div class="milestone-item-bar active-phase">
-                            <div class="milestone-info"><span>2. Plinth Beam & Foundation Footing</span> <strong>45%</strong></div>
-                            <div class="progress-track"><div class="progress-fill current-glow" style="width: 45%;"></div></div>
-                        </div>
-                        <div class="milestone-item-bar pending">
-                            <div class="milestone-info"><span>3. Brickwork & Pillar Columns</span> <strong>0%</strong></div>
-                            <div class="progress-track"><div class="progress-fill" style="width: 0%;"></div></div>
-                        </div>
-                        <div class="milestone-item-bar pending">
-                            <div class="milestone-info"><span>4. First Floor Roof Slab Casting</span> <strong>0%</strong></div>
-                            <div class="progress-track"><div class="progress-fill" style="width: 0%;"></div></div>
-                        </div>
+                    <div class="milestone-list" id="milestones-wrapper">
+                        <!-- Injected dynamic elements will render here -->
                     </div>
                 </div>
             </div>
 
+            <!-- FORMS & AUDIT LEDGER ARRAYS -->
             <div class="dashboard-grid">
-                <!-- Left Column: Entry Form with Material Quality Verification -->
-                <section class="card form-section">
+                <!-- Material Quality Verification Log Form -->
+                <section class="card">
                     <div class="card-header">
-                        <h3><i class="fa-solid fa-plus"></i> Deploy Log & Verification Node</h3>
+                        <h3><i class="fa-solid fa-microchip"></i> Post Material Quality Logs & Expenses</h3>
                     </div>
                     <form id="log-form">
                         <div class="form-group">
-                            <label>Material / Logistics Update</label>
-                            <input type="text" id="material-name" required placeholder="e.g., Mughal Steel Grade-60 Rebar (3 Tons)">
+                            <label>Material Resource & Brand Identity</label>
+                            <input type="text" id="material-name" required placeholder="e.g., Mughal Steel Grade-60 / Bestway Cement / Sargodha Bajri">
                         </div>
+                        
                         <div class="form-group-row">
                             <div class="form-group">
-                                <label>Cost Charged (PKR)</label>
-                                <input type="number" id="material-cost" required placeholder="e.g., 295000">
+                                <label>Funds Utilization Cost (PKR)</label>
+                                <input type="number" id="material-cost" required placeholder="e.g., 185000">
                             </div>
                             <div class="form-group">
-                                <label>Material Brand/Quality Standard</label>
+                                <label>Testing Verification Status</label>
                                 <select id="material-quality">
-                                    <option value="Premium/Passed">Premium Grade (Passed)</option>
-                                    <option value="Standard">Standard Grade</option>
-                                    <option value="Unverified">Unverified/Pending Inspection</option>
+                                    <option value="Lab Certified / Passed">Lab Certified & Passed</option>
+                                    <option value="Standard Check Complete">Standard Checks Complete</option>
+                                    <option value="Under Review Hold">Under Review Verification</option>
                                 </select>
                             </div>
                         </div>
+
                         <div class="form-group">
-                            <label>Site Image Link (Progress Proof)</label>
-                            <input type="url" id="site-image" placeholder="https://images.unsplash.com/...">
+                            <label>Testing Reports / Quality Metadata Logs</label>
+                            <textarea id="receipt-text" required placeholder="Paste load summaries, laboratory crushing stress parameters, or delivery slip details..."></textarea>
                         </div>
-                        <div class="form-group">
-                            <label>Raw Invoice Metadata / OCR Text Payload</label>
-                            <textarea id="receipt-text" required placeholder="Paste the digital voucher transcript details..."></textarea>
-                        </div>
-                        <button type="submit" class="btn-submit">Authenticate & Deduct from Escrow</button>
+                        <button type="submit" class="btn-submit">Verify Logistics & Release Funds</button>
                     </form>
                 </section>
 
-                <!-- Right Column: Live Audit Timeline -->
-                <section class="card timeline-section">
+                <!-- Escrow Funds Utilization Stream & Logs -->
+                <section class="card">
                     <div class="card-header">
-                        <h3><i class="fa-solid fa-microchip"></i> Verified Audit Ledger</h3>
+                        <h3><i class="fa-solid fa-receipt"></i> Escrow Wallet & Material Verification Log</h3>
                     </div>
                     <div id="timeline-container" class="timeline-stream">
-                        <!-- Dynamic updates load here -->
+                        <!-- Dynamically generated invoice ledgers map here -->
                     </div>
                 </section>
             </div>
         </main>
     </div>
 
-    <!-- AUDIT REPORT MODAL INTERFACE -->
-    <div id="audit-modal" class="modal-overlay">
-        <div class="modal-card">
+    <!-- AUTH MODAL -->
+    <div id="account-auth-modal" class="modal-overlay">
+        <div class="modal-card auth-card">
             <div class="modal-header">
-                <h3>System Forensic Telemetry</h3>
-                <button class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+                <h3><i class="fa-solid fa-shield-halved"></i> Secure Access Terminal</h3>
+                <button class="close-btn" id="close-auth-modal"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="modal-body">
-                <div id="modal-loading" class="spinner-box">
-                    <div class="premium-bar-loader"><span></span><span></span><span></span></div>
-                    <p>Decrypting metrics payload text...</p>
+                <div class="auth-tabs">
+                    <button class="auth-tab-btn active" id="tab-login-btn">Sign In</button>
+                    <button class="auth-tab-btn" id="tab-signup-btn">Create Account</button>
                 </div>
-                <div id="modal-result" class="hidden"></div>
+                <form id="modal-auth-form" class="auth-modal-form">
+                    <div class="form-group" id="container-fullname" style="display: none;">
+                        <label>Full Name</label>
+                        <input type="text" id="auth-fullname" placeholder="Enter full name">
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="auth-email" required placeholder="name@domain.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="auth-password" required placeholder="••••••••">
+                    </div>
+                    <button type="submit" id="auth-submit-main-btn" class="btn-submit">Validate Secure Account</button>
+                </form>
             </div>
         </div>
     </div>
