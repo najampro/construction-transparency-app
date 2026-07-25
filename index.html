@@ -184,7 +184,7 @@
 
         .panel-title i { color: var(--accent-cyan); }
 
-        /* CAMERA GRID ON DASHBOARD */
+        /* CAMERA GRID */
         .camera-grid-layout {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -235,7 +235,7 @@
             z-index: 2;
         }
 
-        /* AI CHATBOX CONTAINER */
+        /* AI CHATBOX */
         .ai-chatbox {
             background: var(--bg-input);
             border: 1px solid var(--border-color);
@@ -416,23 +416,20 @@
         <div id="page-dashboard" class="page-content active">
             <div class="dashboard-layout-matrix">
                 <div>
-                    <!-- LIVE CAMERA OVERVIEW ON DASHBOARD -->
+                    <!-- LIVE CAMERA OVERVIEW -->
                     <div class="panel-card">
                         <div class="panel-title"><i class="fa-solid fa-video"></i> Live Site Camera Feeds (Multi-Angle)</div>
                         <div class="camera-grid-layout">
-                            <!-- Angle 1 -->
                             <div class="camera-feed-box">
                                 <div class="camera-overlay-tag"><i class="fa-solid fa-circle" style="color:var(--accent-green); font-size:6px;"></i> LIVE</div>
                                 <div class="camera-angle-label">Angle 1: Main Gate</div>
                                 <img src="https://images.unsplash.com/photo-1541888946425-d0fbb18f86f6?auto=format&fit=crop&w=600&q=80" alt="Cam 1">
                             </div>
-                            <!-- Angle 2 -->
                             <div class="camera-feed-box">
                                 <div class="camera-overlay-tag"><i class="fa-solid fa-circle" style="color:var(--accent-green); font-size:6px;"></i> LIVE</div>
                                 <div class="camera-angle-label">Angle 2: Foundation Zone</div>
                                 <img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=600&q=80" alt="Cam 2">
                             </div>
-                            <!-- Angle 3 -->
                             <div class="camera-feed-box">
                                 <div class="camera-overlay-tag"><i class="fa-solid fa-circle" style="color:var(--accent-green); font-size:6px;"></i> LIVE</div>
                                 <div class="camera-angle-label">Angle 3: Material Storage</div>
@@ -441,15 +438,15 @@
                         </div>
                     </div>
 
-                    <!-- AI ASSISTANT PANEL (Enhanced NLP for English & Roman Urdu) -->
+                    <!-- AI ASSISTANT PANEL -->
                     <div class="panel-card">
                         <div class="panel-title"><i class="fa-solid fa-robot"></i> AI Ops Assistant (English / Roman Urdu)</div>
                         <div class="ai-chatbox">
                             <div class="ai-messages-area" id="ai-chat-messages">
-                                <div class="ai-msg bot">Hello Najam! Main BuildTrack AI hoon. Aap mujhse English ya Roman Urdu mein kuch bhi pooch sakte hain (e.g. "Escrow balance kitna hai?", "What is my progress?", ya "Log steel cost 200000").</div>
+                                <div class="ai-msg bot">Assalam-o-Alaikum Najam. I am BuildTrack AI, your professional construction operational assistant. You may query escrow balances, track structural phases, or execute procurement logs.</div>
                             </div>
                             <form class="ai-input-bar" id="ai-chat-form">
-                                <input type="text" id="ai-user-input" placeholder="Type message or command in English / Roman Urdu..." autocomplete="off">
+                                <input type="text" id="ai-user-input" placeholder="Type message or command (e.g. Escrow balance kitna hai?)" autocomplete="off">
                                 <button type="submit"><i class="fa-solid fa-paper-plane"></i></button>
                             </form>
                         </div>
@@ -472,8 +469,8 @@
                             <div class="form-group" style="margin-bottom: 20px;">
                                 <label>Quality Verification</label>
                                 <select id="material-quality">
-                                    <option value="Passed Verification">Passed Structural Integrity Check</option>
-                                    <option value="Warning: Review Needed">Warning: Pending Lab Test</option>
+                                    <option value="Passed Quality Audit">Passed Structural Integrity Check</option>
+                                    <option value="Warning: Pending Lab Test">Warning: Pending Lab Test</option>
                                 </select>
                             </div>
                             <button type="submit" class="submit-btn-node">Commit & Sync Entry</button>
@@ -500,7 +497,6 @@
                             <span id="active-phase-status" style="font-weight: bold; color: var(--accent-amber);">In Progress</span>
                         </div>
 
-                        <!-- 6 Phases Render Container -->
                         <div id="milestone-phases-list"></div>
                     </div>
                 </div>
@@ -616,48 +612,42 @@
             }
         }
 
-        // ENHANCED ACCURATE AI ASSISTANT BRAIN (English & Roman Urdu)
+        // PROFESSIONAL AI ASSISTANT BRAIN (English & Roman Urdu)
         function handleAIBrain(userInput) {
             const query = userInput.toLowerCase().trim();
             let reply = "";
 
-            // Balance & Money Queries
-            if (query.includes('escrow') || query.includes('balance') || query.includes('paisa') || query.includes('pese') || query.includes('baki') || query.includes('bacha') || query.includes('funds')) {
+            if (query.includes('escrow') || query.includes('balance') || query.includes('paisa') || query.includes('pese') || query.includes('baki') || query.includes('funds') || query.includes('budget')) {
                 let currentBal = appState.totalEscrowPool - appState.totalExpensesLogged;
-                reply = `Current Escrow balance PKR ${currentBal.toLocaleString()} hai. Total allocation PKR 5,000,000 ki hai.`;
+                reply = `[Financial Audit]: Current available escrow balance is PKR ${currentBal.toLocaleString()}. Total allocated pool stands at PKR 5,000,000.`;
             } 
-            // Progress & Phase Queries
-            else if (query.includes('progress') || query.includes('phase') || query.includes('kaam') || query.includes('stage') || query.includes('percentage') || query.includes('kahan tak')) {
+            else if (query.includes('progress') || query.includes('phase') || query.includes('kaam') || query.includes('stage') || query.includes('percentage') || query.includes('status')) {
                 let active = constructionPhases[appState.currentPhaseIndex];
-                reply = `Current active phase "${active.name}" hai aur overall site progress ${appState.progressPercentage}% ho chuki hai.`;
+                reply = `[Operational Status]: Current active phase is "${active.name}" with overall site completion at ${appState.progressPercentage}%.`;
             }
-            // Expense Queries
-            else if (query.includes('expense') || query.includes('spend') || query.includes('kharcha') || query.includes('kharch') || query.includes('cost') || query.includes('total spend')) {
-                reply = `Ab tak total PKR ${appState.totalExpensesLogged.toLocaleString()} ka kharcha log ho chuka hai.`;
+            else if (query.includes('expense') || query.includes('spend') || query.includes('kharcha') || query.includes('kharch') || query.includes('cost') || query.includes('ledger')) {
+                reply = `[Expenditure Report]: Cumulative procurement expenditure logged to date is PKR ${appState.totalExpensesLogged.toLocaleString()}.`;
             }
-            // Action Command: Log Material (e.g. "log cement cost 50000" or "cement khareeda 50000 ka")
             else if (query.includes('log') || query.includes('add') || query.includes('khareeda') || query.includes('purchase') || query.includes('lga do') || query.includes('lagao')) {
                 let matchNum = query.match(/\d+/);
                 let costVal = matchNum ? parseInt(matchNum[0]) : 50000;
-                let itemName = "Construction Material";
+                let itemName = "Verified Construction Material";
                 
-                if(query.includes('cement')) itemName = "Cement Bags";
-                else if(query.includes('steel') || query.includes('sariya') || query.includes('rebar')) itemName = "Steel Rebar";
-                else if(query.includes('brick') || query.includes('eint') || query.includes('eent')) itemName = "Red Bricks";
-                else if(query.includes('sand') || query.includes('ret')) itemName = "Sand & Aggregate";
+                if(query.includes('cement')) itemName = "Grade-43 Portland Cement";
+                else if(query.includes('steel') || query.includes('sariya') || query.includes('rebar')) itemName = "Deformed Steel Rebar (Grade-60)";
+                else if(query.includes('brick') || query.includes('eint') || query.includes('eent')) itemName = "Class-A Red Bricks";
+                else if(query.includes('sand') || query.includes('ret')) itemName = "Chenab Sand & Aggregate";
 
-                reportsData.unshift({ name: itemName, cost: costVal, status: "Passed Verification" });
+                reportsData.unshift({ name: itemName, cost: costVal, status: "Passed Quality Audit" });
                 appState.totalExpensesLogged += costVal;
                 updateUI();
-                reply = `Theek hai Najam! "${itemName}" worth PKR ${costVal.toLocaleString()} successfully ledger mein add kar diya gaya hai aur balance update ho gaya hai.`;
+                reply = `[Procurement Logged]: Successfully recorded "${itemName}" amounting to PKR ${costVal.toLocaleString()}. Ledger and milestone matrix updated.`;
             }
-            // Greetings
-            else if (query.includes('salam') || query.includes('hello') || query.includes('hi') || query.includes('hey')) {
-                reply = `Walaikum Assalam Najam! Main BuildTrack AI hoon. Aap mujhse escrow balance, progress, total expenses pooch sakte hain ya material log karne ka command de sakte hain.`;
+            else if (query.includes('salam') || query.includes('hello') || query.includes('hi') || query.includes('hey') || query.includes('assalam')) {
+                reply = `Assalam-o-Alaikum Najam. I am BuildTrack AI, your professional construction operational assistant.`;
             }
-            // Default Fallback
             else {
-                reply = `Main samajh gaya hoon Najam. Aap site status janne ke liye "progress kitni hai?", balance ke liye "escrow balance", ya kharcha add karne ke liye "log cement cost 100000" likh sakte hain.`;
+                reply = `[AI Assistance]: Command recognized. You can query financial metrics, monitor site progress, or log expenses naturally.`;
             }
 
             return reply;
@@ -695,7 +685,6 @@
                 });
             });
 
-            // Procurement Form Handler
             const form = document.getElementById('log-form');
             if (form) {
                 form.addEventListener('submit', (e) => {
@@ -711,7 +700,6 @@
                 });
             }
 
-            // AI Chat Form Handler
             const aiForm = document.getElementById('ai-chat-form');
             const aiInput = document.getElementById('ai-user-input');
             const aiMessages = document.getElementById('ai-chat-messages');
@@ -722,12 +710,10 @@
                     const text = aiInput.value.trim();
                     if (!text) return;
 
-                    // Append user message
                     aiMessages.innerHTML += `<div class="ai-msg user">${text}</div>`;
                     aiInput.value = "";
                     aiMessages.scrollTop = aiMessages.scrollHeight;
 
-                    // Generate AI response
                     setTimeout(() => {
                         const botReply = handleAIBrain(text);
                         aiMessages.innerHTML += `<div class="ai-msg bot">${botReply}</div>`;
