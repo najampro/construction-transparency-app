@@ -145,7 +145,7 @@ async function triggerAiAudit(id) {
     }
 
     // Your Key Retained As Requested
-    const apiKey = "AQ.Ab8RN6LjzRiemIgdv_KfYjCoJFnbT2ITYN3qrlm7hIFgPlU_sQ";
+    const apiKey = 
    
     // Simulation Fallback if Key isn't populated properly
     if (!apiKey) {
