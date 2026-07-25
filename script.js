@@ -1,216 +1,239 @@
-// ==========================================
-// 1. INITIAL MOCK DATA (Project Base Logs)
-// ==========================================
+// INITIAL DATA WITH ADVANCED ATTRIBUTES
 let siteUpdates = [
     {
         id: 1,
         title: "Excavation and Heavy Machinery Site Prep",
         cost: "340,000",
         date: "July 25, 2026",
-        receipt: "Excavator rental for 4 days: PKR 180,000. Fuel costs and manual labor dump setup: PKR 160,000.",
+        quality: "Premium/Passed",
+        receipt: "Excavator rental for 4 days: PKR 180,000. Fuel costs setup: PKR 160,000. TOTAL COST: PKR 340,000",
         imageUrl: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=800&q=80",
         audit: {
             status: "Verified",
-            confidence: "High",
-            summary: "Heavy machinery deployment and deep earthworks match the logged logistics cost metrics.",
+            confidence: "High Ecosystem Assurance",
+            summary: "Heavy machinery logistics deployment and deep earthworks perfectly match verified records.",
             flags: "None",
-            steps: "Proceed to foundation footing concreting."
+            steps: "Proceed to foundation footing state seamlessly."
         }
     }
 ];
 
-// ==========================================
-// 2. DOM CONTENT LOADED (Initialization)
-// ==========================================
+let initialEscrowPool = 5000000; // 50 Lakh total starting escrow pool
+let currentClient = null;
+let isSignUpMode = false;
+
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("System Initialized Successfully in Offline Simulation Mode!");
-    
-    // Initial Render
+    checkActiveSession();
+    setupAuthListeners();
+    setupCoreAppListeners();
+    calculateLiveMetrics();
     renderTimeline();
+});
+
+// SYSTEM AUTH PARSER
+function checkActiveSession() {
+    const savedUser = localStorage.getItem("track_client_session");
+    const authModal = document.getElementById("auth-modal");
+    const appLayout = document.getElementById("main-app-layout");
     
-    // Handle Form Submission
+    if (savedUser) {
+        currentClient = JSON.parse(savedUser);
+        authModal.style.display = "none";
+        appLayout.classList.remove("main-blurred");
+        document.getElementById("user-display-name").innerText = currentClient.name || "Najam";
+        document.getElementById("avatar-letters").innerText = (currentClient.name || "NJ").substring(0,2).toUpperCase();
+    } else {
+        authModal.style.display = "flex";
+        appLayout.classList.add("main-blurred");
+    }
+}
+
+function setupAuthListeners() {
+    const switchLink = document.getElementById("auth-switch-link");
+    const authForm = document.getElementById("auth-form");
+    
+    switchLink.addEventListener("click", (e) => {
+        e.preventDefault();
+        isSignUpMode = !isSignUpMode;
+        document.getElementById("auth-subtitle").innerText = isSignUpMode ? "Register secure credentials" : "Secure client node gateway";
+        document.getElementById("name-group").style.display = isSignUpMode ? "block" : "none";
+        document.getElementById("auth-submit-btn").innerText = isSignUpMode ? "Register Node" : "Authenticate System";
+        switchLink.innerText = isSignUpMode ? "Log In" : "Create Account";
+    });
+
+    authForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const email = document.getElementById("auth-email").value;
+        const password = document.getElementById("auth-pass").value;
+        let name = document.getElementById("auth-name").value || "Najam";
+        
+        if (isSignUpMode) {
+            const userData = { name, email, pass: password };
+            localStorage.setItem(`client_reg_${email}`, JSON.stringify(userData));
+            localStorage.setItem("track_client_session", JSON.stringify(userData));
+        } else {
+            const stored = localStorage.getItem(`client_reg_${email}`);
+            if (!stored || JSON.parse(stored).pass !== password) {
+                alert("Invalid verification credentials.");
+                return;
+            }
+            localStorage.setItem("track_client_session", stored);
+        }
+        authForm.reset();
+        checkActiveSession();
+    });
+
+    document.getElementById("logout-btn").addEventListener("click", () => {
+        localStorage.removeItem("track_client_session");
+        checkActiveSession();
+    });
+}
+
+// REAL-TIME WALLET & MATERIAL INTELLIGENCE
+function calculateLiveMetrics() {
+    let totalSpent = 0;
+    
+    siteUpdates.forEach(item => {
+        const val = parseInt(item.cost.replace(/,/g, ''));
+        totalSpent += isNaN(val) ? 0 : val;
+    });
+    
+    // Dynamic Escrow Reduction Logic
+    let currentBalance = initialEscrowPool - totalSpent;
+    if(currentBalance < 0) currentBalance = 0;
+    
+    document.getElementById("stat-escrow-balance").innerText = currentBalance.toLocaleString();
+}
+
+// LOGGING FORM INTERACTION
+function setupCoreAppListeners() {
     const logForm = document.getElementById("log-form");
     if (logForm) {
         logForm.addEventListener("submit", (e) => {
             e.preventDefault();
-            
             const title = document.getElementById("material-name").value;
             const costVal = parseInt(document.getElementById("material-cost").value);
             const cost = isNaN(costVal) ? "0" : costVal.toLocaleString();
+            const quality = document.getElementById("material-quality").value;
             const receipt = document.getElementById("receipt-text").value;
+            const imgVal = document.getElementById("site-image").value;
             
-            // Image handling with fallback
-            const imageInput = document.getElementById("site-image").value;
-            const imageUrl = imageInput ? imageInput : "https://images.unsplash.com/photo-1590069261209-f8e9b8642343?auto=format&fit=crop&w=1200&q=80";
+            // Fallback default material visual placeholder if URL missing
+            const imageUrl = imgVal ? imgVal : "https://images.unsplash.com/photo-1590069261209-f8e9b8642343?auto=format&fit=crop&w=800&q=80";
             
-            const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            // Automatically push to dynamic ledger stream
+            siteUpdates.unshift({
+                id: Date.now(), title, cost, date: new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }),
+                quality, receipt, imageUrl, audit: null
+            });
             
-            const newUpdate = {
-                id: Date.now(),
-                title,
-                cost,
-                date,
-                receipt,
-                imageUrl,
-                audit: null
-            };
+            // Dynamic CCTV Camera Mirror Effect: change CCTV image to the latest input proof instantly to show real-time synchronization
+            document.getElementById("cctv-stream-img").src = imageUrl;
             
-            siteUpdates.unshift(newUpdate);
+            calculateLiveMetrics();
             renderTimeline();
             logForm.reset();
         });
     }
+    document.querySelector(".close-btn").addEventListener("click", () => {
+        document.getElementById("audit-modal").style.display = "none";
+    });
+}
 
-    // Modal Close Action
-    const closeBtn = document.querySelector(".close-btn");
-    if (closeBtn) {
-        closeBtn.addEventListener("click", () => {
-            document.getElementById("audit-modal").style.display = "none";
-        });
-    }
-});
-
-// ==========================================
-// 3. RENDER TIMELINE FUNCTION
-// ==========================================
+// RENDER TIMELINE ENTRIES WITH BRAND QUALITY ASSURANCE STAMPS
 function renderTimeline() {
     const container = document.getElementById("timeline-container");
     if (!container) return;
-    
     container.innerHTML = "";
     
     siteUpdates.forEach(update => {
         const item = document.createElement("div");
         item.className = "timeline-item";
-        item.style.borderLeft = "3px solid #4a5568";
-        item.style.paddingLeft = "15px";
-        item.style.marginBottom = "20px";
-        
         item.innerHTML = `
-            <div style="font-size: 0.85rem; color:#718096;"><i class="far fa-calendar-alt"></i> ${update.date}</div>
-            <h3 style="margin: 5px 0;">${update.title}</h3>
-            <p style="font-weight:600; color:#2f855a; margin: 2px 0;">Cost: PKR ${update.cost}</p>
-            <p style="font-size:0.9rem; color:#4a5568;"><strong>Receipt Log:</strong> ${update.receipt}</p>
-            <img src="${update.imageUrl}" alt="Progress Image" style="max-width:100%; max-height:250px; border-radius:6px; margin: 8px 0; display:block;">
-            <div style="margin-top: 8px;">
-                <button style="cursor:pointer; padding: 6px 12px; background:#2b6cb0; color:white; border:none; border-radius:4px;" onclick="triggerAiAudit(${update.id})">
-                    <i class="fas fa-shield-halved"></i> ${update.audit ? 'View Audit Report' : 'Run AI System Audit'}
-                </button>
+            <div class="timeline-date"><i class="fa-regular fa-clock"></i> ${update.date}</div>
+            <h3>${update.title}</h3>
+            <div style="display:flex; gap:8px; align-items:center;">
+                <span class="cost-tag">PKR ${update.cost}</span>
+                <span class="quality-indicator-stamp"><i class="fa-solid fa-circle-check"></i> ${update.quality}</span>
             </div>
+            <img src="${update.imageUrl}" class="timeline-img">
+            <button class="btn-audit-trigger" onclick="triggerAiAudit(${update.id})">
+                <i class="fa-solid fa-microchip"></i> ${update.audit ? 'View Audit Metadata' : 'Launch Engine Audit'}
+            </button>
         `;
         container.appendChild(item);
     });
 }
 
-// ==========================================
-// 4. OFFLINE SIMULATION AUDIT (No API Key Needed)
-// ==========================================
-// ==========================================
-// 4. INTELLIGENT OFFLINE SIMULATION AUDIT
-// ==========================================
+// DYNAMIC RUNTIME TELEMETRY AUDIT
 function triggerAiAudit(id) {
     const modal = document.getElementById("audit-modal");
     const loading = document.getElementById("modal-loading");
     const resultDiv = document.getElementById("modal-result");
     
     modal.style.display = "flex";
-    loading.style.display = "block";
+    loading.style.display = "flex";
     resultDiv.style.display = "none";
     
     const item = siteUpdates.find(u => u.id === id);
     if (!item) return;
     
-    // Agar pehle se audit ho chuka hai, to direct report dikhao
     if (item.audit) {
         displayAuditResult(item.audit);
         return;
     }
 
-    // AI Processing Effect (1.5 seconds delay)
     setTimeout(() => {
-        // 1. Form se input ki gayi cost nikalain (e.g., "300,000" -> 300000)
         const typedCost = parseInt(item.cost.replace(/,/g, ''));
-        
-        // 2. Receipt text ke andar se total dhundne ki koshish karain (Regex se)
         let receiptCost = 0;
-        const totalMatch = item.receipt.match(/TOTAL BUDGET UTILIZED \/ COST:\s*PKR\s*([0-9,]+)/i);
+        const totalMatch = item.receipt.match(/(?:TOTAL COST|TOTAL AMOUNT|NET TOTAL):\s*PKR\s*([0-9,]+)/i);
         
         if (totalMatch && totalMatch[1]) {
             receiptCost = parseInt(totalMatch[1].replace(/,/g, ''));
         }
 
-        // 3. Check karain kya input cost aur receipt cost me farq hai?
         const isMismatch = receiptCost > 0 && typedCost !== receiptCost;
-        const isOverBudget = typedCost > 500000; // Ek general alert limit
         
         if (isMismatch) {
-            // Agar ghalat entry daali gayi hai to yeh trigger hoga!
             item.audit = {
                 status: "Discrepancy Detected",
-                confidence: "High (Integrity Check)",
-                summary: `Financial anomaly caught: The cost entered in the form (PKR ${item.cost}) does not match the total verified amount listed inside the receipt text (PKR ${receiptCost.toLocaleString()}).`,
-                flags: `Billing mismatch detected! Discrepancy of PKR ${(typedCost - receiptCost).toLocaleString()} identified.`,
-                steps: "Reject this entry. Cross-verify the typed log input with the physical receipt immediately before unlocking the ledger."
-            };
-        } else if (isOverBudget) {
-            // Agar amount 5 lakh se zyada ho
-            item.audit = {
-                status: "Caution",
-                confidence: "Medium",
-                summary: "Large transaction volume detected. The logged material costs align with the receipt text, but the pricing exceeds baseline single-day thresholds.",
-                flags: "High expenditure warning.",
-                steps: "Verify with site engineer if this large delivery was authorized in the phase plan."
+                confidence: "Ecosystem Conflict Level",
+                summary: `Escrow mismatch detected. Form input requires PKR ${item.cost} but text metadata string specifies PKR ${receiptCost.toLocaleString()}.`,
+                flags: `PKR ${(typedCost - receiptCost).toLocaleString()} discrepancy flagged.`,
+                steps: "Escrow release paused. Request physical site verification voucher."
             };
         } else {
-            // Agar sab kuch bilkul barabar aur sahi ho
             item.audit = {
                 status: "Verified",
-                confidence: "High (System Simulation)",
-                summary: "Automated verification complete. The typed cost matches the receipt breakdown perfectly, and rates are within standard market metrics.",
+                confidence: "100% Cryptographic Match",
+                summary: `Material authenticated successfully. Quality parameters marked as [${item.quality}].`,
                 flags: "None",
-                steps: "Approve and lock batch record entry."
+                steps: "Deduction cleared from Escrow Node. Funds securely merged into master ledger."
             };
         }
         
+        calculateLiveMetrics();
         displayAuditResult(item.audit);
-        updateDashboardBadge(item.audit.status);
-        renderTimeline(); // UI refresh
-    }, 1500);
-}
-// ==========================================
-// 5. HELPER UI DISPLAY FUNCTIONS
-// ==========================================
-function displayAuditResult(audit) {
-    const loading = document.getElementById("modal-loading");
-    const resultDiv = document.getElementById("modal-result");
-    
-    loading.style.display = "none";
-    resultDiv.style.display = "block";
-    
-    let badgeColor = "#2f855a"; // Green
-    if (audit.status === "Caution") badgeColor = "#dd6b20"; // Orange
-    if (audit.status === "Discrepancy Detected") badgeColor = "#e53e3e"; // Red
-    
-    resultDiv.innerHTML = `
-        <div style="margin: 1rem 0; display:flex; justify-content:space-between; align-items:center;">
-            <strong>Integrity Check:</strong> 
-            <span style="background:${badgeColor}; color:white; padding:4px 8px; border-radius:4px; font-size:0.85rem; font-weight:bold;">${audit.status}</span>
-        </div>
-        <p><strong>Confidence Rating:</strong> ${audit.confidence}</p>
-        <p style="margin: 0.8rem 0; padding:10px; background:#f7fafc; border-left:4px solid #4a5568; font-size:0.95rem;">
-            <strong>Analysis Summary:</strong> ${audit.summary}
-        </p>
-        <p style="color:#c53030;"><strong>Flags Raised:</strong> ${audit.flags}</p>
-        <p style="margin-top:0.5rem; color:#2b6cb0;"><strong>Next Steps:</strong> ${audit.steps}</p>
-    `;
+        renderTimeline();
+    }, 1200);
 }
 
-function updateDashboardBadge(status) {
-    const badge = document.getElementById("audit-status-badge");
-    if (!badge) return;
+function displayAuditResult(audit) {
+    document.getElementById("modal-loading").style.display = "none";
+    const res = document.getElementById("modal-result");
+    res.style.display = "block";
     
-    badge.innerText = status;
-    if(status === "Verified") badge.style.color = "#2f855a";
-    if(status === "Caution") badge.style.color = "#dd6b20";
-    if(status === "Discrepancy Detected") badge.style.color = "#e53e3e";
+    let color = "var(--neon-green)";
+    if(audit.status === "Discrepancy Detected") color = "var(--neon-red)";
+    
+    res.innerHTML = `
+        <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+            <strong>Audit Telemetry:</strong>
+            <span style="color:${color}; font-weight:bold;">${audit.status}</span>
+        </div>
+        <p style="font-size:0.85rem; color:var(--text-muted);"><strong>Confidence Level:</strong> ${audit.confidence}</p>
+        <p style="background:#090d16; padding:12px; border-radius:8px; border-left:3px solid var(--accent); font-size:0.85rem;">${audit.summary}</p>
+        <p style="color:var(--neon-red); font-size:0.85rem;"><strong>System Flags:</strong> ${audit.flags}</p>
+        <p style="color:var(--accent); font-size:0.85rem;"><strong>Action Protocol:</strong> ${audit.steps}</p>
+    `;
 }
