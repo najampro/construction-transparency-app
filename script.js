@@ -77,7 +77,7 @@ function renderTimeline() {
     });
 }
 
-// Trigger Gemini API Audit
+// Trigger Gemini API Audit with New Structured Google Model Configuration
 async function triggerAiAudit(id) {
     const modal = document.getElementById("audit-modal");
     const loading = document.getElementById("modal-loading");
@@ -113,38 +113,58 @@ async function triggerAiAudit(id) {
     }
 
     try {
-        const systemPrompt = `You are an expert Forensic Construction Auditor. Analyze the provided receipt logs and verify if it matches basic construction standards. Return a strict JSON object with fields: status ("Verified", "Caution", or "Discrepancy Detected"), confidence, summary, flags, and steps.`;
-        const userPrompt = `Material Title: ${item.title}. Billed Cost: PKR ${item.cost}. Receipt/Invoice Content: ${item.receipt}. Reference Site Photo Link: ${item.imageUrl}.`;
+        const systemInstruction = "You are an expert Forensic Construction Auditor. Your role is to cross-reference construction material logs, costs, and text receipts against engineering and physical logic to detect fraud, anomalies, or verify clean alignment.";
+        const userPrompt = `Please run an integrity audit on this update entry:\nMaterial Title: ${item.title}\nLogged System Cost: PKR ${item.cost}\nReceipt Transcript text: ${item.receipt}\nContext Site Image Reference: ${item.imageUrl}`;
 
+        // Using Google Gemini API with responseSchema validation configurations
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                contents: [{ parts: [{ text: systemPrompt + "\n\n" + userPrompt }] }]
+                systemInstruction: {
+                    parts: [{ text: systemInstruction }]
+                },
+                contents: [{
+                    parts: [{ text: userPrompt }]
+                }],
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            status: { type: "STRING", enum: ["Verified", "Caution", "Discrepancy Detected"] },
+                            confidence: { type: "STRING", enum: ["High", "Medium", "Low"] },
+                            summary: { type: "STRING" },
+                            flags: { type: "STRING" },
+                            steps: { type: "STRING" }
+                        },
+                        required: ["status", "confidence", "summary", "flags", "steps"]
+                    }
+                }
             })
         });
 
         const data = await response.json();
         const rawText = data.candidates[0].content.parts[0].text;
         
-        // Clean markdown backticks out of the response string if JSON block is given
-        const cleanJson = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
-        const parsedAudit = JSON.parse(cleanJson);
+        // Directly parsing the response because schema guarantees pure JSON structure
+        const parsedAudit = JSON.parse(rawText.trim());
         
         item.audit = {
-            status: parsedAudit.status || "Verified",
-            confidence: parsedAudit.confidence || "High",
-            summary: parsedAudit.summary || parsedAudit.audit_summary || "Audit processing completed.",
-            flags: parsedAudit.flags ? parsedAudit.flags.toString() : "None",
-            steps: parsedAudit.steps || parsedAudit.recommended_next_steps ? parsedAudit.recommended_next_steps.toString() : "No urgent anomalies flagged."
+            status: parsedAudit.status,
+            confidence: parsedAudit.confidence,
+            summary: parsedAudit.summary,
+            flags: parsedAudit.flags,
+            steps: parsedAudit.steps
         };
         
         displayAuditResult(item.audit);
         updateDashboardBadge(item.audit.status);
     } catch (error) {
+        console.error("AI Generation Error: ", error);
         loading.style.display = "none";
         resultDiv.className = "";
-        resultDiv.innerHTML = `<p style="color:red;"><i class="fas fa-triangle-exclamation"></i> Error communicating with Gemini API Engine. Check your network configuration and API key rules.</p>`;
+        resultDiv.innerHTML = `<p style="color:red;"><i class="fas fa-triangle-exclamation"></i> Error communicating with Google Gemini Engine. Please confirm that your API key is valid and has active quotas.</p>`;
     }
 }
 
@@ -174,7 +194,6 @@ function displayAuditResult(audit) {
 function updateDashboardBadge(status) {
     const badge = document.getElementById("audit-status-badge");
     badge.innerText = status;
-    const parentCard = badge.closest(".card");
     
     if(status === "Verified") badge.style.color = "var(--success)";
     if(status === "Caution") badge.style.color = "var(--warning)";
