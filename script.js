@@ -23,18 +23,20 @@ if (typeof firebase !== 'undefined') {
 let appState = {
     totalEscrowPool: 5000000,
     totalExpensesLogged: 0,
-    progressPercentage: 25, // Dynamic initialization based on baseline entry
+    progressPercentage: 16, // Dynamic initialization based on baseline phase 1/6
     isLoggedIn: false,
     currentCameraIndex: 0,
     currentPhaseIndex: 0 // Baseline Phase Indicator Node
 };
 
-// Construction Phases Sequence Matrix Array
+// 6-POINT CONSTRUCTION PHASES SEQUENCE MATRIX ARRAY (Matching your template structure)
 const constructionPhases = [
-    { name: "Phase 1: Foundation & Excavation", targetProgress: 25, status: "In Progress" },
-    { name: "Phase 2: Plinth Beam & Grey Structure", targetProgress: 50, status: "Pending" },
-    { name: "Phase 3: Roofing & Brickwork Slab", targetProgress: 75, status: "Pending" },
-    { name: "Phase 4: Finishing, Plaster & Plumbing", targetProgress: 100, status: "Pending" }
+    { name: "Phase 1: Excavation & Layout", targetProgress: 16, status: "In Progress" },
+    { name: "Phase 2: Foundation Wall Pouring", targetProgress: 33, status: "Pending" },
+    { name: "Phase 3: Plinth Beam & DPC Level", targetProgress: 50, status: "Pending" },
+    { name: "Phase 4: Brickwork & Lintel Structure", targetProgress: 66, status: "Pending" },
+    { name: "Phase 5: Roofing & Concrete Slab", targetProgress: 83, status: "Pending" },
+    { name: "Phase 6: Finishing & Infrastructure", targetProgress: 100, status: "Pending" }
 ];
 
 let reportsData = [];
@@ -47,39 +49,41 @@ const cameraFeeds = [
     { tag: "CAM 03 — BOUNDARY PERIMETER", src: "https://images.unsplash.com/photo-1590069261209-f8e9b8642343?auto=format&fit=crop&w=800&q=80" }
 ];
 
-// ================= AUTOMATED CONSTRUCTION PHASE CALCULATOR ENGINE =================
+// ================= AUTOMATED 6-PHASE CONSTRUCTION CALCULATOR ENGINE =================
 function evaluateConstructionPhaseMetrics() {
     const expenseSum = appState.totalExpensesLogged;
     
-    if (expenseSum <= 1000000) {
+    // Budget slabs dynamically split into 6 programmatic stages based on a 50 Lakh total escrow
+    if (expenseSum <= 500000) {
         appState.currentPhaseIndex = 0;
-        appState.progressPercentage = 25;
-        constructionPhases[0].status = "In Progress";
-        constructionPhases[1].status = "Pending";
-        constructionPhases[2].status = "Pending";
-        constructionPhases[3].status = "Pending";
-    } else if (expenseSum > 1000000 && expenseSum <= 2500000) {
+        appState.progressPercentage = 16;
+    } else if (expenseSum > 500000 && expenseSum <= 1200000) {
         appState.currentPhaseIndex = 1;
-        appState.progressPercentage = 50;
-        constructionPhases[0].status = "Completed";
-        constructionPhases[1].status = "In Progress";
-        constructionPhases[2].status = "Pending";
-        constructionPhases[3].status = "Pending";
-    } else if (expenseSum > 2500000 && expenseSum <= 4000000) {
+        appState.progressPercentage = 33;
+    } else if (expenseSum > 1200000 && expenseSum <= 2200000) {
         appState.currentPhaseIndex = 2;
-        appState.progressPercentage = 75;
-        constructionPhases[0].status = "Completed";
-        constructionPhases[1].status = "Completed";
-        constructionPhases[2].status = "In Progress";
-        constructionPhases[3].status = "Pending";
-    } else {
+        appState.progressPercentage = 50;
+    } else if (expenseSum > 2200000 && expenseSum <= 3200000) {
         appState.currentPhaseIndex = 3;
+        appState.progressPercentage = 66;
+    } else if (expenseSum > 3200000 && expenseSum <= 4200000) {
+        appState.currentPhaseIndex = 4;
+        appState.progressPercentage = 83;
+    } else {
+        appState.currentPhaseIndex = 5;
         appState.progressPercentage = 100;
-        constructionPhases[0].status = "Completed";
-        constructionPhases[1].status = "Completed";
-        constructionPhases[2].status = "Completed";
-        constructionPhases[3].status = "Completed";
     }
+
+    // Synchronize statuses across all 6 indices
+    constructionPhases.forEach((phase, idx) => {
+        if (idx < appState.currentPhaseIndex) {
+            phase.status = "Completed";
+        } else if (idx === appState.currentPhaseIndex) {
+            phase.status = "In Progress";
+        } else {
+            phase.status = "Pending";
+        }
+    });
 }
 
 // ================= GLOBAL METRICS SYNCHRONIZER (DOM COUPLING) =================
@@ -114,7 +118,7 @@ if (typeof db !== 'undefined') {
           appState.totalExpensesLogged = tempTotalCost;
           syncGlobalDOMStats();
           renderReports();
-          renderPhaseTracker(); // Synchronize view matrix
+          renderPhaseTracker(); // Synchronize view matrix array metrics
       }, (err) => console.error("Firestore synchronizer failed to snapshot expenses:", err));
 
     // B. Security Access Log Live Listener
@@ -173,11 +177,16 @@ function renderSecurityLogs() {
     `).join('');
 }
 
-// 3. Dynamic Construction Phase Progress Tracker Grid Component Renderer
+// 3. Dynamic Construction 6-Phase Milestone Tracker Renderer
 function renderPhaseTracker() {
-    const phaseTitleDOM = document.getElementById('active-phase-title');
-    const phaseStatusDOM = document.getElementById('active-phase-status');
-    const milestoneContainer = document.getElementById('milestone-phases-list');
+    // Dynamic coupling nodes mapping directly to the HTML IDs
+    const phaseTitleDOM = document.getElementById('active-phase-title') || document.getElementById('current-phase-name');
+    const phaseStatusDOM = document.getElementById('active-phase-status') || document.getElementById('current-phase-status');
+    
+    // Unified targeting selector for list components (Looks for standard milestone wrappers)
+    const milestoneContainer = document.getElementById('milestone-phases-list') || 
+                                 document.getElementById('phase-tracker-container') || 
+                                 document.getElementById('phases-container');
     
     if (phaseTitleDOM && phaseStatusDOM) {
         const currentPhase = constructionPhases[appState.currentPhaseIndex];
@@ -247,7 +256,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 appState.totalExpensesLogged += costInput;
                 syncGlobalDOMStats();
                 renderReports();
-                renderPhaseTracker(); // Dynamic tracking pipeline integration run
+                renderPhaseTracker(); // Dynamic tracking pipeline execution run
                 logForm.reset();
             }
         });
@@ -336,7 +345,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // 5. SECURITY SYSTEM IDENTITY AUTHENTICATION CONTROLS
+    // 6. SECURITY SYSTEM IDENTITY AUTHENTICATION CONTROLS
     const loginTriggerBtn = document.getElementById('login-trigger-btn');
     const accountAuthModal = document.getElementById('account-auth-modal');
     const closeAuthModal = document.getElementById('close-auth-modal');
@@ -382,7 +391,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ================= 6. ASYNC GRADED AI FEATURE (ROMAN URDU & ENG DUAL MATRIX) =================
+    // ================= 7. ASYNC GRADED AI FEATURE (ROMAN URDU & ENG DUAL MATRIX) =================
     const btnTriggerAI = document.getElementById('btn-trigger-ai');
     const aiInputQuery = document.getElementById('ai-input-query');
     const aiResponseBox = document.getElementById('ai-response-box');
