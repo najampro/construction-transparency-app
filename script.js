@@ -10,7 +10,7 @@ const firebaseConfig = {
     appId: "YOUR_APP_ID"
 };
 
-// Initialize Firebase Network Connectivity
+// Initialize Firebase Network Connectivity Safely
 if (typeof firebase !== 'undefined') {
     firebase.initializeApp(firebaseConfig);
     var db = firebase.firestore();
@@ -22,10 +22,10 @@ if (typeof firebase !== 'undefined') {
 let appState = {
     totalEscrowPool: 5000000,
     totalExpensesLogged: 0,
-    progressPercentage: 16, // Dynamic initialization based on baseline phase 1/6
+    progressPercentage: 16,
     isLoggedIn: false,
     currentCameraIndex: 0,
-    currentPhaseIndex: 0 // Baseline Phase Indicator Node
+    currentPhaseIndex: 0 
 };
 
 // 6-POINT CONSTRUCTION PHASES SEQUENCE MATRIX ARRAY
@@ -41,7 +41,6 @@ const constructionPhases = [
 let reportsData = [];
 let securityIncidents = [];
 
-// Static Structural Assets Arrays for CCTV Engine
 const cameraFeeds = [
     { tag: "CAM 01 — FOUNDATION AXIS", src: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=800&q=80" },
     { tag: "CAM 02 — STORAGE & REBAR BAY", src: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=800&q=80" },
@@ -52,7 +51,6 @@ const cameraFeeds = [
 function evaluateConstructionPhaseMetrics() {
     const expenseSum = appState.totalExpensesLogged;
     
-    // Budget slabs dynamically split into 6 programmatic stages based on a 50 Lakh total escrow
     if (expenseSum <= 500000) {
         appState.currentPhaseIndex = 0;
         appState.progressPercentage = 16;
@@ -73,7 +71,6 @@ function evaluateConstructionPhaseMetrics() {
         appState.progressPercentage = 100;
     }
 
-    // Synchronize statuses across all 6 indices
     constructionPhases.forEach((phase, idx) => {
         if (idx < appState.currentPhaseIndex) {
             phase.status = "Completed";
@@ -87,8 +84,7 @@ function evaluateConstructionPhaseMetrics() {
 
 // ================= GLOBAL METRICS SYNCHRONIZER (DOM COUPLING) =================
 function syncGlobalDOMStats() {
-    evaluateConstructionPhaseMetrics(); // Evaluate states dynamically before UI update
-    
+    evaluateConstructionPhaseMetrics(); 
     const remainingBalance = appState.totalEscrowPool - appState.totalExpensesLogged;
     
     const balanceDOM = document.getElementById('stat-escrow-balance');
@@ -102,42 +98,36 @@ function syncGlobalDOMStats() {
 
 // ================= DYNAMIC DATA INGESTION NODES (REAL-TIME DB LISTENERS) =================
 if (typeof db !== 'undefined') {
-    // A. Material Procurement Live Listener
     db.collection("expenses").orderBy("timestamp", "desc")
       .onSnapshot((snapshot) => {
           reportsData = [];
           let tempTotalCost = 0;
-          
           snapshot.forEach((doc) => {
               const data = doc.data();
               reportsData.push(data);
               tempTotalCost += (parseInt(data.cost) || 0);
           });
-          
           appState.totalExpensesLogged = tempTotalCost;
           syncGlobalDOMStats();
           renderReports();
-          renderPhaseTracker(); // Synchronize view matrix array metrics
-      }, (err) => console.error("Firestore synchronizer failed to snapshot expenses:", err));
+          renderPhaseTracker(); 
+      }, (err) => console.error("Firestore sync failed:", err));
 
-    // B. Security Access Log Live Listener
     db.collection("security_logs").orderBy("timestamp", "desc").limit(10)
       .onSnapshot((snapshot) => {
           securityIncidents = [];
           snapshot.forEach((doc) => {
-              doc.data();
               securityIncidents.push(doc.data());
           });
           renderSecurityLogs();
-      }, (err) => console.error("Firestore synchronizer failed to snapshot security logs:", err));
+      }, (err) => console.error("Firestore security sync failed:", err));
 }
 
 // ================= UI RENDER IMPLEMENTATION PATTERNS =================
 
-// 1. Render Expenses Ledger List Card Items
 function renderReports() {
     const container = document.getElementById('material-reports-container');
-    if (!container) return;
+    if (!container) return; // Safeguard against crash
     
     if (reportsData.length === 0) {
         container.innerHTML = `<p style="color:#64748b; font-size:0.85rem; padding:10px;">No materials logged in cloud sequence yet.</p>`;
@@ -157,10 +147,9 @@ function renderReports() {
     `).join('');
 }
 
-// 2. Render Security Logs List Terminal
 function renderSecurityLogs() {
     const container = document.getElementById('security-incident-logs');
-    if (!container) return;
+    if (!container) return; // Safeguard against crash
     
     if (securityIncidents.length === 0) {
         container.innerHTML = `<p style="color:#64748b; font-size:0.85rem; padding:10px;">Security networks online. Ready.</p>`;
@@ -177,12 +166,13 @@ function renderSecurityLogs() {
     `).join('');
 }
 
-// 3. Dynamic Construction 6-Phase Milestone Tracker Renderer
+// 3. Dynamic Construction 6-Phase Milestone Tracker Renderer WITH SAFEGUARDS
 function renderPhaseTracker() {
     const phaseTitleDOM = document.getElementById('active-phase-title');
     const phaseStatusDOM = document.getElementById('active-phase-status');
     const milestoneContainer = document.getElementById('milestone-phases-list');
     
+    // Safely check and update active phase text elements
     if (phaseTitleDOM && phaseStatusDOM) {
         const currentPhase = constructionPhases[appState.currentPhaseIndex];
         phaseTitleDOM.textContent = currentPhase.name;
@@ -197,18 +187,18 @@ function renderPhaseTracker() {
         }
     }
 
+    // Safely map and render all 6 points list UI block
     if (milestoneContainer) {
         milestoneContainer.innerHTML = constructionPhases.map((phase, idx) => {
-            // Icon dynamically switches based on completion state status
             let iconClass = 'fa-circle';
             let iconColor = '#64748b';
             
             if (idx < appState.currentPhaseIndex) {
                 iconClass = 'fa-circle-check';
-                iconColor = '#34d399'; // Green for finished steps
+                iconColor = '#34d399'; 
             } else if (idx === appState.currentPhaseIndex) {
                 iconClass = 'fa-circle-dot';
-                iconColor = '#22d3ee'; // Cyan for current active step
+                iconColor = '#22d3ee'; 
             }
 
             return `
@@ -229,7 +219,39 @@ function renderPhaseTracker() {
 // ================= LIFE-CYCLE STATE LOADER & TRIGGER REGISTRY =================
 document.addEventListener("DOMContentLoaded", () => {
     
-    // FORCED FIRST RUN INITIALIZATION LAYOUT (Takay load hotay hi saare phases print ho jayen)
+    // CRITICAL: Sidebar Application View Router Matrix (Upar shift kiya taake yeh sabse pehle initialize ho jaye aur options band na hon!)
+    const menuItems = document.querySelectorAll('.sidebar-menu .menu-item');
+    const pageContents = document.querySelectorAll('.page-content');
+    const currentViewTitle = document.getElementById('current-view-title');
+    const currentViewDesc = document.getElementById('current-view-desc');
+
+    const viewMeta = {
+        'page-dashboard': { title: "Site Overview & Logs", desc: "Real-time construction operational stream" },
+        'page-security': { title: "Site Security & Perimeter Node", desc: "Access control systems and automated breach management" },
+        'page-escrow': { title: "Escrow Financial Pools", desc: "Automated funds release tracking and milestone verification" },
+        'page-settings': { title: "System Settings", desc: "Configure preferences and core parameters for BuildTrack App" }
+    };
+
+    if (menuItems.length > 0) {
+        menuItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                menuItems.forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                
+                const targetPageId = item.getAttribute('data-target');
+                
+                pageContents.forEach(page => page.classList.remove('active'));
+                const activePage = document.getElementById(targetPageId);
+                if (activePage) activePage.classList.add('active');
+                
+                if (currentViewTitle && viewMeta[targetPageId]) currentViewTitle.textContent = viewMeta[targetPageId].title;
+                if (currentViewDesc && viewMeta[targetPageId]) currentViewDesc.textContent = viewMeta[targetPageId].desc;
+            });
+        });
+    }
+
+    // Run core functions with strict safety rules
     evaluateConstructionPhaseMetrics();
     syncGlobalDOMStats();
     renderReports();
@@ -261,7 +283,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     alert("Cloud structural write failure: " + err.message);
                 }
             } else {
-                // Local Mode Fallback state routing if Firebase network node is disconnected
                 reportsData.unshift(payload);
                 appState.totalExpensesLogged += costInput;
                 syncGlobalDOMStats();
@@ -272,7 +293,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 2. SECURITY HARDWARE MATRIX CONTROLS
+    // 2. SECURITY CONTROLS PIPELINE
     async function pushSecurityLog(messageStr, typeStr) {
         const timeNow = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         const logPayload = {
@@ -307,7 +328,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 3. SURVEILLANCE CCTV VIDEO ROUTER SWITCHER
+    // 3. CCTV PIPELINE
     const cctvChannelSelect = document.getElementById('cctv-channel-select');
     const cctvCameraTag = document.getElementById('cctv-camera-tag');
     const cctvMainFeed = document.getElementById('cctv-main-feed');
@@ -325,37 +346,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 4. SIDEBAR APPLICATION VIEW ROUTER NAVIGATION MATRIX
-    const menuItems = document.querySelectorAll('.sidebar-menu .menu-item');
-    const pageContents = document.querySelectorAll('.page-content');
-    const currentViewTitle = document.getElementById('current-view-title');
-    const currentViewDesc = document.getElementById('current-view-desc');
-
-    const viewMeta = {
-        'page-dashboard': { title: "Site Overview & Logs", desc: "Real-time construction operational stream" },
-        'page-security': { title: "Site Security & Perimeter Node", desc: "Access control systems and automated breach management" },
-        'page-escrow': { title: "Escrow Financial Pools", desc: "Automated funds release tracking and milestone verification" },
-        'page-settings': { title: "System Settings", desc: "Configure preferences and core parameters for BuildTrack App" }
-    };
-
-    menuItems.forEach(item => {
-        item.addEventListener('click', (e) => {
-            e.preventDefault();
-            menuItems.forEach(i => i.classList.remove('active'));
-            item.classList.add('active');
-            
-            const targetPageId = item.getAttribute('data-target');
-            pageContents.forEach(page => page.classList.remove('active'));
-            
-            const activePage = document.getElementById(targetPageId);
-            if (activePage) activePage.classList.add('active');
-            
-            if (currentViewTitle && viewMeta[targetPageId]) currentViewTitle.textContent = viewMeta[targetPageId].title;
-            if (currentViewDesc && viewMeta[targetPageId]) currentViewDesc.textContent = viewMeta[targetPageId].desc;
-        });
-    });
-
-    // 5. SECURITY SYSTEM IDENTITY AUTHENTICATION CONTROLS
+    // 4. AUTH PIPELINE
     const loginTriggerBtn = document.getElementById('login-trigger-btn');
     const accountAuthModal = document.getElementById('account-auth-modal');
     const closeAuthModal = document.getElementById('close-auth-modal');
@@ -401,7 +392,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ================= 6. ASYNC GRADED AI FEATURE (ROMAN URDU & ENG DUAL MATRIX) =================
+    // 5. AI ENGINE CONTROLS
     const btnTriggerAI = document.getElementById('btn-trigger-ai');
     const aiInputQuery = document.getElementById('ai-input-query');
     const aiResponseBox = document.getElementById('ai-response-box');
@@ -409,25 +400,18 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnTriggerAI && aiInputQuery && aiResponseBox) {
         btnTriggerAI.addEventListener('click', function(e) {
             e.preventDefault(); 
-            
             const query = aiInputQuery.value.trim();
-            if (!query) {
-                alert("Please type your engineering or procurement query first!");
-                return;
-            }
+            if (!query) return alert("Please type your query first!");
 
             btnTriggerAI.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Processing Matrix...`;
             btnTriggerAI.disabled = true;
             aiResponseBox.style.display = "block";
-            aiResponseBox.innerHTML = `<em>BuildTrack AI database se connect ho raha hai... Please wait.</em>`;
+            aiResponseBox.innerHTML = `<em>Connecting database... Please wait.</em>`;
 
             const isRomanOrUrdu = /[\u0600-\u06FF]/.test(query) || 
                                  query.toLowerCase().includes('kaise') || 
                                  query.toLowerCase().includes('kya') || 
-                                 query.toLowerCase().includes('kam') || 
-                                 query.toLowerCase().includes('bachain') || 
-                                 query.toLowerCase().includes('saria') ||
-                                 query.toLowerCase().includes('taqat');
+                                 query.toLowerCase().includes('kam');
 
             setTimeout(() => {
                 btnTriggerAI.innerHTML = `Consult BuildTrack AI`;
@@ -436,25 +420,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (isRomanOrUrdu) {
                     aiResponseBox.innerHTML = `
                         <div style="border-left: 3px solid #22d3ee; padding-left: 12px; text-align: left; line-height: 1.6;">
-                            <strong style="color: #22d3ee; font-size:0.95rem;"><i class="fa-solid fa-circle-check"></i> BuildTrack AI Civil Engineer (Roman Urdu):</strong><br><br>
-                            Aapki query <strong>"${query}"</strong> k mutabik 5 Marla construction layout ki details niche di gayi hain:<br><br>
-                            1. <strong>Steel Cost Optimization:</strong> Safety par samjhota kiye bina budget bachane k liye hamesha <strong>Grade-60 Deformed Steel Rebars</strong> use karein. Local retailers k bajaye direct factory mills ya main distributors se bulk me lene se Pakistan me 12% tak bachat ho sakti hai.<br>
-                            2. <strong>Concrete Mix Ratio:</strong> Foundation ki solid base grid k liye strict <strong>1:2:4 concrete mix ratio</strong> maintain karein. Is se structure load sahi tarah distribute karta hai.<br>
-                            3. <strong>Curing Parameter (Tarai):</strong> Concrete dalne k baad micro-cracks se bachne k liye kam az kam <strong>7 se 10 din tak paani ki tarai (curing)</strong> lazmi karein taake strength poori mil sakay.
-                        </div>
-                    `;
+                            <strong style="color: #22d3ee; font-size:0.95rem;"><i class="fa-solid fa-circle-check"></i> BuildTrack AI (Roman Urdu):</strong><br><br>
+                            Aapki query <strong>"${query}"</strong> k mutabik cost optimization k liye <strong>Grade-60 Steel</strong> behtareen hai aur direct factory mills se lena 12% tak bachat dega.
+                        </div>`;
                 } else {
                     aiResponseBox.innerHTML = `
                         <div style="border-left: 3px solid #22d3ee; padding-left: 12px; text-align: left; line-height: 1.6;">
-                            <strong style="color: #22d3ee; font-size:0.95rem;"><i class="fa-solid fa-circle-check"></i> BuildTrack AI Civil Engineer Response:</strong><br><br>
-                            Based on your query regarding <strong>"${query}"</strong> for a 5 Marla layout parameters:<br><br>
-                            1. **Procurement Optimization:** Utilize Grade-60 steel. Sourcing directly from main factory mills instead of tertiary retailers saves ~12% in Pakistan.<br>
-                            2. **Concrete Mix Matrix:** Maintain a strict 1:2:4 structural load ratio for foundation grids.<br>
-                            3. **Curing Parameter:** Keep concrete curing wet and active for 7-10 days to guarantee full structural strength compliance.
-                        </div>
-                    `;
+                            <strong style="color: #22d3ee; font-size:0.95rem;"><i class="fa-solid fa-circle-check"></i> BuildTrack AI Response:</strong><br><br>
+                            For <strong>"${query}"</strong>: Direct bulk mill procurement saves 12% on Grade-60 deformed steel rebars.
+                        </div>`;
                 }
-            }, 1300);
+            }, 1000);
         });
     }
 });
