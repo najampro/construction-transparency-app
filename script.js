@@ -1,18 +1,16 @@
 document.addEventListener("DOMContentLoaded", () => {
     
-    // --- APP MEMORY DATA (IN-MEMORY DATABASE) ---
+    // --- APP MEMORY DATABASE STATE ---
     let projectState = {
         escrowBalance: 4660000,
         totalProgress: 35,
         qualityScore: 98.9,
-        // Grey Structure Phase Tracker Arrays
         milestones: [
             { id: 1, name: "Foundation & Excavation Footing", status: "completed", progress: 100 },
             { id: 2, name: "Plinth Beam Construction", status: "active", progress: 40 },
             { id: 3, name: "Pillar Columns & Brickwork", status: "pending", progress: 0 },
             { id: 4, name: "Slab Roofing Concrete Pour", status: "pending", progress: 0 }
         ],
-        // Escrow Wallet & Quality Verification Feed Initial Logs
         logs: [
             {
                 id: 1,
@@ -25,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ]
     };
 
-    // --- DOM CAPTURE NODES ---
+    // --- DOM NODES ---
     const milestoneContainer = document.getElementById("milestones-wrapper");
     const timelineContainer = document.getElementById("timeline-container");
     const balanceDisplay = document.getElementById("stat-escrow-balance");
@@ -36,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const cctvTag = document.getElementById("cctv-camera-tag");
     const logForm = document.getElementById("log-form");
 
-    // --- CCTV FEED SIMULATION DATA ---
+    // --- CCTV REFRESH MATRIX ---
     const cctvSnapshots = [
         { label: "CAM 01 — FOUNDATION AXIS", url: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=800&q=80" },
         { label: "CAM 02 — AGGREGATE STORAGE", url: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=800&q=80" },
@@ -44,8 +42,9 @@ document.addEventListener("DOMContentLoaded", () => {
     ];
     let activeCameraIdx = 0;
 
-    // --- RENDER COMPONENT: PROGRESS MILESTONES ---
+    // --- RENDER FUNCTIONS ---
     function renderMilestones() {
+        if (!milestoneContainer) return;
         milestoneContainer.innerHTML = "";
         projectState.milestones.forEach(m => {
             const block = document.createElement("div");
@@ -56,18 +55,20 @@ document.addEventListener("DOMContentLoaded", () => {
                     <strong>${m.progress}%</strong>
                 </div>
                 <div class="progress-track">
-                    <div class="progress-fill ${m.status === 'active' ? 'current-glow' : ''}" style="width: ${m.progress}%;"></div>
+                    <div class="progress-fill" style="width: ${m.progress}%;"></div>
                 </div>
             `;
             milestoneContainer.appendChild(block);
         });
     }
 
-    // --- RENDER COMPONENT: STREAM SUMMARY & WALLET TRACKS ---
     function renderAuditLogs() {
+        if (!timelineContainer) return;
         timelineContainer.innerHTML = "";
         
-        projectState.logs.forEach(log => {
+        // Render in reverse order to show new updates on top safely
+        for (let i = projectState.logs.length - 1; i >= 0; i--) {
+            const log = projectState.logs[i];
             const node = `
                 <div class="timeline-item">
                     <div class="timeline-date"><i class="fa-regular fa-clock"></i> ${log.date}</div>
@@ -81,87 +82,101 @@ document.addEventListener("DOMContentLoaded", () => {
                     </p>
                 </div>
             `;
-            timelineContainer.insertAdjacentHTML("afterbegin", node);
-        });
+            timelineContainer.insertAdjacentHTML("beforeend", node);
+        }
 
-        // Numeric calculations displays injection
-        balanceDisplay.innerText = projectState.escrowBalance.toLocaleString();
-        progressDisplay.innerText = projectState.totalProgress + "%";
-        qualityDisplay.innerText = projectState.qualityScore + "%";
+        if (balanceDisplay) balanceDisplay.innerText = projectState.escrowBalance.toLocaleString();
+        if (progressDisplay) progressDisplay.innerText = projectState.totalProgress + "%";
+        if (qualityDisplay) qualityDisplay.innerText = projectState.qualityScore + "%";
     }
 
-    // --- ENGINE LOOP: CCTV SYSTEM ROTATION ---
-    setInterval(() => {
-        activeCameraIdx = (activeCameraIdx + 1) % cctvSnapshots.length;
-        cctvImg.style.opacity = "0.3";
-        setTimeout(() => {
-            cctvImg.src = cctvSnapshots[activeCameraIdx].url;
-            cctvTag.innerText = cctvSnapshots[activeCameraIdx].label;
-            cctvImg.style.opacity = "0.85";
-        }, 300);
-    }, 4500);
+    // --- CCTV ROTATION TIMER ---
+    if (cctvImg && cctvTag) {
+        setInterval(() => {
+            activeCameraIdx = (activeCameraIdx + 1) % cctvSnapshots.length;
+            cctvImg.style.opacity = "0.3";
+            setTimeout(() => {
+                cctvImg.src = cctvSnapshots[activeCameraIdx].url;
+                cctvTag.innerText = cctvSnapshots[activeCameraIdx].label;
+                cctvImg.style.opacity = "0.85";
+            }, 300);
+        }, 4500);
+    }
 
-    // --- FORM HANDLER: MATERIAL LOG ENTRY & ESCROW DEDUCTION ---
-    logForm.addEventListener("submit", (e) => {
-        e.preventDefault();
+    // --- LOG EXPENSE & QUALITY SUBMIT HANDLER ---
+    if (logForm) {
+        logForm.addEventListener("submit", (e) => {
+            e.preventDefault();
 
-        const name = document.getElementById("material-name").value;
-        const cost = parseInt(document.getElementById("material-cost").value);
-        const quality = document.getElementById("material-quality").value;
-        const desc = document.getElementById("receipt-text").value;
+            const name = document.getElementById("material-name").value;
+            const cost = parseInt(document.getElementById("material-cost").value);
+            const quality = document.getElementById("material-quality").value;
+            const desc = document.getElementById("receipt-text").value;
 
-        if (cost > projectState.escrowBalance) {
-            alert("Security Override: Requested log cost exceeds available Escrow Balance pools.");
-            return;
-        }
+            if (cost > projectState.escrowBalance) {
+                alert("Security Override: Requested log cost exceeds available Escrow Balance pools.");
+                return;
+            }
 
-        // Mutation calculations logic
-        projectState.escrowBalance -= cost;
-        if (projectState.totalProgress < 95) projectState.totalProgress += 4;
+            // Calculations Deductions
+            projectState.escrowBalance -= cost;
+            if (projectState.totalProgress < 95) projectState.totalProgress += 4;
 
-        // Dynamic Tracker Bar Engine updates logic based on workflow action
-        let plinthPhase = projectState.milestones.find(m => m.id === 2);
-        if (plinthPhase && plinthPhase.progress < 100) {
-            plinthPhase.progress += 15;
-            if (plinthPhase.progress >= 100) {
-                plinthPhase.progress = 100;
-                plinthPhase.status = "completed";
-                let columnPhase = projectState.milestones.find(m => m.id === 3);
-                if (columnPhase) {
-                    columnPhase.status = "active";
-                    columnPhase.progress = 10;
+            // Update Milestone internal array progress bars logic
+            let activePhase = projectState.milestones.find(m => m.status === "active");
+            if (activePhase) {
+                activePhase.progress += 20;
+                if (activePhase.progress >= 100) {
+                    activePhase.progress = 100;
+                    activePhase.status = "completed";
+                    
+                    // Activate next stage sequence dynamically
+                    let nextPhase = projectState.milestones.find(m => m.status === "pending");
+                    if (nextPhase) {
+                        nextPhase.status = "active";
+                        nextPhase.progress = 15;
+                    }
                 }
             }
-        }
 
-        // Log entry structure parsing
-        const time = new Date().toISOString().replace('T', ' ').substring(0, 16);
-        projectState.logs.push({ id: Date.now(), date: time, title: name, cost: cost, status: quality, desc: desc });
+            const time = new Date().toISOString().replace('T', ' ').substring(0, 16);
+            projectState.logs.push({ id: Date.now(), date: time, title: name, cost: cost, status: quality, desc: desc });
 
-        renderMilestones();
-        renderAuditLogs();
-        logForm.reset();
-    });
+            renderMilestones();
+            renderAuditLogs();
+            logForm.reset();
+        });
+    }
 
-    // --- USER PROFILE SECURITY MODAL ENGINE ---
+    // --- SECURE AUTH MODAL INTERACTIONS ---
     const authTrigger = document.getElementById("auth-action-text");
     const authModal = document.getElementById("account-auth-modal");
     const closeAuthModal = document.getElementById("close-auth-modal");
+    const authForm = document.getElementById("modal-auth-form");
     
-    authTrigger.addEventListener("click", () => authModal.style.display = "flex");
-    closeAuthModal.addEventListener("click", () => authModal.style.display = "none");
+    if (authTrigger && authModal && closeAuthModal) {
+        authTrigger.addEventListener("click", () => authModal.style.display = "flex");
+        closeAuthModal.addEventListener("click", () => authModal.style.display = "none");
+    }
     
-    document.getElementById("modal-auth-form").addEventListener("submit", (e) => {
-        e.preventDefault();
-        document.getElementById("user-display-name").innerText = "Najam Pro";
-        document.getElementById("avatar-letters").innerText = "NP";
-        document.getElementById("avatar-letters").classList.remove("guest-mode");
-        authTrigger.innerText = "Secured Session ✓";
-        authTrigger.style.color = "var(--neon-green)";
-        authModal.style.display = "none";
-    });
+    if (authForm && authModal && authTrigger) {
+        authForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const userDisp = document.getElementById("user-display-name");
+            const avatarLet = document.getElementById("avatar-letters");
+            
+            if (userDisp) userDisp.innerText = "Najam Pro";
+            if (avatarLet) {
+                avatarLet.innerText = "NP";
+                avatarLet.classList.remove("guest-mode");
+            }
+            authTrigger.innerText = "Secured Session ✓";
+            authTrigger.style.color = "var(--neon-green)";
+            authModal.style.display = "none";
+        });
+    }
 
-    // Initial system load run routines
+    // Run Initial Screen Paint
     renderMilestones();
     renderAuditLogs();
 });
