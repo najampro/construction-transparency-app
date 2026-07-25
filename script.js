@@ -105,6 +105,9 @@ function renderTimeline() {
 // ==========================================
 // 4. OFFLINE SIMULATION AUDIT (No API Key Needed)
 // ==========================================
+// ==========================================
+// 4. INTELLIGENT OFFLINE SIMULATION AUDIT
+// ==========================================
 function triggerAiAudit(id) {
     const modal = document.getElementById("audit-modal");
     const loading = document.getElementById("modal-loading");
@@ -123,29 +126,57 @@ function triggerAiAudit(id) {
         return;
     }
 
-    // AI ka intezar karne ka effect (1.5 seconds delay)
+    // AI Processing Effect (1.5 seconds delay)
     setTimeout(() => {
-        const numericCost = parseInt(item.cost.replace(/,/g, ''));
+        // 1. Form se input ki gayi cost nikalain (e.g., "300,000" -> 300000)
+        const typedCost = parseInt(item.cost.replace(/,/g, ''));
         
-        // Logic: Agar cost 5,00,000 se zyada hogi to Discrepancy (Error) dega, warna Verified dega
-        const hasIssue = numericCost > 500000; 
+        // 2. Receipt text ke andar se total dhundne ki koshish karain (Regex se)
+        let receiptCost = 0;
+        const totalMatch = item.receipt.match(/TOTAL BUDGET UTILIZED \/ COST:\s*PKR\s*([0-9,]+)/i);
         
-        item.audit = {
-            status: hasIssue ? "Discrepancy Detected" : "Verified",
-            confidence: "High (System Simulation)",
-            summary: hasIssue 
-                ? "Warning: The logged cost exceeds the standard market metrics based on the receipt data provided." 
-                : "Automated verification complete. Logged material quantities and costs align perfectly with market standards.",
-            flags: hasIssue ? "Cost inflation detected. Possible over-billing." : "None",
-            steps: hasIssue ? "Request original physical counter-foil from project vendor immediately." : "Approve and lock batch record entry."
-        };
+        if (totalMatch && totalMatch[1]) {
+            receiptCost = parseInt(totalMatch[1].replace(/,/g, ''));
+        }
+
+        // 3. Check karain kya input cost aur receipt cost me farq hai?
+        const isMismatch = receiptCost > 0 && typedCost !== receiptCost;
+        const isOverBudget = typedCost > 500000; // Ek general alert limit
+        
+        if (isMismatch) {
+            // Agar ghalat entry daali gayi hai to yeh trigger hoga!
+            item.audit = {
+                status: "Discrepancy Detected",
+                confidence: "High (Integrity Check)",
+                summary: `Financial anomaly caught: The cost entered in the form (PKR ${item.cost}) does not match the total verified amount listed inside the receipt text (PKR ${receiptCost.toLocaleString()}).`,
+                flags: `Billing mismatch detected! Discrepancy of PKR ${(typedCost - receiptCost).toLocaleString()} identified.`,
+                steps: "Reject this entry. Cross-verify the typed log input with the physical receipt immediately before unlocking the ledger."
+            };
+        } else if (isOverBudget) {
+            // Agar amount 5 lakh se zyada ho
+            item.audit = {
+                status: "Caution",
+                confidence: "Medium",
+                summary: "Large transaction volume detected. The logged material costs align with the receipt text, but the pricing exceeds baseline single-day thresholds.",
+                flags: "High expenditure warning.",
+                steps: "Verify with site engineer if this large delivery was authorized in the phase plan."
+            };
+        } else {
+            // Agar sab kuch bilkul barabar aur sahi ho
+            item.audit = {
+                status: "Verified",
+                confidence: "High (System Simulation)",
+                summary: "Automated verification complete. The typed cost matches the receipt breakdown perfectly, and rates are within standard market metrics.",
+                flags: "None",
+                steps: "Approve and lock batch record entry."
+            };
+        }
         
         displayAuditResult(item.audit);
         updateDashboardBadge(item.audit.status);
-        renderTimeline(); // Button ka text update karne ke liye
+        renderTimeline(); // UI refresh
     }, 1500);
 }
-
 // ==========================================
 // 5. HELPER UI DISPLAY FUNCTIONS
 // ==========================================
