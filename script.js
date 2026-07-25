@@ -34,19 +34,24 @@ document.addEventListener("DOMContentLoaded", () => {
         logForm.addEventListener("submit", (e) => {
             e.preventDefault();
             
-            // Flexible ID checking to avoid null crashes
+            // HTML Elements Mapping
             const nameEl = document.getElementById("material-name") || document.getElementById("title");
             const costEl = document.getElementById("material-cost") || document.getElementById("cost");
             const receiptEl = document.getElementById("receipt-text") || document.getElementById("receipt");
             const imageEl = document.getElementById("site-image") || document.getElementById("image");
             
+            // Extract Values
             const title = nameEl ? nameEl.value : "New Site Update";
             const costVal = costEl ? parseInt(costEl.value) : 0;
             const cost = isNaN(costVal) ? "0" : costVal.toLocaleString();
             const receipt = receiptEl ? receiptEl.value : "No transcript text attached.";
+            
+            // Picture URL Logic (Falls back to default if empty)
             const imageUrl = imageEl && imageEl.value ? imageEl.value : "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=800&q=80";
+            
             const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
             
+            // Construct New Update Object
             const newUpdate = {
                 id: Date.now(),
                 title,
@@ -57,8 +62,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 audit: null
             };
             
+            // Add to the top of the timeline array
             siteUpdates.unshift(newUpdate);
+            
+            // Refresh UI Timeline
             renderTimeline();
+            
+            // Reset the form fields completely
             logForm.reset();
         });
     }
@@ -77,7 +87,6 @@ document.addEventListener("DOMContentLoaded", () => {
 // 3. RENDER TIMELINE FUNCTION
 // ==========================================
 function renderTimeline() {
-    // Looks for 'timeline-container' or just 'timeline' to make sure it finds your div!
     const container = document.getElementById("timeline-container") || document.getElementById("timeline") || document.querySelector(".timeline");
     
     if (!container) {
@@ -95,6 +104,7 @@ function renderTimeline() {
         item.style.marginBottom = "20px";
         item.style.position = "relative";
         
+        // Render with Image and Audit Button Action
         item.innerHTML = `
             <div class="timeline-date" style="font-size: 0.85rem; color:#718096;"><i class="far fa-calendar-alt"></i> ${update.date}</div>
             <h3 style="margin: 5px 0;">${update.title}</h3>
@@ -133,10 +143,11 @@ async function triggerAiAudit(id) {
         displayAuditResult(item.audit);
         return;
     }
+
+    // Your Key Retained As Requested
     const apiKey = "AQ.Ab8RN6LjzRiemIgdv_KfYjCoJFnbT2ITYN3qrlm7hIFgPlU_sQ";
    
-    
-    // Testing Simulation Fallback
+    // Simulation Fallback if Key isn't populated properly
     if (!apiKey) {
         setTimeout(() => {
             const hasPossibleMismatch = item.cost.replace(/,/g, '') > 800000; 
@@ -171,7 +182,6 @@ Return ONLY a valid JSON object matching this structure exactly (do not wrap in 
   "steps": "recommended follow up action"
 }`;
 
-        // Fixed endpoint routing path structure for Google API Gateways
         const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -200,6 +210,7 @@ Return ONLY a valid JSON object matching this structure exactly (do not wrap in 
         
         displayAuditResult(item.audit);
         updateDashboardBadge(item.audit.status);
+        renderTimeline(); // Re-render to update the button state text
     } catch (error) {
         console.error("Gemini API Error Logged: ", error);
         if (loading) loading.style.display = "none";
@@ -210,6 +221,7 @@ Return ONLY a valid JSON object matching this structure exactly (do not wrap in 
         }
     }
 }
+
 // ==========================================
 // 5. HELPER UI DISPLAY FUNCTIONS
 // ==========================================
