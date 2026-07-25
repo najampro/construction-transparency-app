@@ -1,7 +1,6 @@
 // ================= BUILDTRACK CORE SYSTEM ARCHITECTURE ENGINE =================
 
 // 1. CLOUD STORAGE MATRIX INITIALIZATION (FIREBASE CONFIGURATION)
-// FIXME: Firebase Console se mili hui apni asli web apps credential matrix keys yahan replace karein
 const firebaseConfig = {
     apiKey: "YOUR_API_KEY_HERE",
     authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
@@ -29,7 +28,7 @@ let appState = {
     currentPhaseIndex: 0 // Baseline Phase Indicator Node
 };
 
-// 6-POINT CONSTRUCTION PHASES SEQUENCE MATRIX ARRAY (Matching your template structure)
+// 6-POINT CONSTRUCTION PHASES SEQUENCE MATRIX ARRAY
 const constructionPhases = [
     { name: "Phase 1: Excavation & Layout", targetProgress: 16, status: "In Progress" },
     { name: "Phase 2: Foundation Wall Pouring", targetProgress: 33, status: "Pending" },
@@ -126,6 +125,7 @@ if (typeof db !== 'undefined') {
       .onSnapshot((snapshot) => {
           securityIncidents = [];
           snapshot.forEach((doc) => {
+              doc.data();
               securityIncidents.push(doc.data());
           });
           renderSecurityLogs();
@@ -179,14 +179,9 @@ function renderSecurityLogs() {
 
 // 3. Dynamic Construction 6-Phase Milestone Tracker Renderer
 function renderPhaseTracker() {
-    // Dynamic coupling nodes mapping directly to the HTML IDs
-    const phaseTitleDOM = document.getElementById('active-phase-title') || document.getElementById('current-phase-name');
-    const phaseStatusDOM = document.getElementById('active-phase-status') || document.getElementById('current-phase-status');
-    
-    // Unified targeting selector for list components (Looks for standard milestone wrappers)
-    const milestoneContainer = document.getElementById('milestone-phases-list') || 
-                                 document.getElementById('phase-tracker-container') || 
-                                 document.getElementById('phases-container');
+    const phaseTitleDOM = document.getElementById('active-phase-title');
+    const phaseStatusDOM = document.getElementById('active-phase-status');
+    const milestoneContainer = document.getElementById('milestone-phases-list');
     
     if (phaseTitleDOM && phaseStatusDOM) {
         const currentPhase = constructionPhases[appState.currentPhaseIndex];
@@ -203,28 +198,43 @@ function renderPhaseTracker() {
     }
 
     if (milestoneContainer) {
-        milestoneContainer.innerHTML = constructionPhases.map((phase, idx) => `
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #0f172a; border-radius: 6px; margin-bottom: 6px; border: 1px solid ${idx === appState.currentPhaseIndex ? '#22d3ee' : '#1e293b'}">
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <i class="fa-solid ${idx < appState.currentPhaseIndex ? 'fa-circle-check' : idx === appState.currentPhaseIndex ? 'fa-circle-dot' : 'fa-circle'}" style="color: ${idx <= appState.currentPhaseIndex ? '#22d3ee' : '#64748b'}"></i>
-                    <span style="color: ${idx === appState.currentPhaseIndex ? '#fff' : '#94a3b8'}; font-size: 0.85rem; font-weight: ${idx === appState.currentPhaseIndex ? '600' : '400'}">${phase.name}</span>
+        milestoneContainer.innerHTML = constructionPhases.map((phase, idx) => {
+            // Icon dynamically switches based on completion state status
+            let iconClass = 'fa-circle';
+            let iconColor = '#64748b';
+            
+            if (idx < appState.currentPhaseIndex) {
+                iconClass = 'fa-circle-check';
+                iconColor = '#34d399'; // Green for finished steps
+            } else if (idx === appState.currentPhaseIndex) {
+                iconClass = 'fa-circle-dot';
+                iconColor = '#22d3ee'; // Cyan for current active step
+            }
+
+            return `
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #0f172a; border-radius: 6px; margin-bottom: 6px; border: 1px solid ${idx === appState.currentPhaseIndex ? '#22d3ee' : '#1e293b'}">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <i class="fa-solid ${iconClass}" style="color: ${iconColor}"></i>
+                        <span style="color: ${idx === appState.currentPhaseIndex ? '#fff' : '#94a3b8'}; font-size: 0.85rem; font-weight: ${idx === appState.currentPhaseIndex ? '600' : '400'}">${phase.name}</span>
+                    </div>
+                    <span style="font-size: 0.75rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; ${
+                        phase.status === 'Completed' ? 'color:#34d399; background:rgba(52,211,153,0.1);' : phase.status === 'In Progress' ? 'color:#fbbf24; background:rgba(251,191,36,0.1);' : 'color:#64748b;'
+                    }">${phase.status}</span>
                 </div>
-                <span style="font-size: 0.75rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; ${
-                    phase.status === 'Completed' ? 'color:#34d399; background:rgba(52,211,153,0.1);' : phase.status === 'In Progress' ? 'color:#fbbf24; background:rgba(251,191,36,0.1);' : 'color:#64748b;'
-                }">${phase.status}</span>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 }
 
 // ================= LIFE-CYCLE STATE LOADER & TRIGGER REGISTRY =================
 document.addEventListener("DOMContentLoaded", () => {
     
-    // Initial UI DOM Synchronization Run Layout
+    // FORCED FIRST RUN INITIALIZATION LAYOUT (Takay load hotay hi saare phases print ho jayen)
+    evaluateConstructionPhaseMetrics();
     syncGlobalDOMStats();
     renderReports();
     renderSecurityLogs();
-    renderPhaseTracker();
+    renderPhaseTracker(); 
 
     // 1. EXPENSE INTERACTION LOG FORM PIPELINE
     const logForm = document.getElementById('log-form');
@@ -256,7 +266,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 appState.totalExpensesLogged += costInput;
                 syncGlobalDOMStats();
                 renderReports();
-                renderPhaseTracker(); // Dynamic tracking pipeline execution run
+                renderPhaseTracker(); 
                 logForm.reset();
             }
         });
@@ -345,7 +355,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // 6. SECURITY SYSTEM IDENTITY AUTHENTICATION CONTROLS
+    // 5. SECURITY SYSTEM IDENTITY AUTHENTICATION CONTROLS
     const loginTriggerBtn = document.getElementById('login-trigger-btn');
     const accountAuthModal = document.getElementById('account-auth-modal');
     const closeAuthModal = document.getElementById('close-auth-modal');
@@ -391,14 +401,14 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ================= 7. ASYNC GRADED AI FEATURE (ROMAN URDU & ENG DUAL MATRIX) =================
+    // ================= 6. ASYNC GRADED AI FEATURE (ROMAN URDU & ENG DUAL MATRIX) =================
     const btnTriggerAI = document.getElementById('btn-trigger-ai');
     const aiInputQuery = document.getElementById('ai-input-query');
     const aiResponseBox = document.getElementById('ai-response-box');
 
     if (btnTriggerAI && aiInputQuery && aiResponseBox) {
         btnTriggerAI.addEventListener('click', function(e) {
-            e.preventDefault(); // App structural refresh guard block
+            e.preventDefault(); 
             
             const query = aiInputQuery.value.trim();
             if (!query) {
@@ -406,13 +416,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            // A. Trigger Loading Visualization States
             btnTriggerAI.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Processing Matrix...`;
             btnTriggerAI.disabled = true;
             aiResponseBox.style.display = "block";
             aiResponseBox.innerHTML = `<em>BuildTrack AI database se connect ho raha hai... Please wait.</em>`;
 
-            // Roman Urdu aur Local Urdu Language Detection Matrix keys
             const isRomanOrUrdu = /[\u0600-\u06FF]/.test(query) || 
                                  query.toLowerCase().includes('kaise') || 
                                  query.toLowerCase().includes('kya') || 
@@ -426,7 +434,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 btnTriggerAI.disabled = false;
                 
                 if (isRomanOrUrdu) {
-                    // ROMAN URDU RESPONSE OUTPUT MAP
                     aiResponseBox.innerHTML = `
                         <div style="border-left: 3px solid #22d3ee; padding-left: 12px; text-align: left; line-height: 1.6;">
                             <strong style="color: #22d3ee; font-size:0.95rem;"><i class="fa-solid fa-circle-check"></i> BuildTrack AI Civil Engineer (Roman Urdu):</strong><br><br>
@@ -437,7 +444,6 @@ document.addEventListener("DOMContentLoaded", () => {
                         </div>
                     `;
                 } else {
-                    // STANDARD ENGLISH RESPONSE OUTPUT MAP
                     aiResponseBox.innerHTML = `
                         <div style="border-left: 3px solid #22d3ee; padding-left: 12px; text-align: left; line-height: 1.6;">
                             <strong style="color: #22d3ee; font-size:0.95rem;"><i class="fa-solid fa-circle-check"></i> BuildTrack AI Civil Engineer Response:</strong><br><br>
