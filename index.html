@@ -9,37 +9,8 @@
 </head>
 <body>
 
-    <!-- AUTH MODAL -->
-    <div id="auth-modal" class="auth-overlay">
-        <div class="auth-card">
-            <div class="auth-header">
-                <h2>ConsTrack Access</h2>
-                <p id="auth-subtitle">Secure client node gateway</p>
-            </div>
-            <form id="auth-form">
-                <div class="input-group" id="name-group" style="display: none;">
-                    <label><i class="fa-solid fa-user"></i> Full Name</label>
-                    <input type="text" id="auth-name" placeholder="Najam">
-                </div>
-                <div class="input-group">
-                    <label><i class="fa-solid fa-envelope"></i> Email Address</label>
-                    <input type="email" id="auth-email" required placeholder="client@constrack.pro">
-                </div>
-                <div class="input-group">
-                    <label><i class="fa-solid fa-lock"></i> Password</label>
-                    <input type="password" id="auth-pass" required placeholder="••••••••">
-                </div>
-                <button type="submit" id="auth-submit-btn" class="btn-primary-block">Authenticate System</button>
-            </form>
-            <div class="auth-footer">
-                <span id="auth-switch-text">New Client Project Node?</span> 
-                <a href="#" id="auth-switch-link">Create Account</a>
-            </div>
-        </div>
-    </div>
-
-    <!-- MAIN APP WRAPPER -->
-    <div class="app-container main-blurred" id="main-app-layout">
+    <!-- MAIN APP WRAPPER (Direct Access - No Login Screen Needed) -->
+    <div class="app-container" id="main-app-layout">
         
         <!-- Premium Minimal Sidebar -->
         <aside class="sidebar">
@@ -64,7 +35,6 @@
                     <h4 id="user-display-name">Najam</h4>
                     <p>Verified Client</p>
                 </div>
-                <button id="logout-btn" title="Exit Node"><i class="fa-solid fa-power-off"></i></button>
             </div>
         </aside>
 
@@ -87,7 +57,7 @@
                 <div class="metric-card">
                     <div class="metric-icon spec-blue"><i class="fa-solid fa-vault"></i></div>
                     <div>
-                        <h3>PKR <span id="stat-escrow-balance">4,500,000</span></h3>
+                        <h3>PKR <span id="stat-escrow-balance">4,660,000</span></h3>
                         <p>Escrow Available</p>
                     </div>
                 </div>
@@ -107,7 +77,7 @@
                 </div>
             </div>
 
-            <!-- TRUST METRIC 1: REMOTE VISUAL SURVEILLANCE & LIVE TIMELINE -->
+            <!-- SURVEILLANCE & LIVE TIMELINE -->
             <div class="surveillance-grid">
                 <!-- Live Cam Node -->
                 <div class="card surveillance-card">
@@ -121,7 +91,7 @@
                     </div>
                 </div>
 
-                <!-- TRUST METRIC 2: PROGRESS MILESTONES -->
+                <!-- PROGRESS MILESTONES -->
                 <div class="card milestone-card">
                     <div class="card-header">
                         <h3><i class="fa-solid fa-bars-progress"></i> Grey Structure Phase Tracker</h3>
@@ -190,7 +160,7 @@
                         <h3><i class="fa-solid fa-microchip"></i> Verified Audit Ledger</h3>
                     </div>
                     <div id="timeline-container" class="timeline-stream">
-                        <!-- Dynamic dynamic nodes -->
+                        <!-- Dynamic updates load here -->
                     </div>
                 </section>
             </div>
