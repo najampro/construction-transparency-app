@@ -184,17 +184,17 @@
 
         .panel-title i { color: var(--accent-cyan); }
 
-        /* CAMERA FEED VIEWBOX & ANGLES */
+        /* CAMERA GRID ON DASHBOARD */
         .camera-grid-layout {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
         }
 
         .camera-feed-box {
             width: 100%;
-            height: 220px;
+            height: 160px;
             background: #000;
             border-radius: 8px;
             border: 1px solid var(--border-color);
@@ -207,11 +207,11 @@
 
         .camera-overlay-tag {
             position: absolute;
-            top: 12px; left: 12px;
+            top: 10px; left: 10px;
             background: rgba(0,0,0,0.7);
-            padding: 4px 10px;
+            padding: 3px 8px;
             border-radius: 4px;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: var(--accent-green);
             border: 1px solid rgba(52,211,153,0.3);
             z-index: 2;
@@ -219,11 +219,11 @@
 
         .camera-angle-label {
             position: absolute;
-            bottom: 12px; left: 12px;
+            bottom: 10px; left: 10px;
             background: rgba(0,0,0,0.7);
-            padding: 4px 8px;
+            padding: 3px 6px;
             border-radius: 4px;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: var(--text-primary);
         }
 
@@ -299,7 +299,7 @@
 
         <ul class="sidebar-menu">
             <li><a href="#" class="menu-item active" data-target="page-dashboard"><i class="fa-solid fa-chart-pie"></i> Site Dashboard</a></li>
-            <li><a href="#" class="menu-item" data-target="page-security"><i class="fa-solid fa-video"></i> Site Camera View</a></li>
+            <li><a href="#" class="menu-item" data-target="page-security"><i class="fa-solid fa-shield-halved"></i> Security Controls</a></li>
             <li><a href="#" class="menu-item" data-target="page-escrow"><i class="fa-solid fa-wallet"></i> Financial Escrow</a></li>
             <li><a href="#" class="menu-item" data-target="page-settings"><i class="fa-solid fa-sliders"></i> System Settings</a></li>
         </ul>
@@ -342,6 +342,31 @@
         <div id="page-dashboard" class="page-content active">
             <div class="dashboard-layout-matrix">
                 <div>
+                    <!-- LIVE CAMERA OVERVIEW ON DASHBOARD -->
+                    <div class="panel-card">
+                        <div class="panel-title"><i class="fa-solid fa-video"></i> Live Site Camera Feeds (Multi-Angle)</div>
+                        <div class="camera-grid-layout">
+                            <!-- Angle 1 -->
+                            <div class="camera-feed-box">
+                                <div class="camera-overlay-tag"><i class="fa-solid fa-circle" style="color:var(--accent-green); font-size:6px;"></i> LIVE</div>
+                                <div class="camera-angle-label">Angle 1: Main Gate</div>
+                                <i class="fa-solid fa-video-slash" style="font-size: 1.5rem; color: var(--text-secondary);"></i>
+                            </div>
+                            <!-- Angle 2 -->
+                            <div class="camera-feed-box">
+                                <div class="camera-overlay-tag"><i class="fa-solid fa-circle" style="color:var(--accent-green); font-size:6px;"></i> LIVE</div>
+                                <div class="camera-angle-label">Angle 2: Foundation Zone</div>
+                                <i class="fa-solid fa-video-slash" style="font-size: 1.5rem; color: var(--text-secondary);"></i>
+                            </div>
+                            <!-- Angle 3 -->
+                            <div class="camera-feed-box">
+                                <div class="camera-overlay-tag"><i class="fa-solid fa-circle" style="color:var(--accent-green); font-size:6px;"></i> LIVE</div>
+                                <div class="camera-angle-label">Angle 3: Material Storage</div>
+                                <i class="fa-solid fa-video-slash" style="font-size: 1.5rem; color: var(--text-secondary);"></i>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Procurement Form -->
                     <div class="panel-card">
                         <div class="panel-title"><i class="fa-solid fa-file-invoice-dollar"></i> Log Material Procurement</div>
@@ -394,35 +419,11 @@
             </div>
         </div>
 
-        <!-- CAMERA VIEW (SECURITY) WITH MULTIPLE ANGLES -->
+        <!-- SECURITY VIEW -->
         <div id="page-security" class="page-content">
             <div class="panel-card">
-                <div class="panel-title"><i class="fa-solid fa-video"></i> Live Site Camera Feeds (Multi-Angle Surveillance)</div>
-                
-                <div class="camera-grid-layout">
-                    <!-- Angle 1 -->
-                    <div class="camera-feed-box">
-                        <div class="camera-overlay-tag"><i class="fa-solid fa-circle" style="color:var(--accent-green); font-size:7px;"></i> LIVE</div>
-                        <div class="camera-angle-label"><i class="fa-solid fa-camera"></i> Angle 1: Main Gate & Excavation</div>
-                        <i class="fa-solid fa-video-slash" style="font-size: 2rem; color: var(--text-secondary);"></i>
-                    </div>
-
-                    <!-- Angle 2 -->
-                    <div class="camera-feed-box">
-                        <div class="camera-overlay-tag"><i class="fa-solid fa-circle" style="color:var(--accent-green); font-size:7px;"></i> LIVE</div>
-                        <div class="camera-angle-label"><i class="fa-solid fa-camera"></i> Angle 2: Foundation & Rebar Zone</div>
-                        <i class="fa-solid fa-video-slash" style="font-size: 2rem; color: var(--text-secondary);"></i>
-                    </div>
-
-                    <!-- Angle 3 -->
-                    <div class="camera-feed-box">
-                        <div class="camera-overlay-tag"><i class="fa-solid fa-circle" style="color:var(--accent-green); font-size:7px;"></i> LIVE</div>
-                        <div class="camera-angle-label"><i class="fa-solid fa-camera"></i> Angle 3: Street & Material Storage</div>
-                        <i class="fa-solid fa-video-slash" style="font-size: 2rem; color: var(--text-secondary);"></i>
-                    </div>
-                </div>
-
-                <p style="color: var(--text-secondary); font-size: 0.9rem;">High-definition multi-angle perimeter surveillance is active for 5 Marla construction oversight.</p>
+                <div class="panel-title"><i class="fa-solid fa-shield-halved"></i> Security & Perimeter Controls</div>
+                <p style="color: var(--text-secondary); font-size: 0.9rem;">Perimeter sensors and automated gate barriers are fully online.</p>
             </div>
         </div>
 
@@ -537,7 +538,7 @@
 
             const meta = {
                 'page-dashboard': { title: "Site Overview & Logs", desc: "Real-time construction operational stream" },
-                'page-security': { title: "Site Camera Feeds", desc: "Multi-angle live surveillance and perimeter monitoring" },
+                'page-security': { title: "Security & Perimeter Controls", desc: "Access control systems and automated breach management" },
                 'page-escrow': { title: "Financial Escrow Pools", desc: "Automated funds release tracking and milestone verification" },
                 'page-settings': { title: "System Settings", desc: "Configure core parameters and application layout" }
             };
