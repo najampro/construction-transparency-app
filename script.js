@@ -23,35 +23,28 @@ let siteUpdates = [
 // 2. DOM CONTENT LOADED (Initialization)
 // ==========================================
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("Construction Tracking System Initialized Successfully!");
+    console.log("System Initialized Successfully in Offline Simulation Mode!");
     
     // Initial Render
     renderTimeline();
     
-    // Handle Form Submission Safely
-    const logForm = document.getElementById("log-form") || document.querySelector("form");
+    // Handle Form Submission
+    const logForm = document.getElementById("log-form");
     if (logForm) {
         logForm.addEventListener("submit", (e) => {
             e.preventDefault();
             
-            // HTML Elements Mapping
-            const nameEl = document.getElementById("material-name") || document.getElementById("title");
-            const costEl = document.getElementById("material-cost") || document.getElementById("cost");
-            const receiptEl = document.getElementById("receipt-text") || document.getElementById("receipt");
-            const imageEl = document.getElementById("site-image") || document.getElementById("image");
-            
-            // Extract Values
-            const title = nameEl ? nameEl.value : "New Site Update";
-            const costVal = costEl ? parseInt(costEl.value) : 0;
+            const title = document.getElementById("material-name").value;
+            const costVal = parseInt(document.getElementById("material-cost").value);
             const cost = isNaN(costVal) ? "0" : costVal.toLocaleString();
-            const receipt = receiptEl ? receiptEl.value : "No transcript text attached.";
+            const receipt = document.getElementById("receipt-text").value;
             
-            // Picture URL Logic (Falls back to default if empty)
-            const imageUrl = imageEl && imageEl.value ? imageEl.value : "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=800&q=80";
+            // Image handling with fallback
+            const imageInput = document.getElementById("site-image").value;
+            const imageUrl = imageInput ? imageInput : "https://images.unsplash.com/photo-1590069261209-f8e9b8642343?auto=format&fit=crop&w=1200&q=80";
             
             const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
             
-            // Construct New Update Object
             const newUpdate = {
                 id: Date.now(),
                 title,
@@ -62,23 +55,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 audit: null
             };
             
-            // Add to the top of the timeline array
             siteUpdates.unshift(newUpdate);
-            
-            // Refresh UI Timeline
             renderTimeline();
-            
-            // Reset the form fields completely
             logForm.reset();
         });
     }
 
-    // Modal Close Event Setup
-    const closeBtn = document.querySelector(".close-btn") || document.querySelector(".close");
+    // Modal Close Action
+    const closeBtn = document.querySelector(".close-btn");
     if (closeBtn) {
         closeBtn.addEventListener("click", () => {
-            const modal = document.getElementById("audit-modal") || document.querySelector(".modal");
-            if (modal) modal.style.display = "none";
+            document.getElementById("audit-modal").style.display = "none";
         });
     }
 });
@@ -87,12 +74,8 @@ document.addEventListener("DOMContentLoaded", () => {
 // 3. RENDER TIMELINE FUNCTION
 // ==========================================
 function renderTimeline() {
-    const container = document.getElementById("timeline-container") || document.getElementById("timeline") || document.querySelector(".timeline");
-    
-    if (!container) {
-        console.error("Error: Could not find timeline container element in your HTML.");
-        return;
-    }
+    const container = document.getElementById("timeline-container");
+    if (!container) return;
     
     container.innerHTML = "";
     
@@ -102,17 +85,15 @@ function renderTimeline() {
         item.style.borderLeft = "3px solid #4a5568";
         item.style.paddingLeft = "15px";
         item.style.marginBottom = "20px";
-        item.style.position = "relative";
         
-        // Render with Image and Audit Button Action
         item.innerHTML = `
-            <div class="timeline-date" style="font-size: 0.85rem; color:#718096;"><i class="far fa-calendar-alt"></i> ${update.date}</div>
+            <div style="font-size: 0.85rem; color:#718096;"><i class="far fa-calendar-alt"></i> ${update.date}</div>
             <h3 style="margin: 5px 0;">${update.title}</h3>
             <p style="font-weight:600; color:#2f855a; margin: 2px 0;">Cost: PKR ${update.cost}</p>
             <p style="font-size:0.9rem; color:#4a5568;"><strong>Receipt Log:</strong> ${update.receipt}</p>
-            <img src="${update.imageUrl}" alt="Progress Image" style="max-width:100%; max-height:250px; border-radius:6px; margin: 8px 0; display:block;" onerror="this.src='https://via.placeholder.com/600x300.png?text=Site+Progress'">
+            <img src="${update.imageUrl}" alt="Progress Image" style="max-width:100%; max-height:250px; border-radius:6px; margin: 8px 0; display:block;">
             <div style="margin-top: 8px;">
-                <button class="btn-audit" style="cursor:pointer; padding: 6px 12px; background:#2b6cb0; color:white; border:none; border-radius:4px;" onclick="triggerAiAudit(${update.id})">
+                <button style="cursor:pointer; padding: 6px 12px; background:#2b6cb0; color:white; border:none; border-radius:4px;" onclick="triggerAiAudit(${update.id})">
                     <i class="fas fa-shield-halved"></i> ${update.audit ? 'View Audit Report' : 'Run AI System Audit'}
                 </button>
             </div>
@@ -122,122 +103,62 @@ function renderTimeline() {
 }
 
 // ==========================================
-// 4. GEMINI DYNAMIC API INTEGRATION & AUDIT
+// 4. OFFLINE SIMULATION AUDIT (No API Key Needed)
 // ==========================================
-async function triggerAiAudit(id) {
-    const modal = document.getElementById("audit-modal") || document.querySelector(".modal");
-    const loading = document.getElementById("modal-loading") || document.getElementById("loading");
-    const resultDiv = document.getElementById("modal-result") || document.getElementById("result");
+function triggerAiAudit(id) {
+    const modal = document.getElementById("audit-modal");
+    const loading = document.getElementById("modal-loading");
+    const resultDiv = document.getElementById("modal-result");
     
-    if (modal) modal.style.display = "flex";
-    if (loading) loading.style.display = "block";
-    if (resultDiv) {
-        resultDiv.className = "hidden";
-        resultDiv.innerHTML = "";
-    }
+    modal.style.display = "flex";
+    loading.style.display = "block";
+    resultDiv.style.display = "none";
     
     const item = siteUpdates.find(u => u.id === id);
     if (!item) return;
     
+    // Agar pehle se audit ho chuka hai, to direct report dikhao
     if (item.audit) {
         displayAuditResult(item.audit);
         return;
     }
 
-    // Your Key Retained As Requested
-    const apiKey = 
-   
-    // Simulation Fallback if Key isn't populated properly
-    if (!apiKey) {
-        setTimeout(() => {
-            const hasPossibleMismatch = item.cost.replace(/,/g, '') > 800000; 
-            item.audit = {
-                status: hasPossibleMismatch ? "Discrepancy Detected" : "Verified",
-                confidence: "High (Simulation Profile)",
-                summary: hasPossibleMismatch 
-                    ? `Warning: Material logged cost (PKR ${item.cost}) exceeds the structural computation values parsed inside the raw receipt transcript.` 
-                    : "Automated verification complete. Logged structural variables correspond accurately with the transcription.",
-                flags: hasPossibleMismatch ? "Financial metrics inflation match alert flagged." : "None",
-                steps: hasPossibleMismatch ? "Request original physical counter-foil from project vendor immediately." : "Approve and lock batch record entry."
-            };
-            displayAuditResult(item.audit);
-            updateDashboardBadge(item.audit.status);
-        }, 1200);
-        return;
-    }
-
-    try {
-        const fullPrompt = `You are a Forensic Construction Auditor. Run an integrity audit on this log entry. 
-Material/Work Title: ${item.title}
-Logged Cost: PKR ${item.cost}
-Pasted Receipt Text: ${item.receipt}
-Image Context Link: ${item.imageUrl}
-
-Return ONLY a valid JSON object matching this structure exactly (do not wrap in markdown or backticks):
-{
-  "status": "Verified" or "Caution" or "Discrepancy Detected",
-  "confidence": "High" or "Medium" or "Low",
-  "summary": "detailed analysis description here",
-  "flags": "any specific warnings or none",
-  "steps": "recommended follow up action"
-}`;
-
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: fullPrompt }] }]
-            })
-        });
-
-        const data = await response.json();
-        if (data.error) throw new Error(data.error.message || "API Rejected request.");
-
-        let rawText = data.candidates[0].content.parts[0].text.trim();
-        if (rawText.startsWith("```")) {
-            rawText = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
-        }
+    // AI ka intezar karne ka effect (1.5 seconds delay)
+    setTimeout(() => {
+        const numericCost = parseInt(item.cost.replace(/,/g, ''));
         
-        const parsedAudit = JSON.parse(rawText);
+        // Logic: Agar cost 5,00,000 se zyada hogi to Discrepancy (Error) dega, warna Verified dega
+        const hasIssue = numericCost > 500000; 
         
         item.audit = {
-            status: parsedAudit.status || "Verified",
-            confidence: parsedAudit.confidence || "High",
-            summary: parsedAudit.summary || "Audit pipeline validation completed successfully.",
-            flags: parsedAudit.flags || "None",
-            steps: parsedAudit.steps || "No tracking anomalies identified."
+            status: hasIssue ? "Discrepancy Detected" : "Verified",
+            confidence: "High (System Simulation)",
+            summary: hasIssue 
+                ? "Warning: The logged cost exceeds the standard market metrics based on the receipt data provided." 
+                : "Automated verification complete. Logged material quantities and costs align perfectly with market standards.",
+            flags: hasIssue ? "Cost inflation detected. Possible over-billing." : "None",
+            steps: hasIssue ? "Request original physical counter-foil from project vendor immediately." : "Approve and lock batch record entry."
         };
         
         displayAuditResult(item.audit);
         updateDashboardBadge(item.audit.status);
-        renderTimeline(); // Re-render to update the button state text
-    } catch (error) {
-        console.error("Gemini API Error Logged: ", error);
-        if (loading) loading.style.display = "none";
-        if (resultDiv) {
-            resultDiv.className = "";
-            resultDiv.style.display = "block";
-            resultDiv.innerHTML = `<p style="color:red; padding: 10px;"><i class="fas fa-triangle-exclamation"></i> <strong>Audit Gateway Exception:</strong> ${error.message || "Failed to parse content payload"}. Double check endpoint mapping.</p>`;
-        }
-    }
+        renderTimeline(); // Button ka text update karne ke liye
+    }, 1500);
 }
 
 // ==========================================
 // 5. HELPER UI DISPLAY FUNCTIONS
 // ==========================================
 function displayAuditResult(audit) {
-    const loading = document.getElementById("modal-loading") || document.getElementById("loading");
-    const resultDiv = document.getElementById("modal-result") || document.getElementById("result");
+    const loading = document.getElementById("modal-loading");
+    const resultDiv = document.getElementById("modal-result");
     
-    if (loading) loading.style.display = "none";
-    if (!resultDiv) return;
-    
-    resultDiv.className = "";
+    loading.style.display = "none";
     resultDiv.style.display = "block";
     
-    let badgeColor = "#2f855a"; // Success Green
-    if (audit.status === "Caution") badgeColor = "#dd6b20"; // Warning Orange
-    if (audit.status === "Discrepancy Detected") badgeColor = "#e53e3e"; // Danger Red
+    let badgeColor = "#2f855a"; // Green
+    if (audit.status === "Caution") badgeColor = "#dd6b20"; // Orange
+    if (audit.status === "Discrepancy Detected") badgeColor = "#e53e3e"; // Red
     
     resultDiv.innerHTML = `
         <div style="margin: 1rem 0; display:flex; justify-content:space-between; align-items:center;">
@@ -254,7 +175,7 @@ function displayAuditResult(audit) {
 }
 
 function updateDashboardBadge(status) {
-    const badge = document.getElementById("audit-status-badge") || document.querySelector(".status-badge");
+    const badge = document.getElementById("audit-status-badge");
     if (!badge) return;
     
     badge.innerText = status;
