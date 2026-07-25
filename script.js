@@ -23,23 +23,69 @@ if (typeof firebase !== 'undefined') {
 let appState = {
     totalEscrowPool: 5000000,
     totalExpensesLogged: 0,
-    progressPercentage: 35,
+    progressPercentage: 25, // Dynamic initialization based on baseline entry
     isLoggedIn: false,
-    currentCameraIndex: 0
+    currentCameraIndex: 0,
+    currentPhaseIndex: 0 // Baseline Phase Indicator Node
 };
+
+// Construction Phases Sequence Matrix Array
+const constructionPhases = [
+    { name: "Phase 1: Foundation & Excavation", targetProgress: 25, status: "In Progress" },
+    { name: "Phase 2: Plinth Beam & Grey Structure", targetProgress: 50, status: "Pending" },
+    { name: "Phase 3: Roofing & Brickwork Slab", targetProgress: 75, status: "Pending" },
+    { name: "Phase 4: Finishing, Plaster & Plumbing", targetProgress: 100, status: "Pending" }
+];
 
 let reportsData = [];
 let securityIncidents = [];
 
-// Static Structural Assets Arrays
+// Static Structural Assets Arrays for CCTV Engine
 const cameraFeeds = [
     { tag: "CAM 01 — FOUNDATION AXIS", src: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=800&q=80" },
     { tag: "CAM 02 — STORAGE & REBAR BAY", src: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=800&q=80" },
     { tag: "CAM 03 — BOUNDARY PERIMETER", src: "https://images.unsplash.com/photo-1590069261209-f8e9b8642343?auto=format&fit=crop&w=800&q=80" }
 ];
 
+// ================= AUTOMATED CONSTRUCTION PHASE CALCULATOR ENGINE =================
+function evaluateConstructionPhaseMetrics() {
+    const expenseSum = appState.totalExpensesLogged;
+    
+    if (expenseSum <= 1000000) {
+        appState.currentPhaseIndex = 0;
+        appState.progressPercentage = 25;
+        constructionPhases[0].status = "In Progress";
+        constructionPhases[1].status = "Pending";
+        constructionPhases[2].status = "Pending";
+        constructionPhases[3].status = "Pending";
+    } else if (expenseSum > 1000000 && expenseSum <= 2500000) {
+        appState.currentPhaseIndex = 1;
+        appState.progressPercentage = 50;
+        constructionPhases[0].status = "Completed";
+        constructionPhases[1].status = "In Progress";
+        constructionPhases[2].status = "Pending";
+        constructionPhases[3].status = "Pending";
+    } else if (expenseSum > 2500000 && expenseSum <= 4000000) {
+        appState.currentPhaseIndex = 2;
+        appState.progressPercentage = 75;
+        constructionPhases[0].status = "Completed";
+        constructionPhases[1].status = "Completed";
+        constructionPhases[2].status = "In Progress";
+        constructionPhases[3].status = "Pending";
+    } else {
+        appState.currentPhaseIndex = 3;
+        appState.progressPercentage = 100;
+        constructionPhases[0].status = "Completed";
+        constructionPhases[1].status = "Completed";
+        constructionPhases[2].status = "Completed";
+        constructionPhases[3].status = "Completed";
+    }
+}
+
 // ================= GLOBAL METRICS SYNCHRONIZER (DOM COUPLING) =================
 function syncGlobalDOMStats() {
+    evaluateConstructionPhaseMetrics(); // Evaluate states dynamically before UI update
+    
     const remainingBalance = appState.totalEscrowPool - appState.totalExpensesLogged;
     
     const balanceDOM = document.getElementById('stat-escrow-balance');
@@ -68,6 +114,7 @@ if (typeof db !== 'undefined') {
           appState.totalExpensesLogged = tempTotalCost;
           syncGlobalDOMStats();
           renderReports();
+          renderPhaseTracker(); // Synchronize view matrix
       }, (err) => console.error("Firestore synchronizer failed to snapshot expenses:", err));
 
     // B. Security Access Log Live Listener
@@ -126,13 +173,49 @@ function renderSecurityLogs() {
     `).join('');
 }
 
+// 3. Dynamic Construction Phase Progress Tracker Grid Component Renderer
+function renderPhaseTracker() {
+    const phaseTitleDOM = document.getElementById('active-phase-title');
+    const phaseStatusDOM = document.getElementById('active-phase-status');
+    const milestoneContainer = document.getElementById('milestone-phases-list');
+    
+    if (phaseTitleDOM && phaseStatusDOM) {
+        const currentPhase = constructionPhases[appState.currentPhaseIndex];
+        phaseTitleDOM.textContent = currentPhase.name;
+        phaseStatusDOM.textContent = currentPhase.status;
+        
+        if (currentPhase.status === "In Progress") {
+            phaseStatusDOM.style.color = "#fbbf24"; 
+        } else if (currentPhase.status === "Completed") {
+            phaseStatusDOM.style.color = "#34d399";
+        } else {
+            phaseStatusDOM.style.color = "#64748b";
+        }
+    }
+
+    if (milestoneContainer) {
+        milestoneContainer.innerHTML = constructionPhases.map((phase, idx) => `
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #0f172a; border-radius: 6px; margin-bottom: 6px; border: 1px solid ${idx === appState.currentPhaseIndex ? '#22d3ee' : '#1e293b'}">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <i class="fa-solid ${idx < appState.currentPhaseIndex ? 'fa-circle-check' : idx === appState.currentPhaseIndex ? 'fa-circle-dot' : 'fa-circle'}" style="color: ${idx <= appState.currentPhaseIndex ? '#22d3ee' : '#64748b'}"></i>
+                    <span style="color: ${idx === appState.currentPhaseIndex ? '#fff' : '#94a3b8'}; font-size: 0.85rem; font-weight: ${idx === appState.currentPhaseIndex ? '600' : '400'}">${phase.name}</span>
+                </div>
+                <span style="font-size: 0.75rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; ${
+                    phase.status === 'Completed' ? 'color:#34d399; background:rgba(52,211,153,0.1);' : phase.status === 'In Progress' ? 'color:#fbbf24; background:rgba(251,191,36,0.1);' : 'color:#64748b;'
+                }">${phase.status}</span>
+            </div>
+        `).join('');
+    }
+}
+
 // ================= LIFE-CYCLE STATE LOADER & TRIGGER REGISTRY =================
 document.addEventListener("DOMContentLoaded", () => {
     
-    // Initial UI DOM Synchronization Run
+    // Initial UI DOM Synchronization Run Layout
     syncGlobalDOMStats();
     renderReports();
     renderSecurityLogs();
+    renderPhaseTracker();
 
     // 1. EXPENSE INTERACTION LOG FORM PIPELINE
     const logForm = document.getElementById('log-form');
@@ -159,11 +242,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     alert("Cloud structural write failure: " + err.message);
                 }
             } else {
-                // Local Mode Fallback state routing if Firebase is disconnected
+                // Local Mode Fallback state routing if Firebase network node is disconnected
                 reportsData.unshift(payload);
                 appState.totalExpensesLogged += costInput;
                 syncGlobalDOMStats();
                 renderReports();
+                renderPhaseTracker(); // Dynamic tracking pipeline integration run
                 logForm.reset();
             }
         });
