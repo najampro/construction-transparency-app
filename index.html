@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BuildTrack Nexus — AI Construction & Operational Suite</title>
-    <!-- FontAwesome Elements for Icons Matrix -->
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -35,7 +35,7 @@
             overflow-x: hidden;
         }
 
-        /* ================= SIDEBAR LAYOUT FRAMEWORK ================= */
+        /* SIDEBAR LAYOUT */
         .sidebar {
             width: 280px;
             background-color: var(--bg-card);
@@ -55,16 +55,8 @@
             border-bottom: 1px solid var(--border-color);
         }
 
-        .sidebar-brand i {
-            color: var(--accent-cyan);
-            font-size: 1.5rem;
-        }
-
-        .sidebar-brand h1 {
-            font-size: 1.25rem;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
+        .sidebar-brand i { color: var(--accent-cyan); font-size: 1.5rem; }
+        .sidebar-brand h1 { font-size: 1.25rem; font-weight: 700; }
 
         .user-profile-node {
             padding: 20px 24px;
@@ -74,40 +66,17 @@
             gap: 12px;
             cursor: pointer;
             background: rgba(34, 211, 238, 0.02);
-            transition: all 0.2s ease;
-        }
-
-        .user-profile-node:hover {
-            background: rgba(34, 211, 238, 0.05);
         }
 
         .avatar {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            background: var(--accent-cyan);
-            color: #0b0f19;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 1.1rem;
+            width: 42px; height: 42px; border-radius: 50%;
+            background: var(--accent-cyan); color: #0b0f19;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1rem;
         }
 
-        .profile-info {
-            flex-direction: column;
-        }
-
-        .profile-info h4 {
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-
-        .profile-info span {
-            font-size: 0.75rem;
-            color: var(--accent-cyan);
-            display: block;
-        }
+        .profile-info h4 { font-size: 0.9rem; font-weight: 600; }
+        .profile-info span { font-size: 0.75rem; color: var(--accent-cyan); display: block; }
 
         .sidebar-menu {
             list-style: none;
@@ -128,6 +97,7 @@
             font-size: 0.95rem;
             font-weight: 500;
             transition: all 0.2s ease;
+            cursor: pointer;
         }
 
         .sidebar-menu .menu-item:hover, .sidebar-menu .menu-item.active {
@@ -140,7 +110,7 @@
             background: rgba(34, 211, 238, 0.05);
         }
 
-        /* ================= MAIN INTERFACE WRAPPER ================= */
+        /* MAIN CANVAS */
         .main-content {
             margin-left: 280px;
             flex: 1;
@@ -154,18 +124,10 @@
             padding-bottom: 20px;
         }
 
-        .header-action-bar h2 {
-            font-size: 1.75rem;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
+        .header-action-bar h2 { font-size: 1.75rem; font-weight: 600; margin-bottom: 4px; }
+        .header-action-bar p { color: var(--text-secondary); font-size: 0.9rem; }
 
-        .header-action-bar p {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        /* ================= STATS WIDGET GRID ================= */
+        /* STATS GRID */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -183,35 +145,14 @@
             justify-content: space-between;
         }
 
-        .stat-meta h3 {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 8px;
-        }
-
-        .stat-meta .number-display {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .stat-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-        }
-
+        .stat-meta h3 { font-size: 0.85rem; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 8px; }
+        .stat-meta .number-display { font-size: 1.75rem; font-weight: 700; color: var(--text-primary); }
+        .stat-icon { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; }
         .stat-card.escrow .stat-icon { background: rgba(52, 211, 153, 0.1); color: var(--accent-green); }
         .stat-card.expense .stat-icon { background: rgba(248, 113, 113, 0.1); color: var(--accent-red); }
         .stat-card.progress .stat-icon { background: rgba(34, 211, 238, 0.1); color: var(--accent-cyan); }
 
-        /* ================= OPERATIONAL APP MULTI-GRID layout ================= */
+        /* DASHBOARD LAYOUT */
         .dashboard-layout-matrix {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -244,7 +185,7 @@
 
         .panel-title i { color: var(--accent-cyan); }
 
-        /* ================= 6-PHASE PROGRESS TRACKER CSS ================= */
+        /* PHASE BANNER & LIST */
         .active-phase-banner {
             background: var(--bg-input);
             border: 1px solid var(--border-color);
@@ -257,296 +198,66 @@
             align-items: center;
         }
 
-        .active-phase-banner span {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            color: var(--text-secondary);
-            display: block;
-        }
+        .active-phase-banner span { font-size: 0.75rem; text-transform: uppercase; color: var(--text-secondary); display: block; }
+        .active-phase-banner strong { font-size: 1.05rem; color: var(--text-primary); }
 
-        .active-phase-banner strong {
-            font-size: 1.05rem;
-            color: var(--text-primary);
-        }
-
-        /* Container target block rendered directly by JS logic array */
         #milestone-phases-list {
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
 
-        /* ================= CORE FORM ENGINE INTERFACES ================= */
-        .form-grid-inputs {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 16px;
-        }
-
-        @media (max-width: 600px) {
-            .form-grid-inputs { grid-template-columns: 1fr; }
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .form-group label {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
+        /* FORMS & INPUTS */
+        .form-grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+        .form-group { display: flex; flex-direction: column; gap: 8px; }
+        .form-group label { font-size: 0.85rem; color: var(--text-secondary); font-weight: 500; }
         .form-group input, .form-group select {
             background-color: var(--bg-input);
             border: 1px solid var(--border-color);
-            padding: 12px;
-            border-radius: 8px;
-            color: var(--text-primary);
-            font-size: 0.9rem;
-            outline: none;
-            transition: border 0.2s ease;
+            padding: 12px; border-radius: 8px;
+            color: var(--text-primary); font-size: 0.9rem; outline: none;
         }
-
-        .form-group input:focus, .form-group select:focus {
-            border-color: var(--accent-cyan);
-        }
+        .form-group input:focus, .form-group select:focus { border-color: var(--accent-cyan); }
 
         .submit-btn-node {
-            background: var(--accent-cyan);
-            color: #0b0f19;
-            border: none;
-            padding: 14px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.95rem;
-            cursor: pointer;
-            width: 100%;
-            transition: opacity 0.2s ease;
+            background: var(--accent-cyan); color: #0b0f19;
+            border: none; padding: 14px 24px; border-radius: 8px;
+            font-weight: 600; font-size: 0.95rem; cursor: pointer; width: 100%;
         }
 
-        .submit-btn-node:hover { opacity: 0.9; }
+        /* AI TERMINAL */
+        .ai-input-wrapper { display: flex; gap: 10px; margin-bottom: 16px; }
+        #ai-input-query { flex: 1; background-color: var(--bg-input); border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; color: var(--text-primary); outline: none; }
+        #btn-trigger-ai { background: rgba(34, 211, 238, 0.1); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); padding: 12px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        #ai-response-box { background: var(--bg-input); border: 1px solid var(--border-color); padding: 16px; border-radius: 8px; font-size: 0.88rem; display: none; color: #e2e8f0; }
 
-        /* ================= CCTV CHANNEL MONITOR INTERFACE ================= */
-        .cctv-frame-container {
-            position: relative;
-            background: #000;
-            border-radius: 8px;
-            overflow: hidden;
-            aspect-ratio: 16/9;
-            border: 1px solid var(--border-color);
-            margin-bottom: 16px;
-        }
-
-        #cctv-main-feed {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            filter: brightness(0.85);
-            transition: filter 0.2s ease;
-        }
-
-        .cctv-overlay-tag {
-            position: absolute;
-            top: 12px;
-            left: 12px;
-            background: rgba(15, 23, 42, 0.75);
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-family: monospace;
-            letter-spacing: 1px;
-            border-left: 3px solid var(--accent-red);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .cctv-overlay-tag span::before {
-            content: '';
-            display: inline-block;
-            width: 6px;
-            height: 6px;
-            background: var(--accent-red);
-            border-radius: 50%;
-            margin-right: 6px;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 0.3; }
-            50% { opacity: 1; }
-            100% { opacity: 0.3; }
-        }
-
-        /* ================= SECURITY TOGGLE MATRIX SWAP ================= */
-        .toggle-switch-wrapper {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px;
-            background: var(--bg-input);
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            margin-bottom: 10px;
-        }
-
-        .toggle-switch-wrapper span { font-size: 0.9rem; }
-        
-        .switch-input-node {
-            position: relative;
-            display: inline-block;
-            width: 44px;
-            height: 22px;
-        }
-
-        .switch-input-node input { opacity: 0; width: 0; height: 0; }
-        .slider-round-block {
-            position: absolute;
-            cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #334155;
-            transition: .3s;
-            border-radius: 34px;
-        }
-
-        .slider-round-block:before {
-            position: absolute;
-            content: "";
-            height: 16px; width: 16px;
-            left: 3px; bottom: 3px;
-            background-color: white;
-            transition: .3s;
-            border-radius: 50%;
-        }
-
-        input:checked + .slider-round-block { background-color: var(--accent-cyan); }
-        input:checked + .slider-round-block:before { transform: translateX(22px); }
-
-        /* ================= AI MODULE TERMINAL INTERFACE ================= */
-        .ai-input-wrapper {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 16px;
-        }
-
-        #ai-input-query {
-            flex: 1;
-            background-color: var(--bg-input);
-            border: 1px solid var(--border-color);
-            padding: 12px;
-            border-radius: 8px;
-            color: var(--text-primary);
-            font-size: 0.9rem;
-            outline: none;
-        }
-
-        #btn-trigger-ai {
-            background: rgba(34, 211, 238, 0.1);
-            color: var(--accent-cyan);
-            border: 1px solid var(--accent-cyan);
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        #btn-trigger-ai:hover {
-            background: var(--accent-cyan);
-            color: #0b0f19;
-        }
-
-        #ai-response-box {
-            background: var(--bg-input);
-            border: 1px solid var(--border-color);
-            padding: 16px;
-            border-radius: 8px;
-            font-size: 0.88rem;
-            display: none;
-            color: #e2e8f0;
-        }
-
-        /* ================= CONDITIONAL LAYER VIEWS CONTROL ================= */
+        /* VIEWS ROUTER */
         .page-content { display: none; }
         .page-content.active { display: block; }
 
-        /* ================= AUTH SECURITY MODAL CONTAINER ================= */
-        .modal-overlay {
-            position: fixed;
-            top:0; left:0; right:0; bottom:0;
-            background: rgba(11, 15, 25, 0.85);
-            backdrop-filter: blur(4px);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0; pointer-events: none;
-            transition: all 0.3s ease;
-        }
-
-        .modal-overlay.active { opacity: 1; pointer-events: auto; }
-
-        .modal-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            width: 100%;
-            max-width: 400px;
-            padding: 28px;
-            position: relative;
-        }
-
-        .modal-close-btn {
-            position: absolute;
-            top: 20px; right: 20px;
-            background: transparent; border:none;
-            color: var(--text-secondary);
-            font-size: 1.2rem; cursor: pointer;
-        }
-
-        /* ================= EXPENSE REPORTS LEDGER SCROLLABLE CARDS ================= */
+        /* LEDGER ITEMS */
         .report-item {
-            background: var(--bg-input);
-            border: 1px solid var(--border-color);
-            padding: 14px;
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
+            background: var(--bg-input); border: 1px solid var(--border-color);
+            padding: 14px; border-radius: 8px; display: flex;
+            justify-content: space-between; align-items: center; margin-bottom: 8px;
         }
-        
-        #material-reports-container, #security-incident-logs {
-            max-height: 280px;
-            overflow-y: auto;
-            padding-right: 4px;
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: var(--bg-main); }
-        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+        #material-reports-container { max-height: 280px; overflow-y: auto; }
     </style>
 </head>
 <body>
 
-    <!-- SIDEBAR APPLICATION WRAPPER ELEMENT -->
+    <!-- SIDEBAR -->
     <div class="sidebar">
         <div class="sidebar-brand">
             <i class="fa-solid fa-cubes-nw"></i>
             <h1>BuildTrack Engine</h1>
         </div>
 
-        <!-- AUTH PROFILE INGESTION TARGET BLOCK -->
-        <div class="user-profile-node" id="login-trigger-btn">
-            <div class="avatar" id="avatar-letters">G</div>
+        <div class="user-profile-node">
+            <div class="avatar" id="avatar-letters">N</div>
             <div class="profile-info">
-                <h4 id="user-display-name">Guest Mode</h4>
-                <span id="auth-action-text">Click to Login</span>
+                <h4 id="user-display-name">Najam (Supervisor)</h4>
+                <span id="auth-action-text" style="color: var(--accent-green);">Active Session</span>
             </div>
         </div>
 
@@ -558,16 +269,15 @@
         </ul>
     </div>
 
-    <!-- MAIN VIEWS INTERFACE CANVAS -->
+    <!-- MAIN CONTENT -->
     <div class="main-content">
         
-        <!-- HEADER STATE ROUTER META -->
         <div class="header-action-bar">
             <h2 id="current-view-title">Site Overview & Logs</h2>
             <p id="current-view-desc">Real-time construction operational stream</p>
         </div>
 
-        <!-- STATS DISPLAYS METRICS MATRIX -->
+        <!-- STATS -->
         <div class="stats-grid">
             <div class="stat-card escrow">
                 <div class="stat-meta">
@@ -592,177 +302,260 @@
             </div>
         </div>
 
-        <!-- ================= LAYER 1: VIEW ROUTER MAIN DASHBOARD ================= -->
+        <!-- DASHBOARD VIEW -->
         <div id="page-dashboard" class="page-content active">
             <div class="dashboard-layout-matrix">
-                
-                <!-- Left Operations Column -->
                 <div>
-                    <!-- Procurement Log form Input Matrix -->
+                    <!-- Procurement Form -->
                     <div class="panel-card">
                         <div class="panel-title"><i class="fa-solid fa-file-invoice-dollar"></i> Log Material Procurement</div>
                         <form id="log-form">
                             <div class="form-grid-inputs">
                                 <div class="form-group">
-                                    <label>Material Name / Description</label>
-                                    <input type="text" id="material-name" placeholder="e.g., Grade-60 Deformed Steel Rebar" required>
+                                    <label>Material Name</label>
+                                    <input type="text" id="material-name" placeholder="e.g., Grade-60 Steel Rebar" required>
                                 </div>
                                 <div class="form-group">
-                                    <label>Total Invoiced Cost (PKR)</label>
+                                    <label>Cost (PKR)</label>
                                     <input type="number" id="material-cost" placeholder="e.g., 250000" required>
                                 </div>
                             </div>
                             <div class="form-group" style="margin-bottom: 20px;">
-                                <label>Quality Verification Matrix Entry</label>
+                                <label>Quality Verification</label>
                                 <select id="material-quality">
                                     <option value="Passed Verification">Passed Structural Integrity Check</option>
-                                    <option value="Warning: Review Needed">Warning: Pending Secondary Lab Test</option>
+                                    <option value="Warning: Review Needed">Warning: Pending Lab Test</option>
                                 </select>
                             </div>
-                            <button type="submit" class="submit-btn-node">Commit & Sync to Cloud</button>
+                            <button type="submit" class="submit-btn-node">Commit & Sync Entry</button>
                         </form>
                     </div>
 
-                    <!-- Graded AI Engineer Core Interface Box -->
+                    <!-- AI Assistant -->
                     <div class="panel-card">
                         <div class="panel-title"><i class="fa-solid fa-microchip-ai"></i> BuildTrack AI Civil Assistant</div>
                         <div class="ai-input-wrapper">
-                            <input type="text" id="ai-input-query" placeholder="Ask about 5 Marla layouts, structural optimization or costs...">
+                            <input type="text" id="ai-input-query" placeholder="Ask about 5 Marla layouts or costs...">
                             <button id="btn-trigger-ai">Consult AI</button>
                         </div>
                         <div id="ai-response-box"></div>
                     </div>
                 </div>
 
-                <!-- Right Sidebar Column: Contains the 6-Phase Milestone System -->
                 <div>
+                    <!-- 6-Point Phase Milestone Tracker -->
                     <div class="panel-card">
                         <div class="panel-title"><i class="fa-solid fa-list-check"></i> 6-Point Milestone Tracker</div>
                         
-                        <!-- Top Active Banner Node -->
                         <div class="active-phase-banner">
                             <div>
                                 <span>Active Node</span>
                                 <strong id="active-phase-title">Phase 1: Excavation & Layout</strong>
                             </div>
-                            <span id="active-phase-status" style="font-weight: bold;">In Progress</span>
+                            <span id="active-phase-status" style="font-weight: bold; color: var(--accent-amber);">In Progress</span>
                         </div>
 
-                        <!-- 6-Phase Sequence Matrix Array Target Element Injection Node -->
-                        <div id="milestone-phases-list">
-                            <!-- Programmatic code will safely rewrite and render components live here -->
-                        </div>
+                        <!-- 6 Phases Will Render Here Automatically -->
+                        <div id="milestone-phases-list"></div>
                     </div>
 
-                    <!-- Material Ingested Ledger Feed -->
+                    <!-- Ledger -->
                     <div class="panel-card">
                         <div class="panel-title"><i class="fa-solid fa-cloud-arrow-up"></i> Live Cloud Ledger</div>
                         <div id="material-reports-container"></div>
                     </div>
                 </div>
-
             </div>
         </div>
 
-        <!-- ================= LAYER 2: VIEW ROUTER SITE SECURITY SYSTEMS ================= -->
+        <!-- SECURITY VIEW -->
         <div id="page-security" class="page-content">
-            <div class="dashboard-layout-matrix">
-                <div>
-                    <!-- Surveillance Video Screen Monitor Player -->
-                    <div class="panel-card">
-                        <div class="panel-title"><i class="fa-solid fa-video"></i> Live Operational CCTV Stream</div>
-                        <div class="cctv-frame-container">
-                            <div class="cctv-overlay-tag"><span></span><div id="cctv-camera-tag">CAM 01 — FOUNDATION AXIS</div></div>
-                            <img id="cctv-main-feed" src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=800&q=80" alt="CCTV Stream">
-                        </div>
-                        <div class="form-group">
-                            <label>Switch Surveillance Target Node Feed</label>
-                            <select id="cctv-channel-select" style="margin-top: 8px;">
-                                <option value="0">Channel 01 — Foundation Axis Matrix</option>
-                                <option value="1">Channel 02 — Material Storage & Rebar Bay</option>
-                                <option value="2">Channel 03 — Boundary Perimeter Zone</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <!-- Hardware Toggle Relays Matrix Controllers -->
-                    <div class="panel-card">
-                        <div class="panel-title"><i class="fa-solid fa-toggle-on"></i> Hardware Actuator Relays</div>
-                        
-                        <div class="toggle-switch-wrapper">
-                            <span>RFID Main Access Gate Barrier</span>
-                            <label class="switch-input-node">
-                                <input type="checkbox" id="gate-barrier-toggle">
-                                <span class="slider-round-block"></span>
-                            </label>
-                        </div>
-
-                        <div class="toggle-switch-wrapper">
-                            <span>Perimeter Laser Breach Detection</span>
-                            <label class="switch-input-node">
-                                <input type="checkbox" id="perimeter-laser-toggle" checked>
-                                <span class="slider-round-block"></span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Live Security Access Incident Terminal Logs -->
-                    <div class="panel-card">
-                        <div class="panel-title"><i class="fa-solid fa-terminal"></i> Security Logs Node Feed</div>
-                        <div id="security-incident-logs"></div>
-                    </div>
-                </div>
+            <div class="panel-card">
+                <div class="panel-title"><i class="fa-solid fa-shield-halved"></i> Site Security Operations</div>
+                <p style="color: var(--text-secondary);">Perimeter sensors and automated access controls are fully online.</p>
             </div>
         </div>
 
-        <!-- ================= LAYER 3: VIEW ROUTER FINANCIAL ESCROW POOLS ================= -->
+        <!-- ESCROW VIEW -->
         <div id="page-escrow" class="page-content">
             <div class="panel-card">
-                <div class="panel-title"><i class="fa-solid fa-vault"></i> Smart Escrow Pool Parameters</div>
-                <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 0.95rem; line-height: 1.6;">
-                    This app module tracks safe multi-staged legal financing releases linked directly to dynamic 6-Phase milestone triggers validated through structural reports algorithms.
-                </p>
-                <div style="background: var(--bg-input); padding: 20px; border-radius: 8px; border: 1px solid var(--border-color);">
-                    <h4 style="color: var(--accent-green); font-size: 1.1rem; margin-bottom: 10px;">Security Lock Active</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-secondary);">All asset movements match decentralized verification metrics. Funds release rules evaluate procurement ledger summaries against budget slab constraints.</p>
-                </div>
+                <div class="panel-title"><i class="fa-solid fa-wallet"></i> Financial Escrow Pool</div>
+                <p style="color: var(--text-secondary);">Total decentralized allocation pool: PKR 5,000,000.</p>
             </div>
         </div>
 
-        <!-- ================= LAYER 4: VIEW ROUTER SYSTEM PARAMS SETTINGS ================= -->
+        <!-- SETTINGS VIEW -->
         <div id="page-settings" class="page-content">
             <div class="panel-card">
-                <div class="panel-title"><i class="fa-solid fa-gears"></i> Core Architecture Config parameters</div>
-                <div class="form-group" style="max-width: 400px;">
-                    <label>Application Connectivity Sandbox Mode</label>
-                    <select style="margin-top: 8px;">
-                        <option>Local In-Memory Matrix Array (Active Fallback)</option>
-                        <option>Live Cloud Firestore Sync Pipeline</option>
-                    </select>
-                </div>
+                <div class="panel-title"><i class="fa-solid fa-sliders"></i> System Settings</div>
+                <p style="color: var(--text-secondary);">Application running in high-performance local sandbox state.</p>
             </div>
         </div>
 
     </div>
 
-    <!-- ================= IDENTITY ACCESS AUTH MODAL WINDOW ================= -->
-    <div class="modal-overlay" id="account-auth-modal">
-        <div class="modal-card">
-            <button class="modal-close-btn" id="close-auth-modal"><i class="fa-solid fa-xmark"></i></button>
-            <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 8px; color:#fff;">Supervisor Identity Sign-In</h3>
-            <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 20px;">Provide secure authorization PIN matrix keys to modify application cloud parameters.</p>
-            
-            <form id="modal-auth-form">
-                <div class="form-group" style="margin-bottom: 20px;">
-                    <label>Security PIN Key Node</label>
-                    <input type="password" id="auth-pin-input" placeholder="••••" maxlength="4" style="text-align: center; font-size: 1.5rem; letter-spacing: 8px;" required>
-                </div>
-                <button type="submit" class="submit-btn-node">Authorize Identity</button>
-            </form>
-        </div>
-    </div>
+    <!-- EMBEDDED JAVASCRIPT ENGINE -->
+    <script>
+        // 1. STATE & PHASES MATRIX DATA
+        let appState = {
+            totalEscrowPool: 5000000,
+            totalExpensesLogged: 0,
+            progressPercentage: 16,
+            currentPhaseIndex: 0
+        };
 
+        const constructionPhases = [
+            { name: "Phase 1: Excavation & Layout", status: "In Progress" },
+            { name: "Phase 2: Foundation Wall Pouring", status: "Pending" },
+            { name: "Phase 3: Plinth Beam & DPC Level", status: "Pending" },
+            { name: "Phase 4: Brickwork & Lintel Structure", status: "Pending" },
+            { name: "Phase 5: Roofing & Concrete Slab", status: "Pending" },
+            { name: "Phase 6: Finishing & Infrastructure", status: "Pending" }
+        ];
+
+        let reportsData = [];
+
+        // 2. PHASE EVALUATION ENGINE
+        function evaluatePhases() {
+            let expenseSum = appState.totalExpensesLogged;
+            if (expenseSum <= 500000) { appState.currentPhaseIndex = 0; appState.progressPercentage = 16; }
+            else if (expenseSum <= 1200000) { appState.currentPhaseIndex = 1; appState.progressPercentage = 33; }
+            else if (expenseSum <= 2200000) { appState.currentPhaseIndex = 2; appState.progressPercentage = 50; }
+            else if (expenseSum <= 3200000) { appState.currentPhaseIndex = 3; appState.progressPercentage = 66; }
+            else if (expenseSum <= 4200000) { appState.currentPhaseIndex = 4; appState.progressPercentage = 83; }
+            else { appState.currentPhaseIndex = 5; appState.progressPercentage = 100; }
+
+            constructionPhases.forEach((phase, idx) => {
+                if (idx < appState.currentPhaseIndex) phase.status = "Completed";
+                else if (idx === appState.currentPhaseIndex) phase.status = "In Progress";
+                else phase.status = "Pending";
+            });
+        }
+
+        // 3. DOM SYNCHRONIZER & RENDERER
+        function updateUI() {
+            evaluatePhases();
+
+            // Stats Update
+            document.getElementById('stat-escrow-balance').textContent = (appState.totalEscrowPool - appState.totalExpensesLogged).toLocaleString();
+            document.getElementById('stat-total-expense').textContent = appState.totalExpensesLogged.toLocaleString();
+            document.getElementById('stat-total-progress').textContent = `${appState.progressPercentage}%`;
+
+            // Active Phase Banner Update
+            const activePhase = constructionPhases[appState.currentPhaseIndex];
+            document.getElementById('active-phase-title').textContent = activePhase.name;
+            const statusDOM = document.getElementById('active-phase-status');
+            statusDOM.textContent = activePhase.status;
+            statusDOM.style.color = activePhase.status === 'Completed' ? '#34d399' : activePhase.status === 'In Progress' ? '#fbbf24' : '#64748b';
+
+            // Render All 6 Points in Milestone Tracker
+            const container = document.getElementById('milestone-phases-list');
+            container.innerHTML = constructionPhases.map((phase, idx) => {
+                let icon = idx < appState.currentPhaseIndex ? 'fa-circle-check' : idx === appState.currentPhaseIndex ? 'fa-circle-dot' : 'fa-circle';
+                let color = idx < appState.currentPhaseIndex ? '#34d399' : idx === appState.currentPhaseIndex ? '#22d3ee' : '#64748b';
+                
+                return `
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #0f172a; border-radius: 6px; border: 1px solid ${idx === appState.currentPhaseIndex ? '#22d3ee' : '#1e293b'}">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <i class="fa-solid ${icon}" style="color: ${color}"></i>
+                            <span style="color: ${idx === appState.currentPhaseIndex ? '#fff' : '#94a3b8'}; font-size: 0.85rem; font-weight: ${idx === appState.currentPhaseIndex ? '600' : '400'}">${phase.name}</span>
+                        </div>
+                        <span style="font-size: 0.75rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; ${
+                            phase.status === 'Completed' ? 'color:#34d399; background:rgba(52,211,153,0.1);' : phase.status === 'In Progress' ? 'color:#fbbf24; background:rgba(251,191,36,0.1);' : 'color:#64748b;'
+                        }">${phase.status}</span>
+                    </div>
+                `;
+            }).join('');
+
+            // Render Ledger Reports
+            const reportContainer = document.getElementById('material-reports-container');
+            if (reportsData.length === 0) {
+                reportContainer.innerHTML = `<p style="color:#64748b; font-size:0.85rem; padding:10px;">No procurement entries logged yet.</p>';
+            } else {
+                reportContainer.innerHTML = reportsData.map(r => `
+                    <div class="report-item">
+                        <div>
+                            <strong style="color: #fff; display:block; font-size:0.9rem;">${r.name}</strong>
+                            <span style="font-size:0.75rem; color:#94a3b8;">PKR ${r.cost.toLocaleString()}</span>
+                        </div>
+                        <span style="padding:4px 8px; border-radius:4px; font-size:0.75rem; font-weight:600; background:rgba(16,185,129,0.15); color:#34d399;">${r.status}</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // 4. EVENT LISTENERS & ROUTER INITIALIZATION
+        document.addEventListener("DOMContentLoaded", () => {
+            // Initial render run
+            updateUI();
+
+            // Sidebar Menu Routing
+            const menuItems = document.querySelectorAll('.sidebar-menu .menu-item');
+            const pageContents = document.querySelectorAll('.page-content');
+            const viewTitle = document.getElementById('current-view-title');
+            const viewDesc = document.getElementById('current-view-desc');
+
+            const meta = {
+                'page-dashboard': { title: "Site Overview & Logs", desc: "Real-time construction operational stream" },
+                'page-security': { title: "Site Security & Perimeter Node", desc: "Access control systems and automated breach management" },
+                'page-escrow': { title: "Financial Escrow Pools", desc: "Automated funds release tracking and milestone verification" },
+                'page-settings': { title: "System Settings", desc: "Configure core parameters and application layout" }
+            };
+
+            menuItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    menuItems.forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
+
+                    const target = item.getAttribute('data-target');
+                    pageContents.forEach(p => p.classList.remove('active'));
+                    document.getElementById(target).classList.add('active');
+
+                    if (meta[target]) {
+                        viewTitle.textContent = meta[target].title;
+                        viewDesc.textContent = meta[target].desc;
+                    }
+                });
+            });
+
+            // Expense Log Form Submission
+            const form = document.getElementById('log-form');
+            if (form) {
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const name = document.getElementById('material-name').value;
+                    const cost = parseInt(document.getElementById('material-cost').value) || 0;
+                    const status = document.getElementById('material-quality').value;
+
+                    reportsData.unshift({ name, cost, status });
+                    appState.totalExpensesLogged += cost;
+                    updateUI();
+                    form.reset();
+                });
+            }
+
+            // AI Simulation Trigger
+            const aiBtn = document.getElementById('btn-trigger-ai');
+            if (aiBtn) {
+                aiBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const q = document.getElementById('ai-input-query').value.trim();
+                    if (!q) return alert("Please type your query!");
+
+                    const box = document.getElementById('ai-response-box');
+                    box.style.display = "block";
+                    box.innerHTML = "<em>Analyzing structural parameters...</em>";
+
+                    setTimeout(() => {
+                        box.innerHTML = `
+                            <strong style="color:var(--accent-cyan);">BuildTrack AI Response:</strong><br>
+                            For query <strong>"${q}"</strong>: Ensure Grade-60 steel rebar utilization and maintain strict 1:2:4 foundation mix ratios for optimal 5 Marla structural durability.
+                        `;
+                    }, 1000);
+                });
+            }
+        });
+    </script>
 </body>
 </html>
