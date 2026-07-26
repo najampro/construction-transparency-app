@@ -166,7 +166,6 @@ function renderSecurityLogs() {
     `).join('');
 }
 
-// 3. Dynamic Construction 6-Phase Milestone Tracker Renderer
 function renderPhaseTracker() {
     const phaseTitleDOM = document.getElementById('active-phase-title');
     const phaseStatusDOM = document.getElementById('active-phase-status');
@@ -214,10 +213,27 @@ function renderPhaseTracker() {
     }
 }
 
+// ================= UI INTERACTION HELPERS (Sidebar Dropdown) =================
+function toggleSubmenu(element) {
+    const submenu = element.nextElementSibling;
+    const icon = element.querySelector('.submenu-icon');
+    
+    if (submenu.style.display === "flex") {
+        submenu.style.display = "none";
+        icon.style.transform = "rotate(0deg)";
+        element.style.color = "var(--text-secondary)";
+    } else {
+        submenu.style.display = "flex";
+        icon.style.transform = "rotate(180deg)";
+        element.style.color = "var(--text-primary)";
+    }
+}
+
 // ================= LIFE-CYCLE STATE LOADER & TRIGGER REGISTRY =================
 document.addEventListener("DOMContentLoaded", () => {
     
-    const menuItems = document.querySelectorAll('.sidebar-menu .menu-item');
+    // Page Routing
+    const menuItems = document.querySelectorAll('.sidebar-menu .menu-item[data-target]');
     const pageContents = document.querySelectorAll('.page-content');
     const currentViewTitle = document.getElementById('current-view-title');
     const currentViewDesc = document.getElementById('current-view-desc');
@@ -237,7 +253,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 item.classList.add('active');
                 
                 const targetPageId = item.getAttribute('data-target');
-                
+                if(!targetPageId) return;
+
                 pageContents.forEach(page => page.classList.remove('active'));
                 const activePage = document.getElementById(targetPageId);
                 if (activePage) activePage.classList.add('active');
@@ -254,6 +271,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderSecurityLogs();
     renderPhaseTracker(); 
 
+    // Form Submissions
     const logForm = document.getElementById('log-form');
     if (logForm) {
         logForm.addEventListener('submit', async (e) => {
@@ -288,6 +306,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // Security Logic
     async function pushSecurityLog(messageStr, typeStr) {
         const timeNow = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         const logPayload = {
@@ -322,6 +341,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // CCTV logic
     const cctvChannelSelect = document.getElementById('cctv-channel-select');
     const cctvCameraTag = document.getElementById('cctv-camera-tag');
     const cctvMainFeed = document.getElementById('cctv-main-feed');
@@ -339,6 +359,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // Auth logic
     const loginTriggerBtn = document.getElementById('login-trigger-btn');
     const accountAuthModal = document.getElementById('account-auth-modal');
     const closeAuthModal = document.getElementById('close-auth-modal');
@@ -384,6 +405,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // AI Logic
     const btnTriggerAI = document.getElementById('btn-trigger-ai');
     const aiInputQuery = document.getElementById('ai-input-query');
     const aiResponseBox = document.getElementById('ai-response-box');
