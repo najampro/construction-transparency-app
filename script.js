@@ -229,6 +229,51 @@ function toggleSubmenu(element) {
     }
 }
 
+// ================= PROFESSIONAL AI ASSISTANT BRAIN (REAL + DUMMY) =================
+async function handleAIBrain(userInput) {
+    const apiKey = 'YOUR_GEMINI_API_KEY_HERE'; // Apni Gemini API key yahan dalein
+    
+    // Agar API key daali gayi hai, toh Real AI chale ga
+    if (apiKey !== 'YOUR_GEMINI_API_KEY_HERE' && apiKey !== '') {
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
+        const systemPrompt = `You are BuildTrack AI, a professional construction operational assistant. You help supervisors manage construction phases, optimize costs, and track escrow budgets. Reply concisely in a mix of English and Roman Urdu. The user just said: ${userInput}`;
+        
+        try {
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: systemPrompt }] }] })
+            });
+            const data = await response.json();
+            if (data.candidates && data.candidates.length > 0) {
+                return data.candidates[0].content.parts[0].text;
+            }
+        } catch (error) {
+            console.error("AI API Error:", error);
+        }
+    }
+
+    // Agar API key nahi hai ya API fail ho jaye, toh Dummy System chale ga
+    const query = userInput.toLowerCase().trim();
+    if (query.includes('escrow') || query.includes('balance') || query.includes('paisa') || query.includes('budget')) {
+        let currentBal = appState.totalEscrowPool - appState.totalExpensesLogged;
+        return `[Financial Audit]: Current available escrow balance is PKR ${currentBal.toLocaleString()}. Total allocated pool stands at PKR 5,000,000.`;
+    } 
+    else if (query.includes('progress') || query.includes('phase') || query.includes('stage') || query.includes('percentage')) {
+        let active = constructionPhases[appState.currentPhaseIndex];
+        return `[Operational Status]: Current active phase is "${active.name}" with overall site completion at ${appState.progressPercentage}%.`;
+    }
+    else if (query.includes('expense') || query.includes('spend') || query.includes('kharcha') || query.includes('cost')) {
+        return `[Expenditure Report]: Cumulative procurement expenditure logged to date is PKR ${appState.totalExpensesLogged.toLocaleString()}.`;
+    }
+    else if (query.includes('salam') || query.includes('hello') || query.includes('hi')) {
+        return `Assalam-o-Alaikum! I am BuildTrack AI. Aap cost, budget ya progress ke baare mein sawal kar sakte hain.`;
+    }
+    else {
+        return `[AI Assistance]: Command recognized. Cost optimization ke liye API key connect karein ya directly financial metrics (escrow, expense, progress) query karein.`;
+    }
+}
+
 // ================= LIFE-CYCLE STATE LOADER & TRIGGER REGISTRY =================
 document.addEventListener("DOMContentLoaded", () => {
     
@@ -405,13 +450,13 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // AI Logic
+    // AI Logic Integrator
     const btnTriggerAI = document.getElementById('btn-trigger-ai');
     const aiInputQuery = document.getElementById('ai-input-query');
     const aiResponseBox = document.getElementById('ai-response-box');
 
     if (btnTriggerAI && aiInputQuery && aiResponseBox) {
-        btnTriggerAI.addEventListener('click', function(e) {
+        btnTriggerAI.addEventListener('click', async function(e) {
             e.preventDefault(); 
             const query = aiInputQuery.value.trim();
             if (!query) return alert("Please type your query first!");
@@ -421,29 +466,17 @@ document.addEventListener("DOMContentLoaded", () => {
             aiResponseBox.style.display = "block";
             aiResponseBox.innerHTML = `<em>Connecting database... Please wait.</em>`;
 
-            const isRomanOrUrdu = /[\u0600-\u06FF]/.test(query) || 
-                                 query.toLowerCase().includes('kaise') || 
-                                 query.toLowerCase().includes('kya') || 
-                                 query.toLowerCase().includes('kam');
+            // Calling handleAIBrain function
+            const aiReply = await handleAIBrain(query);
 
-            setTimeout(() => {
-                btnTriggerAI.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Consult AI`;
-                btnTriggerAI.disabled = false;
-                
-                if (isRomanOrUrdu) {
-                    aiResponseBox.innerHTML = `
-                        <div style="border-left: 3px solid #22d3ee; padding-left: 12px; text-align: left; line-height: 1.6;">
-                            <strong style="color: #22d3ee; font-size:0.95rem;"><i class="fa-solid fa-circle-check"></i> BuildTrack AI (Roman Urdu):</strong><br><br>
-                            Aapki query <strong>"${query}"</strong> k mutabik cost optimization k liye <strong>Grade-60 Steel</strong> behtareen hai aur direct factory mills se lena 12% tak bachat dega.
-                        </div>`;
-                } else {
-                    aiResponseBox.innerHTML = `
-                        <div style="border-left: 3px solid #22d3ee; padding-left: 12px; text-align: left; line-height: 1.6;">
-                            <strong style="color: #22d3ee; font-size:0.95rem;"><i class="fa-solid fa-circle-check"></i> BuildTrack AI Response:</strong><br><br>
-                            For <strong>"${query}"</strong>: Direct bulk mill procurement saves 12% on Grade-60 deformed steel rebars.
-                        </div>`;
-                }
-            }, 1000);
+            btnTriggerAI.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Consult AI`;
+            btnTriggerAI.disabled = false;
+            
+            aiResponseBox.innerHTML = `
+                <div style="border-left: 3px solid #22d3ee; padding-left: 12px; text-align: left; line-height: 1.6;">
+                    <strong style="color: #22d3ee; font-size:0.95rem;"><i class="fa-solid fa-robot"></i> BuildTrack AI:</strong><br><br>
+                    ${aiReply}
+                </div>`;
         });
     }
 });
