@@ -4,358 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BuildTrack Nexus — AI Construction & Operational Suite</title>
+    <!-- Connect CSS -->
     <link rel="stylesheet" href="style.css">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --bg-main: #0b0f19;
-            --bg-card: #131c2e;
-            --bg-input: #0f172a;
-            --border-color: #1e293b;
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --accent-cyan: #22d3ee;
-            --accent-green: #34d399;
-            --accent-amber: #fbbf24;
-            --accent-red: #f87171;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-main);
-            color: var(--text-primary);
-            display: flex;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* SIDEBAR LAYOUT */
-        .sidebar {
-            width: 280px;
-            background-color: var(--bg-card);
-            border-right: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            position: fixed;
-            height: 100vh;
-            z-index: 100;
-        }
-
-        .sidebar-brand {
-            padding: 24px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .sidebar-brand i { color: var(--accent-cyan); font-size: 1.5rem; }
-        .sidebar-brand h1 { font-size: 1.2rem; font-weight: 700; }
-
-        .user-profile-node {
-            padding: 20px 24px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: rgba(34, 211, 238, 0.02);
-        }
-
-        .avatar {
-            width: 42px; height: 42px; border-radius: 50%;
-            background: var(--accent-cyan); color: #0b0f19;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: bold; font-size: 1.1rem;
-        }
-
-        .profile-info h4 { font-size: 0.9rem; font-weight: 600; }
-        .profile-info span { font-size: 0.75rem; color: var(--accent-green); display: block; }
-
-        .sidebar-menu {
-            list-style: none;
-            padding: 24px 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .sidebar-menu .menu-item {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 12px 16px;
-            color: var(--text-secondary);
-            text-decoration: none;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-
-        .sidebar-menu .menu-item:hover, .sidebar-menu .menu-item.active {
-            color: var(--text-primary);
-            background-color: var(--bg-input);
-        }
-
-        .sidebar-menu .menu-item.active {
-            border-left: 3px solid var(--accent-cyan);
-            background: rgba(34, 211, 238, 0.05);
-        }
-
-        /* MAIN CANVAS */
-        .main-content {
-            margin-left: 280px;
-            flex: 1;
-            padding: 40px;
-            min-height: 100vh;
-        }
-
-        .header-action-bar {
-            margin-bottom: 32px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 20px;
-        }
-
-        .header-action-bar h2 { font-size: 1.75rem; font-weight: 600; margin-bottom: 4px; }
-        .header-action-bar p { color: var(--text-secondary); font-size: 0.9rem; }
-
-        /* STATS GRID */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 24px;
-            margin-bottom: 32px;
-        }
-
-        .stat-card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .stat-meta h3 { font-size: 0.85rem; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 8px; }
-        .stat-meta .number-display { font-size: 1.75rem; font-weight: 700; color: var(--text-primary); }
-        .stat-icon { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; }
-        .stat-card.escrow .stat-icon { background: rgba(52, 211, 153, 0.1); color: var(--accent-green); }
-        .stat-card.expense .stat-icon { background: rgba(248, 113, 113, 0.1); color: var(--accent-red); }
-        .stat-card.progress .stat-icon { background: rgba(34, 211, 238, 0.1); color: var(--accent-cyan); }
-
-        /* DASHBOARD LAYOUT */
-        .dashboard-layout-matrix {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 24px;
-            margin-bottom: 32px;
-        }
-
-        @media (max-width: 1100px) {
-            .dashboard-layout-matrix { grid-template-columns: 1fr; }
-        }
-
-        .panel-card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 24px;
-        }
-
-        .panel-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 12px;
-        }
-
-        .panel-title i { color: var(--accent-cyan); }
-
-        /* CAMERA GRID */
-        .camera-grid-layout {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 16px;
-            margin-bottom: 16px;
-        }
-
-        .camera-feed-box {
-            width: 100%;
-            height: 170px;
-            background: #000;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .camera-feed-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            filter: brightness(0.85) contrast(1.1);
-        }
-
-        .camera-overlay-tag {
-            position: absolute;
-            top: 10px; left: 10px;
-            background: rgba(0,0,0,0.7);
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            color: var(--accent-green);
-            border: 1px solid rgba(52,211,153,0.3);
-            z-index: 2;
-        }
-
-        .camera-angle-label {
-            position: absolute;
-            bottom: 10px; left: 10px;
-            background: rgba(0,0,0,0.7);
-            padding: 3px 6px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            color: var(--text-primary);
-            z-index: 2;
-        }
-
-        /* AI CHATBOX */
-        .ai-chatbox {
-            background: var(--bg-input);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            height: 320px;
-            overflow: hidden;
-        }
-
-        .ai-messages-area {
-            flex: 1;
-            padding: 16px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .ai-msg {
-            max-width: 85%;
-            padding: 10px 14px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            line-height: 1.4;
-        }
-
-        .ai-msg.bot {
-            background: rgba(34, 211, 238, 0.1);
-            border: 1px solid rgba(34, 211, 238, 0.2);
-            color: var(--text-primary);
-            align-self: flex-start;
-        }
-
-        .ai-msg.user {
-            background: var(--border-color);
-            color: var(--text-primary);
-            align-self: flex-end;
-        }
-
-        .ai-input-bar {
-            display: flex;
-            border-top: 1px solid var(--border-color);
-            background: var(--bg-card);
-        }
-
-        .ai-input-bar input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            padding: 14px;
-            color: var(--text-primary);
-            font-size: 0.9rem;
-            outline: none;
-        }
-
-        .ai-input-bar button {
-            background: var(--accent-cyan);
-            color: #0b0f19;
-            border: none;
-            padding: 0 20px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        /* PHASE BANNER & LIST */
-        .active-phase-banner {
-            background: var(--bg-input);
-            border: 1px solid var(--border-color);
-            border-left: 4px solid var(--accent-cyan);
-            padding: 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .active-phase-banner span { font-size: 0.75rem; text-transform: uppercase; color: var(--text-secondary); display: block; }
-        .active-phase-banner strong { font-size: 1.05rem; color: var(--text-primary); }
-
-        #milestone-phases-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        /* FORMS & INPUTS */
-        .form-grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-        .form-group { display: flex; flex-direction: column; gap: 8px; }
-        .form-group label { font-size: 0.85rem; color: var(--text-secondary); font-weight: 500; }
-        .form-group input, .form-group select {
-            background-color: var(--bg-input);
-            border: 1px solid var(--border-color);
-            padding: 12px; border-radius: 8px;
-            color: var(--text-primary); font-size: 0.9rem; outline: none;
-        }
-        .form-group input:focus, .form-group select:focus { border-color: var(--accent-cyan); }
-
-        .submit-btn-node {
-            background: var(--accent-cyan); color: #0b0f19;
-            border: none; padding: 14px 24px; border-radius: 8px;
-            font-weight: 600; font-size: 0.95rem; cursor: pointer; width: 100%;
-        }
-
-        /* VIEWS ROUTER */
-        .page-content { display: none; }
-        .page-content.active { display: block; }
-
-        /* LEDGER ITEMS */
-        .report-item {
-            background: var(--bg-input); border: 1px solid var(--border-color);
-            padding: 14px; border-radius: 8px; display: flex;
-            justify-content: space-between; align-items: center; margin-bottom: 8px;
-        }
-        #material-reports-container { max-height: 250px; overflow-y: auto; }
-    </style>
 </head>
 <body>
+
+    <!-- AUTHENTICATION MODAL -->
+    <div id="account-auth-modal" class="modal">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 15px; color: var(--accent-cyan);">Supervisor Login</h3>
+            <form id="modal-auth-form">
+                <input type="password" id="auth-pin-input" placeholder="Enter Secure PIN" required style="width: 100%; padding: 10px; margin-bottom: 15px; background: var(--bg-input); border: 1px solid var(--border-color); color: white; border-radius: 6px;">
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="submit-btn-node">Unlock System</button>
+                    <button type="button" id="close-auth-modal" style="background: var(--bg-input); color: white; border: 1px solid var(--border-color); padding: 10px; border-radius: 6px; cursor: pointer;">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- SIDEBAR -->
     <div class="sidebar">
@@ -364,11 +32,11 @@
             <h1>BuildTrack Engine</h1>
         </div>
 
-        <div class="user-profile-node">
-            <div class="avatar">N</div>
+        <div class="user-profile-node" id="login-trigger-btn">
+            <div class="avatar" id="avatar-letters">G</div>
             <div class="profile-info">
-                <h4>Najam (Supervisor)</h4>
-                <span>Active Session</span>
+                <h4 id="user-display-name">Guest Mode</h4>
+                <span id="auth-action-text" style="color: var(--accent-cyan);">Click to Login</span>
             </div>
         </div>
 
@@ -393,7 +61,7 @@
             <div class="stat-card escrow">
                 <div class="stat-meta">
                     <h3>Escrow Balance (PKR)</h3>
-                    <div class="number-display" id="stat-escrow-balance">5,000,000</div>
+                    <div class="number-display" id="stat-escrow-balance">0</div>
                 </div>
                 <div class="stat-icon"><i class="fa-solid fa-building-columns"></i></div>
             </div>
@@ -407,7 +75,7 @@
             <div class="stat-card progress">
                 <div class="stat-meta">
                     <h3>Overall Progress</h3>
-                    <div class="number-display" id="stat-total-progress">16%</div>
+                    <div class="number-display" id="stat-total-progress">0%</div>
                 </div>
                 <div class="stat-icon"><i class="fa-solid fa-trowel-bricks"></i></div>
             </div>
@@ -417,39 +85,32 @@
         <div id="page-dashboard" class="page-content active">
             <div class="dashboard-layout-matrix">
                 <div>
-                    <!-- LIVE CAMERA OVERVIEW -->
+                    <!-- LIVE CAMERA OVERVIEW (UPDATED FOR ADVANCED JS) -->
                     <div class="panel-card">
-                        <div class="panel-title"><i class="fa-solid fa-video"></i> Live Site Camera Feeds (Multi-Angle)</div>
-                        <div class="camera-grid-layout">
-                            <div class="camera-feed-box">
-                                <div class="camera-overlay-tag"><i class="fa-solid fa-circle" style="color:var(--accent-green); font-size:6px;"></i> LIVE</div>
-                                <div class="camera-angle-label">Angle 1: Main Gate</div>
-                                <img src="https://images.unsplash.com/photo-1541888946425-d0fbb18f86f6?auto=format&fit=crop&w=600&q=80" alt="Cam 1">
-                            </div>
-                            <div class="camera-feed-box">
-                                <div class="camera-overlay-tag"><i class="fa-solid fa-circle" style="color:var(--accent-green); font-size:6px;"></i> LIVE</div>
-                                <div class="camera-angle-label">Angle 2: Foundation Zone</div>
-                                <img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=600&q=80" alt="Cam 2">
-                            </div>
-                            <div class="camera-feed-box">
-                                <div class="camera-overlay-tag"><i class="fa-solid fa-circle" style="color:var(--accent-green); font-size:6px;"></i> LIVE</div>
-                                <div class="camera-angle-label">Angle 3: Material Storage</div>
-                                <img src="https://images.unsplash.com/photo-1590069261209-f8e9b8642343?auto=format&fit=crop&w=600&q=80" alt="Cam 3">
-                            </div>
+                        <div class="panel-title" style="justify-content: space-between;">
+                            <div><i class="fa-solid fa-video"></i> Live Site Camera Feeds</div>
+                            <select id="cctv-channel-select" style="background: var(--bg-input); border: 1px solid var(--border-color); color: white; padding: 5px; border-radius: 5px;">
+                                <option value="0">Channel 01</option>
+                                <option value="1">Channel 02</option>
+                                <option value="2">Channel 03</option>
+                            </select>
+                        </div>
+                        <div class="camera-feed-box">
+                            <div class="camera-overlay-tag"><i class="fa-solid fa-circle" style="color:var(--accent-green); font-size:6px;"></i> LIVE</div>
+                            <div class="camera-angle-label" id="cctv-camera-tag">CAM 01 — FOUNDATION AXIS</div>
+                            <img id="cctv-main-feed" src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=800&q=80" alt="Main Feed">
                         </div>
                     </div>
 
                     <!-- AI ASSISTANT PANEL -->
                     <div class="panel-card">
-                        <div class="panel-title"><i class="fa-solid fa-robot"></i> AI Ops Assistant (English / Roman Urdu)</div>
+                        <div class="panel-title"><i class="fa-solid fa-robot"></i> AI Ops Assistant</div>
                         <div class="ai-chatbox">
-                            <div class="ai-messages-area" id="ai-chat-messages">
-                                <div class="ai-msg bot">Assalam-o-Alaikum Najam. I am BuildTrack AI, your professional construction operational assistant. You may query escrow balances, track structural phases, or execute procurement logs.</div>
-                            </div>
-                            <form class="ai-input-bar" id="ai-chat-form">
-                                <input type="text" id="ai-user-input" placeholder="Type message or command (e.g. Escrow balance kitna hai?)" autocomplete="off">
-                                <button type="submit"><i class="fa-solid fa-paper-plane"></i></button>
+                            <form class="ai-input-bar">
+                                <input type="text" id="ai-input-query" placeholder="Ask AI (e.g. 'Steel grade optimization?')" autocomplete="off">
+                                <button type="button" id="btn-trigger-ai"><i class="fa-solid fa-paper-plane"></i> Consult AI</button>
                             </form>
+                            <div id="ai-response-box" style="display:none; margin-top: 15px; padding: 15px; background: rgba(34, 211, 238, 0.1); border-radius: 8px;"></div>
                         </div>
                     </div>
 
@@ -470,12 +131,27 @@
                             <div class="form-group" style="margin-bottom: 20px;">
                                 <label>Quality Verification</label>
                                 <select id="material-quality">
-                                    <option value="Passed Quality Audit">Passed Structural Integrity Check</option>
-                                    <option value="Warning: Pending Lab Test">Warning: Pending Lab Test</option>
+                                    <option value="Passed">Passed Structural Integrity Check</option>
+                                    <option value="Warning">Warning: Pending Lab Test</option>
                                 </select>
                             </div>
                             <button type="submit" class="submit-btn-node">Commit & Sync Entry</button>
                         </form>
+                    </div>
+                </div>
+
+                <div>
+                    <!-- 6-Point Phase Milestone Tracker -->
+                    <div class="panel-card">
+                        <div class="panel-title"><i class="fa-solid fa-list-check"></i> 6-Point Milestone Tracker</div>
+                        <div class="active-phase-banner">
+                            <div>
+                                <span>Active Node</span>
+                                <strong id="active-phase-title">...</strong>
+                            </div>
+                            <span id="active-phase-status" style="font-weight: bold;">...</span>
+                        </div>
+                        <div id="milestone-phases-list"></div>
                     </div>
 
                     <!-- Ledger -->
@@ -484,38 +160,31 @@
                         <div id="material-reports-container"></div>
                     </div>
                 </div>
-
-                <div>
-                    <!-- 6-Point Phase Milestone Tracker -->
-                    <div class="panel-card">
-                        <div class="panel-title"><i class="fa-solid fa-list-check"></i> 6-Point Milestone Tracker</div>
-                        
-                        <div class="active-phase-banner">
-                            <div>
-                                <span>Active Node</span>
-                                <strong id="active-phase-title">Phase 1: Excavation & Layout</strong>
-                            </div>
-                            <span id="active-phase-status" style="font-weight: bold; color: var(--accent-amber);">In Progress</span>
-                        </div>
-
-                        <div id="milestone-phases-list"></div>
-                    </div>
-                </div>
             </div>
         </div>
 
         <!-- SECURITY VIEW -->
         <div id="page-security" class="page-content">
             <div class="panel-card">
-                <div class="panel-title"><i class="fa-solid fa-shield-halved"></i> Security & Perimeter Controls</div>
-                <p style="color: var(--text-secondary); font-size: 0.9rem;">Perimeter sensors and automated gate barriers are fully online.</p>
+                <div class="panel-title"><i class="fa-solid fa-shield-halved"></i> Site Security & Perimeter Node</div>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="gate-barrier-toggle">
+                    <label for="gate-barrier-toggle">Remote Command: RFID Vehicle Barrier Control</label>
+                </div>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="perimeter-laser-toggle" checked>
+                    <label for="perimeter-laser-toggle">Perimeter Laser Array Status</label>
+                </div>
+                
+                <h4 style="margin-top: 25px; margin-bottom: 10px; color: var(--accent-cyan);">Recent Security Logs</h4>
+                <div id="security-incident-logs" style="max-height: 300px; overflow-y: auto;"></div>
             </div>
         </div>
 
         <!-- ESCROW VIEW -->
         <div id="page-escrow" class="page-content">
             <div class="panel-card">
-                <div class="panel-title"><i class="fa-solid fa-wallet"></i> Financial Escrow Pool</div>
+                <div class="panel-title"><i class="fa-solid fa-wallet"></i> Escrow Financial Pools</div>
                 <p style="color: var(--text-secondary); font-size: 0.9rem;">Total decentralized allocation pool: <strong>PKR 5,000,000</strong>.</p>
             </div>
         </div>
@@ -530,200 +199,7 @@
 
     </div>
 
-    <!-- JAVASCRIPT ENGINE -->
-    <script>
-        let appState = {
-            totalEscrowPool: 5000000,
-            totalExpensesLogged: 0,
-            progressPercentage: 16,
-            currentPhaseIndex: 0
-        };
-
-        const constructionPhases = [
-            { name: "Phase 1: Excavation & Layout", status: "In Progress" },
-            { name: "Phase 2: Foundation Wall Pouring", status: "Pending" },
-            { name: "Phase 3: Plinth Beam & DPC Level", status: "Pending" },
-            { name: "Phase 4: Brickwork & Lintel Structure", status: "Pending" },
-            { name: "Phase 5: Roofing & Concrete Slab", status: "Pending" },
-            { name: "Phase 6: Finishing & Infrastructure", status: "Pending" }
-        ];
-
-        let reportsData = [];
-
-        function evaluatePhases() {
-            let expenseSum = appState.totalExpensesLogged;
-            if (expenseSum <= 500000) { appState.currentPhaseIndex = 0; appState.progressPercentage = 16; }
-            else if (expenseSum <= 1200000) { appState.currentPhaseIndex = 1; appState.progressPercentage = 33; }
-            else if (expenseSum <= 2200000) { appState.currentPhaseIndex = 2; appState.progressPercentage = 50; }
-            else if (expenseSum <= 3200000) { appState.currentPhaseIndex = 3; appState.progressPercentage = 66; }
-            else if (expenseSum <= 4200000) { appState.currentPhaseIndex = 4; appState.progressPercentage = 83; }
-            else { appState.currentPhaseIndex = 5; appState.progressPercentage = 100; }
-
-            constructionPhases.forEach((phase, idx) => {
-                if (idx < appState.currentPhaseIndex) phase.status = "Completed";
-                else if (idx === appState.currentPhaseIndex) phase.status = "In Progress";
-                else phase.status = "Pending";
-            });
-        }
-
-        function updateUI() {
-            evaluatePhases();
-
-            document.getElementById('stat-escrow-balance').textContent = (appState.totalEscrowPool - appState.totalExpensesLogged).toLocaleString();
-            document.getElementById('stat-total-expense').textContent = appState.totalExpensesLogged.toLocaleString();
-            document.getElementById('stat-total-progress').textContent = `${appState.progressPercentage}%`;
-
-            const activePhase = constructionPhases[appState.currentPhaseIndex];
-            document.getElementById('active-phase-title').textContent = activePhase.name;
-            const statusDOM = document.getElementById('active-phase-status');
-            statusDOM.textContent = activePhase.status;
-            statusDOM.style.color = activePhase.status === 'Completed' ? '#34d399' : activePhase.status === 'In Progress' ? '#fbbf24' : '#64748b';
-
-            const container = document.getElementById('milestone-phases-list');
-            container.innerHTML = constructionPhases.map((phase, idx) => {
-                let icon = idx < appState.currentPhaseIndex ? 'fa-circle-check' : idx === appState.currentPhaseIndex ? 'fa-circle-dot' : 'fa-circle';
-                let color = idx < appState.currentPhaseIndex ? '#34d399' : idx === appState.currentPhaseIndex ? '#22d3ee' : '#64748b';
-                
-                return `
-                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #0f172a; border-radius: 6px; border: 1px solid ${idx === appState.currentPhaseIndex ? '#22d3ee' : '#1e293b'}">
-                        <div style="display:flex; align-items:center; gap:10px;">
-                            <i class="fa-solid ${icon}" style="color: ${color}"></i>
-                            <span style="color: ${idx === appState.currentPhaseIndex ? '#fff' : '#94a3b8'}; font-size: 0.85rem; font-weight: ${idx === appState.currentPhaseIndex ? '600' : '400'}">${phase.name}</span>
-                        </div>
-                        <span style="font-size: 0.75rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; ${
-                            phase.status === 'Completed' ? 'color:#34d399; background:rgba(52,211,153,0.1);' : phase.status === 'In Progress' ? 'color:#fbbf24; background:rgba(251,191,36,0.1);' : 'color:#64748b;'
-                        }">${phase.status}</span>
-                    </div>
-                `;
-            }).join('');
-
-            const reportContainer = document.getElementById('material-reports-container');
-            if (reportsData.length === 0) {
-                reportContainer.innerHTML = `<p style="color:#64748b; font-size:0.85rem; padding:10px;">No procurement entries logged yet.</p>`;
-            } else {
-                reportContainer.innerHTML = reportsData.map(r => `
-                    <div class="report-item">
-                        <div>
-                            <strong style="color: #fff; display:block; font-size:0.9rem;">${r.name}</strong>
-                            <span style="font-size:0.75rem; color:#94a3b8;">PKR ${r.cost.toLocaleString()}</span>
-                        </div>
-                        <span style="padding:4px 8px; border-radius:4px; font-size:0.75rem; font-weight:600; background:rgba(52,211,153,0.15); color:#34d399;">${r.status}</span>
-                    </div>
-                `).join('');
-            }
-        }
-
-        // PROFESSIONAL AI ASSISTANT BRAIN (English & Roman Urdu)
-        function handleAIBrain(userInput) {
-            const query = userInput.toLowerCase().trim();
-            let reply = "";
-
-            if (query.includes('escrow') || query.includes('balance') || query.includes('paisa') || query.includes('pese') || query.includes('baki') || query.includes('funds') || query.includes('budget')) {
-                let currentBal = appState.totalEscrowPool - appState.totalExpensesLogged;
-                reply = `[Financial Audit]: Current available escrow balance is PKR ${currentBal.toLocaleString()}. Total allocated pool stands at PKR 5,000,000.`;
-            } 
-            else if (query.includes('progress') || query.includes('phase') || query.includes('kaam') || query.includes('stage') || query.includes('percentage') || query.includes('status')) {
-                let active = constructionPhases[appState.currentPhaseIndex];
-                reply = `[Operational Status]: Current active phase is "${active.name}" with overall site completion at ${appState.progressPercentage}%.`;
-            }
-            else if (query.includes('expense') || query.includes('spend') || query.includes('kharcha') || query.includes('kharch') || query.includes('cost') || query.includes('ledger')) {
-                reply = `[Expenditure Report]: Cumulative procurement expenditure logged to date is PKR ${appState.totalExpensesLogged.toLocaleString()}.`;
-            }
-            else if (query.includes('log') || query.includes('add') || query.includes('khareeda') || query.includes('purchase') || query.includes('lga do') || query.includes('lagao')) {
-                let matchNum = query.match(/\d+/);
-                let costVal = matchNum ? parseInt(matchNum[0]) : 50000;
-                let itemName = "Verified Construction Material";
-                
-                if(query.includes('cement')) itemName = "Grade-43 Portland Cement";
-                else if(query.includes('steel') || query.includes('sariya') || query.includes('rebar')) itemName = "Deformed Steel Rebar (Grade-60)";
-                else if(query.includes('brick') || query.includes('eint') || query.includes('eent')) itemName = "Class-A Red Bricks";
-                else if(query.includes('sand') || query.includes('ret')) itemName = "Chenab Sand & Aggregate";
-
-                reportsData.unshift({ name: itemName, cost: costVal, status: "Passed Quality Audit" });
-                appState.totalExpensesLogged += costVal;
-                updateUI();
-                reply = `[Procurement Logged]: Successfully recorded "${itemName}" amounting to PKR ${costVal.toLocaleString()}. Ledger and milestone matrix updated.`;
-            }
-            else if (query.includes('salam') || query.includes('hello') || query.includes('hi') || query.includes('hey') || query.includes('assalam')) {
-                reply = `Assalam-o-Alaikum Najam. I am BuildTrack AI, your professional construction operational assistant.`;
-            }
-            else {
-                reply = `[AI Assistance]: Command recognized. You can query financial metrics, monitor site progress, or log expenses naturally.`;
-            }
-
-            return reply;
-        }
-
-        document.addEventListener("DOMContentLoaded", () => {
-            updateUI();
-
-            const menuItems = document.querySelectorAll('.sidebar-menu .menu-item');
-            const pageContents = document.querySelectorAll('.page-content');
-            const viewTitle = document.getElementById('current-view-title');
-            const viewDesc = document.getElementById('current-view-desc');
-
-            const meta = {
-                'page-dashboard': { title: "Site Overview & Logs", desc: "Real-time construction operational stream" },
-                'page-security': { title: "Security & Perimeter Controls", desc: "Access control systems and automated breach management" },
-                'page-escrow': { title: "Financial Escrow Pools", desc: "Automated funds release tracking and milestone verification" },
-                'page-settings': { title: "System Settings", desc: "Configure core parameters and application layout" }
-            };
-
-            menuItems.forEach(item => {
-                item.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    menuItems.forEach(i => i.classList.remove('active'));
-                    item.classList.add('active');
-
-                    const target = item.getAttribute('data-target');
-                    pageContents.forEach(p => p.classList.remove('active'));
-                    document.getElementById(target).classList.add('active');
-
-                    if (meta[target]) {
-                        viewTitle.textContent = meta[target].title;
-                        viewDesc.textContent = meta[target].desc;
-                    }
-                });
-            });
-
-            const form = document.getElementById('log-form');
-            if (form) {
-                form.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    const name = document.getElementById('material-name').value;
-                    const cost = parseInt(document.getElementById('material-cost').value) || 0;
-                    const status = document.getElementById('material-quality').value;
-
-                    reportsData.unshift({ name, cost, status });
-                    appState.totalExpensesLogged += cost;
-                    updateUI();
-                    form.reset();
-                });
-            }
-
-            const aiForm = document.getElementById('ai-chat-form');
-            const aiInput = document.getElementById('ai-user-input');
-            const aiMessages = document.getElementById('ai-chat-messages');
-
-            if (aiForm) {
-                aiForm.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    const text = aiInput.value.trim();
-                    if (!text) return;
-
-                    aiMessages.innerHTML += `<div class="ai-msg user">${text}</div>`;
-                    aiInput.value = "";
-                    aiMessages.scrollTop = aiMessages.scrollHeight;
-
-                    setTimeout(() => {
-                        const botReply = handleAIBrain(text);
-                        aiMessages.innerHTML += `<div class="ai-msg bot">${botReply}</div>`;
-                        aiMessages.scrollTop = aiMessages.scrollHeight;
-                    }, 400);
-                });
-            }
-        });
-    </script>
+    <!-- Connect Advanced JS -->
     <script src="script.js"></script>
 </body>
 </html>
