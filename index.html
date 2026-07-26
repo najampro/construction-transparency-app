@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BuildTrack Nexus — AI Construction & Operational Suite</title>
-    <!-- Connect CSS -->
+    <!-- Connect Custom CSS -->
     <link rel="stylesheet" href="style.css">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -27,11 +27,13 @@
 
     <!-- SIDEBAR -->
     <div class="sidebar">
+        <!-- Brand -->
         <div class="sidebar-brand">
             <i class="fa-solid fa-cubes"></i>
             <h1>BuildTrack Engine</h1>
         </div>
 
+        <!-- User Profile -->
         <div class="user-profile-node" id="login-trigger-btn">
             <div class="avatar" id="avatar-letters">G</div>
             <div class="profile-info">
@@ -40,12 +42,62 @@
             </div>
         </div>
 
-        <ul class="sidebar-menu">
-            <li><a href="#" class="menu-item active" data-target="page-dashboard"><i class="fa-solid fa-chart-pie"></i> Site Dashboard</a></li>
-            <li><a href="#" class="menu-item" data-target="page-security"><i class="fa-solid fa-shield-halved"></i> Security Controls</a></li>
-            <li><a href="#" class="menu-item" data-target="page-escrow"><i class="fa-solid fa-wallet"></i> Financial Escrow</a></li>
-            <li><a href="#" class="menu-item" data-target="page-settings"><i class="fa-solid fa-sliders"></i> System Settings</a></li>
-        </ul>
+        <!-- Advanced Menu Layout for Client 360-View -->
+        <div class="sidebar-menu-wrapper">
+            
+            <!-- 1. PROJECT TRACKING -->
+            <span class="menu-section-title">Project Tracking</span>
+            <ul class="sidebar-menu">
+                <li><a href="#" class="menu-item active" data-target="page-dashboard"><i class="fa-solid fa-chart-pie"></i> Site Dashboard</a></li>
+                <li><a href="#" class="menu-item"><i class="fa-solid fa-timeline"></i> Milestone Roadmap</a></li>
+                <li><a href="#" class="menu-item"><i class="fa-solid fa-video"></i> Live Site Feeds <span class="badge alert">Live</span></a></li>
+            </ul>
+
+            <!-- 2. RESOURCES & INVENTORY -->
+            <span class="menu-section-title">Resources & Inventory</span>
+            <ul class="sidebar-menu">
+                <li>
+                    <div class="menu-item has-submenu" onclick="toggleSubmenu(this)">
+                        <i class="fa-solid fa-boxes-stacked"></i> Material & Assets
+                        <i class="fa-solid fa-chevron-down submenu-icon"></i>
+                    </div>
+                    <ul class="submenu">
+                        <li><a href="#"><i class="fa-solid fa-minus"></i> Cement, Steel & Bricks</a></li>
+                        <li><a href="#"><i class="fa-solid fa-minus"></i> Heavy Machinery</a></li>
+                        <li><a href="#"><i class="fa-solid fa-minus"></i> Logistics & Deliveries</a></li>
+                    </ul>
+                </li>
+                <li><a href="#" class="menu-item"><i class="fa-solid fa-users-gear"></i> Workforce & Labor Logs</a></li>
+            </ul>
+
+            <!-- 3. FINANCIAL & LEGAL -->
+            <span class="menu-section-title">Financial & Legal</span>
+            <ul class="sidebar-menu">
+                <li><a href="#" class="menu-item" data-target="page-escrow"><i class="fa-solid fa-wallet"></i> Budget & Escrow</a></li>
+                <li><a href="#" class="menu-item"><i class="fa-solid fa-file-invoice-dollar"></i> Invoices & Payments</a></li>
+                <li><a href="#" class="menu-item"><i class="fa-solid fa-file-signature"></i> Permits & NOCs</a></li>
+            </ul>
+
+            <!-- 4. QUALITY & REPORTS -->
+            <span class="menu-section-title">Quality & Analytics</span>
+            <ul class="sidebar-menu">
+                <li><a href="#" class="menu-item"><i class="fa-solid fa-vial-circle-check"></i> Lab Tests & Quality <span class="badge new">New</span></a></li>
+                <li><a href="#" class="menu-item"><i class="fa-solid fa-clipboard-list"></i> Daily Site Reports</a></li>
+                <li><a href="#" class="menu-item"><i class="fa-solid fa-robot"></i> AI Analytics Engine</a></li>
+            </ul>
+
+            <!-- 5. ADMINISTRATION -->
+            <span class="menu-section-title">Administration</span>
+            <ul class="sidebar-menu">
+                <li><a href="#" class="menu-item" data-target="page-security"><i class="fa-solid fa-shield-halved"></i> Security Controls</a></li>
+                <li><a href="#" class="menu-item" data-target="page-settings"><i class="fa-solid fa-sliders"></i> System Settings</a></li>
+            </ul>
+        </div>
+        
+        <!-- Quick Action Footer -->
+        <div class="sidebar-footer">
+            <button class="quick-action-btn"><i class="fa-solid fa-file-export"></i> Export Daily Report</button>
+        </div>
     </div>
 
     <!-- MAIN CONTENT -->
@@ -85,11 +137,11 @@
         <div id="page-dashboard" class="page-content active">
             <div class="dashboard-layout-matrix">
                 <div>
-                    <!-- LIVE CAMERA OVERVIEW (UPDATED FOR ADVANCED JS) -->
+                    <!-- LIVE CAMERA OVERVIEW -->
                     <div class="panel-card">
                         <div class="panel-title" style="justify-content: space-between;">
                             <div><i class="fa-solid fa-video"></i> Live Site Camera Feeds</div>
-                            <select id="cctv-channel-select" style="background: var(--bg-input); border: 1px solid var(--border-color); color: white; padding: 5px; border-radius: 5px;">
+                            <select id="cctv-channel-select" style="background: var(--bg-input); border: 1px solid var(--border-color); color: white; padding: 5px; border-radius: 5px; outline:none;">
                                 <option value="0">Channel 01</option>
                                 <option value="1">Channel 02</option>
                                 <option value="2">Channel 03</option>
@@ -199,7 +251,7 @@
 
     </div>
 
-    <!-- Connect Advanced JS -->
+    <!-- Connect Custom JS -->
     <script src="script.js"></script>
 </body>
 </html>
