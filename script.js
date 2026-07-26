@@ -1,14 +1,27 @@
 // ================= BUILDTRACK CORE SYSTEM ARCHITECTURE ENGINE =================
 
 // 1. CLOUD STORAGE MATRIX INITIALIZATION (FIREBASE CONFIGURATION)
+// ================= BUILDTRACK CORE SYSTEM ARCHITECTURE ENGINE =================
+
+// 1. CLOUD STORAGE MATRIX INITIALIZATION (FIREBASE CONFIGURATION)
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY_HERE",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyDADeAr1uYq9GhRTU6zMeW8Nl5HkFq4fB4",
+    authDomain: "buildtrack-engine.firebaseapp.com",
+    projectId: "buildtrack-engine",
+    storageBucket: "buildtrack-engine.firebasestorage.app",
+    messagingSenderId: "384871961234",
+    appId: "1:384871961234:web:27b20b753f36e8a2728c4b",
+    measurementId: "G-DTQJR1LP0X"
 };
+
+// Initialize Firebase Network Connectivity Safely
+if (typeof firebase !== 'undefined') {
+    firebase.initializeApp(firebaseConfig);
+    var db = firebase.firestore();
+} else {
+    console.warn("Firebase SDK not detected. Operating inside Local Sandbox Mode configuration.");
+}
+
 
 // Initialize Firebase Network Connectivity Safely
 if (typeof firebase !== 'undefined') {
