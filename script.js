@@ -127,7 +127,7 @@ if (typeof db !== 'undefined') {
 
 function renderReports() {
     const container = document.getElementById('material-reports-container');
-    if (!container) return; // Safeguard against crash
+    if (!container) return; 
     
     if (reportsData.length === 0) {
         container.innerHTML = `<p style="color:#64748b; font-size:0.85rem; padding:10px;">No materials logged in cloud sequence yet.</p>`;
@@ -149,7 +149,7 @@ function renderReports() {
 
 function renderSecurityLogs() {
     const container = document.getElementById('security-incident-logs');
-    if (!container) return; // Safeguard against crash
+    if (!container) return; 
     
     if (securityIncidents.length === 0) {
         container.innerHTML = `<p style="color:#64748b; font-size:0.85rem; padding:10px;">Security networks online. Ready.</p>`;
@@ -166,13 +166,12 @@ function renderSecurityLogs() {
     `).join('');
 }
 
-// 3. Dynamic Construction 6-Phase Milestone Tracker Renderer WITH SAFEGUARDS
+// 3. Dynamic Construction 6-Phase Milestone Tracker Renderer
 function renderPhaseTracker() {
     const phaseTitleDOM = document.getElementById('active-phase-title');
     const phaseStatusDOM = document.getElementById('active-phase-status');
     const milestoneContainer = document.getElementById('milestone-phases-list');
     
-    // Safely check and update active phase text elements
     if (phaseTitleDOM && phaseStatusDOM) {
         const currentPhase = constructionPhases[appState.currentPhaseIndex];
         phaseTitleDOM.textContent = currentPhase.name;
@@ -187,7 +186,6 @@ function renderPhaseTracker() {
         }
     }
 
-    // Safely map and render all 6 points list UI block
     if (milestoneContainer) {
         milestoneContainer.innerHTML = constructionPhases.map((phase, idx) => {
             let iconClass = 'fa-circle';
@@ -219,7 +217,6 @@ function renderPhaseTracker() {
 // ================= LIFE-CYCLE STATE LOADER & TRIGGER REGISTRY =================
 document.addEventListener("DOMContentLoaded", () => {
     
-    // CRITICAL: Sidebar Application View Router Matrix (Upar shift kiya taake yeh sabse pehle initialize ho jaye aur options band na hon!)
     const menuItems = document.querySelectorAll('.sidebar-menu .menu-item');
     const pageContents = document.querySelectorAll('.page-content');
     const currentViewTitle = document.getElementById('current-view-title');
@@ -251,14 +248,12 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Run core functions with strict safety rules
     evaluateConstructionPhaseMetrics();
     syncGlobalDOMStats();
     renderReports();
     renderSecurityLogs();
     renderPhaseTracker(); 
 
-    // 1. EXPENSE INTERACTION LOG FORM PIPELINE
     const logForm = document.getElementById('log-form');
     if (logForm) {
         logForm.addEventListener('submit', async (e) => {
@@ -293,7 +288,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 2. SECURITY CONTROLS PIPELINE
     async function pushSecurityLog(messageStr, typeStr) {
         const timeNow = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         const logPayload = {
@@ -328,7 +322,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 3. CCTV PIPELINE
     const cctvChannelSelect = document.getElementById('cctv-channel-select');
     const cctvCameraTag = document.getElementById('cctv-camera-tag');
     const cctvMainFeed = document.getElementById('cctv-main-feed');
@@ -346,7 +339,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 4. AUTH PIPELINE
     const loginTriggerBtn = document.getElementById('login-trigger-btn');
     const accountAuthModal = document.getElementById('account-auth-modal');
     const closeAuthModal = document.getElementById('close-auth-modal');
@@ -392,7 +384,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 5. AI ENGINE CONTROLS
     const btnTriggerAI = document.getElementById('btn-trigger-ai');
     const aiInputQuery = document.getElementById('ai-input-query');
     const aiResponseBox = document.getElementById('ai-response-box');
@@ -414,7 +405,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                  query.toLowerCase().includes('kam');
 
             setTimeout(() => {
-                btnTriggerAI.innerHTML = `Consult BuildTrack AI`;
+                btnTriggerAI.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Consult AI`;
                 btnTriggerAI.disabled = false;
                 
                 if (isRomanOrUrdu) {
