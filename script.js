@@ -276,7 +276,8 @@ document.addEventListener("DOMContentLoaded", () => {
         'page-dashboard': { title: "Site Overview & Logs", desc: "Real-time construction operational stream" },
         'page-security': { title: "Site Security & Perimeter Node", desc: "Access control systems and automated breach management" },
         'page-escrow': { title: "Escrow Financial Pools", desc: "Automated funds release tracking and milestone verification" },
-        'page-settings': { title: "System Settings", desc: "Configure preferences and core parameters for BuildTrack App" }
+        'page-settings': { title: "System Settings", desc: "Configure preferences and core parameters for BuildTrack App" },
+        'page-coming-soon': { title: "Module In Development", desc: "This feature is planned for a future release" }
     };
 
     if (menuItems.length > 0) {
