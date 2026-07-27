@@ -389,6 +389,82 @@ function renderMachinery() {
     `).join('');
 }
 
+// ================= EXPORT DAILY REPORT (CLIENT-SIDE FILE DOWNLOAD) =================
+function exportDailyReport() {
+    const now = new Date();
+    const remainingBalance = appState.totalEscrowPool - appState.totalExpensesLogged;
+    const lines = [];
+
+    lines.push('===================================================');
+    lines.push(' BUILDTRACK ENGINE — DAILY SITE REPORT');
+    lines.push(` Generated: ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`);
+    lines.push('===================================================');
+    lines.push('');
+
+    lines.push('PROJECT STATUS');
+    lines.push('--------------');
+    lines.push(`Current Phase: ${constructionPhases[appState.currentPhaseIndex]?.name || 'N/A'}`);
+    lines.push(`Overall Progress: ${appState.progressPercentage}%`);
+    lines.push(`Escrow Pool: PKR ${appState.totalEscrowPool.toLocaleString()}`);
+    lines.push(`Total Expenses Logged: PKR ${appState.totalExpensesLogged.toLocaleString()}`);
+    lines.push(`Remaining Escrow Balance: PKR ${remainingBalance.toLocaleString()}`);
+    lines.push('');
+
+    lines.push('PHASE BREAKDOWN');
+    lines.push('----------------');
+    constructionPhases.forEach(p => lines.push(`${p.name} — ${p.status}`));
+    lines.push('');
+
+    lines.push('RECENT MATERIAL PROCUREMENT LOGS');
+    lines.push('---------------------------------');
+    if (reportsData.length === 0) {
+        lines.push('No materials logged yet.');
+    } else {
+        reportsData.slice(0, 10).forEach(r => lines.push(`- ${r.name} — PKR ${Number(r.cost || 0).toLocaleString()} — ${r.status}`));
+    }
+    lines.push('');
+
+    lines.push('WORKFORCE ON RECORD (this session)');
+    lines.push('-----------------------------------');
+    if (workforceData.length === 0) {
+        lines.push('No workforce attendance logged yet.');
+    } else {
+        workforceData.forEach(w => lines.push(`- ${w.name} (${w.role}) — Wage PKR ${Number(w.wage).toLocaleString()} — ${w.attendance}`));
+    }
+    lines.push('');
+
+    lines.push('RECENT SECURITY EVENTS');
+    lines.push('-----------------------');
+    if (securityIncidents.length === 0) {
+        lines.push('No security events logged.');
+    } else {
+        securityIncidents.slice(0, 10).forEach(i => lines.push(`[${i.time || '--:--'}] ${i.msg}`));
+    }
+    lines.push('');
+
+    lines.push('FILED DAILY SITE REPORTS');
+    lines.push('--------------------------');
+    if (dailyReportsData.length === 0) {
+        lines.push('No daily reports filed this session.');
+    } else {
+        dailyReportsData.forEach(r => lines.push(`${r.date} — ${r.weather} — ${r.workers} workers — ${r.summary}`));
+    }
+    lines.push('');
+    lines.push('===================================================');
+    lines.push(' End of Report — BuildTrack Engine');
+    lines.push('===================================================');
+
+    const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `BuildTrack-DailyReport-${now.toISOString().slice(0, 10)}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
 // ================= UI INTERACTION HELPERS (Sidebar Dropdown) =================
 function toggleSubmenu(element) {
     const submenu = element.nextElementSibling;
@@ -617,6 +693,12 @@ document.addEventListener("DOMContentLoaded", () => {
             renderMachinery();
             machineryForm.reset();
         });
+    }
+
+    // Export Daily Report Button
+    const btnExportReport = document.getElementById('btn-export-report');
+    if (btnExportReport) {
+        btnExportReport.addEventListener('click', exportDailyReport);
     }
 
     // Security Logic
