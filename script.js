@@ -242,51 +242,36 @@ function toggleSubmenu(element) {
     }
 }
 
-// ================= PROFESSIONAL AI ASSISTANT BRAIN (REAL + DUMMY) =================
+// ================= PROFESSIONAL AI ASSISTANT BRAIN (SECURE) =================
 async function handleAIBrain(userInput) {
-    const apiKey = 'YOUR_GEMINI_API_KEY_HERE'; // Apni Gemini API key yahan dalein
-    
-    // Agar API key daali gayi hai, toh Real AI chale ga
-    if (apiKey !== 'YOUR_GEMINI_API_KEY_HERE' && apiKey !== '') {
-        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
-        const systemPrompt = `You are BuildTrack AI, a professional construction operational assistant. You help supervisors manage construction phases, optimize costs, and track escrow budgets. Reply concisely in a mix of English and Roman Urdu. The user just said: ${userInput}`;
+    try {
+        // Vercel backend ko call karega
+        const response = await fetch('/api/gemini', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: userInput })
+        });
         
-        try {
-            const response = await fetch(endpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: systemPrompt }] }] })
-            });
-            const data = await response.json();
-            if (data.candidates && data.candidates.length > 0) {
-                return data.candidates[0].content.parts[0].text;
-            }
-        } catch (error) {
-            console.error("AI API Error:", error);
+        const data = await response.json();
+        return data.reply;
+        
+    } catch (error) {
+        console.error("AI API Error:", error);
+        
+        // Agar API fail ho jaye toh Fallback (Dummy) response dega
+        const query = userInput.toLowerCase().trim();
+        if (query.includes('escrow') || query.includes('balance') || query.includes('paisa')) {
+            let currentBal = appState.totalEscrowPool - appState.totalExpensesLogged;
+            return `[Financial Audit]: Current available escrow balance is PKR ${currentBal.toLocaleString()}.`;
+        } 
+        else if (query.includes('expense') || query.includes('spend')) {
+            return `[Expenditure Report]: Cumulative procurement expenditure is PKR ${appState.totalExpensesLogged.toLocaleString()}.`;
+        }
+        else {
+            return `[AI Assistance]: Real AI connection failed. Command recognized but dummy response active.`;
         }
     }
-
-    // Agar API key nahi hai ya API fail ho jaye, toh Dummy System chale ga
-    const query = userInput.toLowerCase().trim();
-    if (query.includes('escrow') || query.includes('balance') || query.includes('paisa') || query.includes('budget')) {
-        let currentBal = appState.totalEscrowPool - appState.totalExpensesLogged;
-        return `[Financial Audit]: Current available escrow balance is PKR ${currentBal.toLocaleString()}. Total allocated pool stands at PKR 5,000,000.`;
-    } 
-    else if (query.includes('progress') || query.includes('phase') || query.includes('stage') || query.includes('percentage')) {
-        let active = constructionPhases[appState.currentPhaseIndex];
-        return `[Operational Status]: Current active phase is "${active.name}" with overall site completion at ${appState.progressPercentage}%.`;
-    }
-    else if (query.includes('expense') || query.includes('spend') || query.includes('kharcha') || query.includes('cost')) {
-        return `[Expenditure Report]: Cumulative procurement expenditure logged to date is PKR ${appState.totalExpensesLogged.toLocaleString()}.`;
-    }
-    else if (query.includes('salam') || query.includes('hello') || query.includes('hi')) {
-        return `Assalam-o-Alaikum! I am BuildTrack AI. Aap cost, budget ya progress ke baare mein sawal kar sakte hain.`;
-    }
-    else {
-        return `[AI Assistance]: Command recognized. Cost optimization ke liye API key connect karein ya directly financial metrics (escrow, expense, progress) query karein.`;
-    }
 }
-
 // ================= LIFE-CYCLE STATE LOADER & TRIGGER REGISTRY =================
 document.addEventListener("DOMContentLoaded", () => {
     
