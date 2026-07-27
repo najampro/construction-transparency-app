@@ -46,6 +46,11 @@ const constructionPhases = [
 
 let reportsData = [];
 let securityIncidents = [];
+let workforceData = [];
+let permitsData = [];
+let labTestsData = [];
+let dailyReportsData = [];
+let machineryData = [];
 
 const cameraFeeds = [
     { tag: "CAM 01 — FOUNDATION AXIS", src: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=800&q=80" },
@@ -116,7 +121,8 @@ if (typeof db !== 'undefined') {
           appState.totalExpensesLogged = tempTotalCost;
           syncGlobalDOMStats();
           renderReports();
-          renderPhaseTracker(); 
+          renderPhaseTracker();
+          renderInvoices();
       }, (err) => console.error("Firestore sync failed:", err));
 
     db.collection("security_logs").orderBy("timestamp", "desc").limit(10)
@@ -219,6 +225,170 @@ function renderPhaseTracker() {
     }
 }
 
+// ================= INVOICES & PAYMENTS (AUTO-DERIVED FROM MATERIAL LEDGER) =================
+function renderInvoices() {
+    const container = document.getElementById('invoices-list-container');
+    const totalDOM = document.getElementById('invoices-total-amount');
+    const heldDOM = document.getElementById('invoices-held-count');
+    if (!container) return;
+
+    if (reportsData.length === 0) {
+        container.innerHTML = `<p style="color:#64748b; font-size:0.85rem; padding:10px;">No invoices yet — log a material on the Site Dashboard to generate one automatically.</p>`;
+        if (totalDOM) totalDOM.textContent = "PKR 0";
+        if (heldDOM) heldDOM.textContent = "0 Held";
+        return;
+    }
+
+    let totalAmount = 0;
+    let heldCount = 0;
+
+    container.innerHTML = reportsData.map((r, idx) => {
+        const isHeld = (r.status === 'Warning');
+        if (isHeld) heldCount++;
+        totalAmount += (parseInt(r.cost) || 0);
+        const invoiceNo = `INV-${String(reportsData.length - idx).padStart(4, '0')}`;
+        return `
+            <div class="report-item">
+                <div>
+                    <strong style="color:#fff; display:block; font-size:0.9rem;">${invoiceNo} — ${r.name}</strong>
+                    <span style="font-size:0.75rem; color:#94a3b8;">PKR ${Number(r.cost || 0).toLocaleString()}</span>
+                </div>
+                <span style="padding:4px 8px; border-radius:4px; font-size:0.75rem; font-weight:600; ${
+                    isHeld ? 'background:rgba(245,158,11,0.15); color:#fbbf24;' : 'background:rgba(16,185,129,0.15); color:#34d399;'
+                }">${isHeld ? 'Payment Held' : 'Paid'}</span>
+            </div>`;
+    }).join('');
+
+    if (totalDOM) totalDOM.textContent = `PKR ${totalAmount.toLocaleString()}`;
+    if (heldDOM) heldDOM.textContent = `${heldCount} Held`;
+}
+
+// ================= WORKFORCE & LABOR LOGS =================
+function renderWorkforceLog() {
+    const container = document.getElementById('workforce-log-container');
+    const badge = document.getElementById('workforce-total-badge');
+    if (!container) return;
+    if (badge) badge.textContent = `${workforceData.length} workers`;
+
+    if (workforceData.length === 0) {
+        container.innerHTML = `<p style="color:#64748b; font-size:0.85rem; padding:10px;">No attendance logged yet today.</p>`;
+        return;
+    }
+
+    container.innerHTML = workforceData.map(w => `
+        <div class="report-item">
+            <div>
+                <strong style="color:#fff; display:block; font-size:0.9rem;">${w.name} <span style="color:#64748b; font-weight:400;">— ${w.role}</span></strong>
+                <span style="font-size:0.75rem; color:#94a3b8;">Daily Wage: PKR ${Number(w.wage).toLocaleString()}</span>
+            </div>
+            <span style="padding:4px 8px; border-radius:4px; font-size:0.75rem; font-weight:600; ${
+                w.attendance === 'Present' ? 'background:rgba(16,185,129,0.15); color:#34d399;' :
+                w.attendance === 'Half Day' ? 'background:rgba(245,158,11,0.15); color:#fbbf24;' :
+                'background:rgba(248,113,113,0.15); color:#f87171;'
+            }">${w.attendance}</span>
+        </div>
+    `).join('');
+}
+
+// ================= PERMITS & NOCs =================
+function renderPermits() {
+    const container = document.getElementById('permits-list-container');
+    if (!container) return;
+
+    if (permitsData.length === 0) {
+        container.innerHTML = `<p style="color:#64748b; font-size:0.85rem; padding:10px;">No permits or NOCs logged yet.</p>`;
+        return;
+    }
+
+    container.innerHTML = permitsData.map(p => `
+        <div class="report-item">
+            <div>
+                <strong style="color:#fff; display:block; font-size:0.9rem;">${p.name}</strong>
+                <span style="font-size:0.75rem; color:#94a3b8;">Authority: ${p.authority}</span>
+            </div>
+            <span style="padding:4px 8px; border-radius:4px; font-size:0.75rem; font-weight:600; ${
+                p.status === 'Approved' ? 'background:rgba(16,185,129,0.15); color:#34d399;' :
+                p.status === 'Pending' ? 'background:rgba(245,158,11,0.15); color:#fbbf24;' :
+                'background:rgba(248,113,113,0.15); color:#f87171;'
+            }">${p.status}</span>
+        </div>
+    `).join('');
+}
+
+// ================= LAB TESTS & QUALITY =================
+function renderLabTests() {
+    const container = document.getElementById('labtests-list-container');
+    if (!container) return;
+
+    if (labTestsData.length === 0) {
+        container.innerHTML = `<p style="color:#64748b; font-size:0.85rem; padding:10px;">No lab tests logged yet.</p>`;
+        return;
+    }
+
+    container.innerHTML = labTestsData.map(t => `
+        <div class="report-item">
+            <div>
+                <strong style="color:#fff; display:block; font-size:0.9rem;">${t.name}</strong>
+                <span style="font-size:0.75rem; color:#94a3b8;">Material: ${t.material}</span>
+            </div>
+            <span style="padding:4px 8px; border-radius:4px; font-size:0.75rem; font-weight:600; ${
+                t.result === 'Pass' ? 'background:rgba(16,185,129,0.15); color:#34d399;' :
+                t.result === 'Pending' ? 'background:rgba(245,158,11,0.15); color:#fbbf24;' :
+                'background:rgba(248,113,113,0.15); color:#f87171;'
+            }">${t.result}</span>
+        </div>
+    `).join('');
+}
+
+// ================= DAILY SITE REPORTS =================
+function renderDailyReports() {
+    const container = document.getElementById('dailyreports-list-container');
+    if (!container) return;
+
+    if (dailyReportsData.length === 0) {
+        container.innerHTML = `<p style="color:#64748b; font-size:0.85rem; padding:10px;">No daily reports filed yet.</p>`;
+        return;
+    }
+
+    container.innerHTML = dailyReportsData.map(r => `
+        <div class="report-item" style="align-items:flex-start;">
+            <div>
+                <strong style="color:#fff; display:block; font-size:0.9rem;">${r.date} — ${r.weather}</strong>
+                <span style="font-size:0.8rem; color:#94a3b8; display:block; margin-top:4px;">${r.summary}</span>
+            </div>
+            <span style="padding:4px 8px; border-radius:4px; font-size:0.75rem; font-weight:600; background:rgba(34,211,238,0.15); color:#22d3ee; white-space:nowrap;">${r.workers} workers</span>
+        </div>
+    `).join('');
+}
+
+// ================= HEAVY MACHINERY & LOGISTICS =================
+function renderMachinery() {
+    const container = document.getElementById('machinery-list-container');
+    if (!container) return;
+
+    if (machineryData.length === 0) {
+        container.innerHTML = `<p style="color:#64748b; font-size:0.85rem; padding:10px;">No machinery or delivery entries logged yet.</p>`;
+        return;
+    }
+
+    const goodStatuses = ['Operational', 'Delivered'];
+    const warnStatuses = ['Idle', 'In Transit'];
+
+    container.innerHTML = machineryData.map(m => `
+        <div class="report-item">
+            <div>
+                <strong style="color:#fff; display:block; font-size:0.9rem;">${m.name}</strong>
+                <span style="font-size:0.75rem; color:#94a3b8;">${m.category}</span>
+            </div>
+            <span style="padding:4px 8px; border-radius:4px; font-size:0.75rem; font-weight:600; ${
+                goodStatuses.includes(m.status) ? 'background:rgba(16,185,129,0.15); color:#34d399;' :
+                warnStatuses.includes(m.status) ? 'background:rgba(245,158,11,0.15); color:#fbbf24;' :
+                'background:rgba(248,113,113,0.15); color:#f87171;'
+            }">${m.status}</span>
+        </div>
+    `).join('');
+}
+
 // ================= UI INTERACTION HELPERS (Sidebar Dropdown) =================
 function toggleSubmenu(element) {
     const submenu = element.nextElementSibling;
@@ -295,8 +465,13 @@ document.addEventListener("DOMContentLoaded", () => {
         'page-dashboard': { title: "Site Overview & Logs", desc: "Real-time construction operational stream" },
         'page-security': { title: "Site Security & Perimeter Node", desc: "Access control systems and automated breach management" },
         'page-escrow': { title: "Escrow Financial Pools", desc: "Automated funds release tracking and milestone verification" },
-        'page-settings': { title: "System Settings", desc: "Configure preferences and core parameters for BuildTrack App" },
-        'page-coming-soon': { title: "Module In Development", desc: "This feature is planned for a future release" }
+        'page-invoices': { title: "Invoices & Payments", desc: "Auto-generated payables from the material procurement ledger" },
+        'page-workforce': { title: "Workforce & Labor Logs", desc: "Daily attendance and wage tracking for site labor" },
+        'page-permits': { title: "Permits & NOCs", desc: "Regulatory approvals and no-objection certificate register" },
+        'page-labtests': { title: "Lab Tests & Quality", desc: "Material quality verification and lab test results" },
+        'page-reports': { title: "Daily Site Reports", desc: "Field reports covering weather, manpower, and site progress" },
+        'page-machinery': { title: "Heavy Machinery & Logistics", desc: "Equipment status and incoming delivery tracking" },
+        'page-settings': { title: "System Settings", desc: "Configure preferences and core parameters for BuildTrack App" }
     };
 
     if (menuItems.length > 0) {
@@ -323,7 +498,13 @@ document.addEventListener("DOMContentLoaded", () => {
     syncGlobalDOMStats();
     renderReports();
     renderSecurityLogs();
-    renderPhaseTracker(); 
+    renderPhaseTracker();
+    renderInvoices();
+    renderWorkforceLog();
+    renderPermits();
+    renderLabTests();
+    renderDailyReports();
+    renderMachinery();
 
     // Form Submissions
     const logForm = document.getElementById('log-form');
@@ -354,9 +535,87 @@ document.addEventListener("DOMContentLoaded", () => {
                 appState.totalExpensesLogged += costInput;
                 syncGlobalDOMStats();
                 renderReports();
-                renderPhaseTracker(); 
+                renderPhaseTracker();
+                renderInvoices();
                 logForm.reset();
             }
+        });
+    }
+
+    // Workforce & Labor Log Form
+    const workforceForm = document.getElementById('workforce-form');
+    if (workforceForm) {
+        workforceForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            workforceData.unshift({
+                name: document.getElementById('worker-name').value,
+                role: document.getElementById('worker-role').value,
+                wage: parseInt(document.getElementById('worker-wage').value) || 0,
+                attendance: document.getElementById('worker-attendance').value
+            });
+            renderWorkforceLog();
+            workforceForm.reset();
+        });
+    }
+
+    // Permits & NOCs Form
+    const permitForm = document.getElementById('permit-form');
+    if (permitForm) {
+        permitForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            permitsData.unshift({
+                name: document.getElementById('permit-name').value,
+                authority: document.getElementById('permit-authority').value,
+                status: document.getElementById('permit-status').value
+            });
+            renderPermits();
+            permitForm.reset();
+        });
+    }
+
+    // Lab Tests & Quality Form
+    const labtestForm = document.getElementById('labtest-form');
+    if (labtestForm) {
+        labtestForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            labTestsData.unshift({
+                name: document.getElementById('labtest-name').value,
+                material: document.getElementById('labtest-material').value,
+                result: document.getElementById('labtest-result').value
+            });
+            renderLabTests();
+            labtestForm.reset();
+        });
+    }
+
+    // Daily Site Reports Form
+    const dailyReportForm = document.getElementById('dailyreport-form');
+    if (dailyReportForm) {
+        dailyReportForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            dailyReportsData.unshift({
+                date: new Date().toLocaleDateString(),
+                weather: document.getElementById('report-weather').value,
+                workers: parseInt(document.getElementById('report-workers').value) || 0,
+                summary: document.getElementById('report-summary').value
+            });
+            renderDailyReports();
+            dailyReportForm.reset();
+        });
+    }
+
+    // Heavy Machinery & Logistics Form
+    const machineryForm = document.getElementById('machinery-form');
+    if (machineryForm) {
+        machineryForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            machineryData.unshift({
+                name: document.getElementById('machinery-name').value,
+                category: document.getElementById('machinery-category').value,
+                status: document.getElementById('machinery-status').value
+            });
+            renderMachinery();
+            machineryForm.reset();
         });
     }
 
