@@ -1,4 +1,3 @@
-
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ reply: "Method Not Allowed" });
@@ -12,7 +11,7 @@ export default async function handler(req, res) {
         return res.status(500).json({ reply: "[VERCEL ERROR]: API Key is missing! Environment variable Vercel mein nahi mila." });
     }
 
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`;
     const systemPrompt = `You are BuildTrack AI, a professional construction operational assistant. Reply concisely. The user just said: ${userMessage}`;
 
     try {
