@@ -1,9 +1,6 @@
 // ================= BUILDTRACK CORE SYSTEM ARCHITECTURE ENGINE =================
 
 // 1. CLOUD STORAGE MATRIX INITIALIZATION (FIREBASE CONFIGURATION)
-// ================= BUILDTRACK CORE SYSTEM ARCHITECTURE ENGINE =================
-
-// 1. CLOUD STORAGE MATRIX INITIALIZATION (FIREBASE CONFIGURATION)
 const firebaseConfig = {
     apiKey: "AIzaSyDADeAr1uYq9GhRTU6zMeW8Nl5HkFq4fB4",
     authDomain: "buildtrack-engine.firebaseapp.com",
@@ -13,8 +10,6 @@ const firebaseConfig = {
     appId: "1:384871961234:web:27b20b753f36e8a2728c4b",
     measurementId: "G-DTQJR1LP0X"
 };
-
-
 
 // Initialize Firebase Network Connectivity Safely
 if (typeof firebase !== 'undefined') {
@@ -509,25 +504,24 @@ async function handleAIBrain(userInput) {
             body: JSON.stringify({ message: userInput, context: buildAIContext() })
         });
         
-        // Agar Vercel ka masla hoga toh yeh screen par error dikhayega
         if (!response.ok) {
-            return `[SYSTEM ERROR ${response.status}]: Agar error 404 hai, toh aapka 'api' folder ghalat jagah par hai. Agar error 500 ہے toh aapne Vercel mein GEMINI_API_KEY sahi se save kar ke Redeploy nahi kiya.`;
+            return `[SYSTEM ERROR ${response.status}]: Unable to connect to the backend server. If status is 404, please verify your endpoint routes. If status is 500, please verify GEMINI_API_KEY settings in Vercel and redeploy.`;
         }
 
         const data = await response.json();
         
-        // Agar data mein masla hoga
         if (data.reply.includes("Error") || data.reply.includes("failed")) {
-            return `[API ERROR]: ${data.reply} - Apni Gemini API key check karein.`;
+            return `[API ERROR]: ${data.reply} — Please check your Gemini API key credentials.`;
         }
 
         return data.reply;
         
     } catch (error) {
         console.error("AI API Error:", error);
-        return `[CONNECTION ERROR]: ${error.message}. (Note: Yeh chatbot sirf Vercel ke live link par chalega, computer par double-click karne se nahi).`;
+        return `[CONNECTION ERROR]: ${error.message}. (Note: The AI Assistant requires a live server environment, such as a deployed Vercel instance, to communicate with the backend API).`;
     }
 }
+
 // ================= LIFE-CYCLE STATE LOADER & TRIGGER REGISTRY =================
 document.addEventListener("DOMContentLoaded", () => {
     
@@ -787,29 +781,24 @@ document.addEventListener("DOMContentLoaded", () => {
         modalAuthForm.addEventListener('submit', (e) => {
             e.preventDefault();
             
-            // Yahan hum password get kar rahe hain
             const pinInput = document.getElementById('auth-pin-input');
             const enteredPassword = pinInput.value;
-            
-            // APNA SECRET PASSWORD YAHAN SET KAREIN (Misal ke taur par "1234")
             const correctPassword = "1234";
 
             if (enteredPassword === correctPassword) {
-                // Agar password sahi hai toh login successful
                 appState.isLoggedIn = true;
-                if (userDisplayName) userDisplayName.textContent = "Najam (Supervisor)";
+                if (userDisplayName) userDisplayName.textContent = "Supervisor Mode";
                 if (authActionText) {
                     authActionText.textContent = "Click to Logout";
                     authActionText.style.color = "#f87171";
                 }
-                if (avatarLetters) avatarLetters.textContent = "N";
+                if (avatarLetters) avatarLetters.textContent = "S";
                 if (accountAuthModal) accountAuthModal.classList.remove('active');
                 
-                pinInput.value = ""; // Input box khali kar dein
+                pinInput.value = "";
             } else {
-                // Agar password ghalat hai toh Error show karein
-                alert("Incorrect PIN! Access Denied.");
-                pinInput.value = ""; // Input box khali kar dein
+                alert("Access Denied: The PIN entered is incorrect. Please try again.");
+                pinInput.value = "";
             }
         });
     }
@@ -823,14 +812,13 @@ document.addEventListener("DOMContentLoaded", () => {
         btnTriggerAI.addEventListener('click', async function(e) {
             e.preventDefault(); 
             const query = aiInputQuery.value.trim();
-            if (!query) return alert("Please type your query first!");
+            if (!query) return alert("Please enter a question or query for the AI Assistant.");
 
             btnTriggerAI.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Processing Matrix...`;
             btnTriggerAI.disabled = true;
             aiResponseBox.style.display = "block";
-            aiResponseBox.innerHTML = `<em>Connecting database... Please wait.</em>`;
+            aiResponseBox.innerHTML = `<em>Connecting to operational database... Please wait.</em>`;
 
-            // Calling handleAIBrain function
             const aiReply = await handleAIBrain(query);
 
             btnTriggerAI.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Consult AI`;
