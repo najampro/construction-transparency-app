@@ -7,9 +7,9 @@ export default async function handler(req, res) {
     const projectContext = req.body.context || {};
     const apiKey = process.env.GEMINI_API_KEY; 
 
-    // Agar Vercel mein key save nahi hui hogi toh yeh error aayega
+    // Environment variable check
     if (!apiKey) {
-        return res.status(500).json({ reply: "[VERCEL ERROR]: API Key is missing! Environment variable Vercel mein nahi mila." });
+        return res.status(500).json({ reply: "[VERCEL ERROR]: API Key missing. Please ensure the GEMINI_API_KEY environment variable is configured in Vercel settings." });
     }
 
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`;
@@ -37,19 +37,16 @@ User question: ${userMessage}`;
         
         const data = await response.json();
         
-        // Agar Google Gemini API key ya data reject karta hai
         if (data.error) {
             return res.status(500).json({ reply: `[GOOGLE API ERROR]: ${data.error.message}` });
         }
 
-        // Agar response theek aata hai
         if (data.candidates && data.candidates.length > 0) {
             return res.status(200).json({ reply: data.candidates[0].content.parts[0].text });
         } else {
-            return res.status(500).json({ reply: "[API ERROR]: No reply from Google." });
+            return res.status(500).json({ reply: "[API ERROR]: Unable to retrieve a response from the service. Please try again." });
         }
     } catch (error) {
-        // Agar Vercel ka server crash ho
-        return res.status(500).json({ reply: `[BACKEND CRASH]: ${error.message}` });
+        return res.status(500).json({ reply: `[BACKEND ERROR]: ${error.message}` });
     }
 }
