@@ -63,26 +63,26 @@
                     </div>
                     <ul class="submenu">
                         <li><a href="#" class="menu-item" data-target="page-dashboard"><i class="fa-solid fa-minus"></i> Cement, Steel & Bricks</a></li>
-                        <li><a href="#" class="menu-item" data-target="page-coming-soon"><i class="fa-solid fa-minus"></i> Heavy Machinery</a></li>
-                        <li><a href="#" class="menu-item" data-target="page-coming-soon"><i class="fa-solid fa-minus"></i> Logistics & Deliveries</a></li>
+                        <li><a href="#" class="menu-item" data-target="page-machinery"><i class="fa-solid fa-minus"></i> Heavy Machinery</a></li>
+                        <li><a href="#" class="menu-item" data-target="page-machinery"><i class="fa-solid fa-minus"></i> Logistics & Deliveries</a></li>
                     </ul>
                 </li>
-                <li><a href="#" class="menu-item" data-target="page-coming-soon"><i class="fa-solid fa-users-gear"></i> Workforce & Labor Logs</a></li>
+                <li><a href="#" class="menu-item" data-target="page-workforce"><i class="fa-solid fa-users-gear"></i> Workforce & Labor Logs</a></li>
             </ul>
 
             <!-- 3. FINANCIAL & LEGAL -->
             <span class="menu-section-title">Financial & Legal</span>
             <ul class="sidebar-menu">
                 <li><a href="#" class="menu-item" data-target="page-escrow"><i class="fa-solid fa-wallet"></i> Budget & Escrow</a></li>
-                <li><a href="#" class="menu-item" data-target="page-escrow"><i class="fa-solid fa-file-invoice-dollar"></i> Invoices & Payments</a></li>
-                <li><a href="#" class="menu-item" data-target="page-coming-soon"><i class="fa-solid fa-file-signature"></i> Permits & NOCs</a></li>
+                <li><a href="#" class="menu-item" data-target="page-invoices"><i class="fa-solid fa-file-invoice-dollar"></i> Invoices & Payments</a></li>
+                <li><a href="#" class="menu-item" data-target="page-permits"><i class="fa-solid fa-file-signature"></i> Permits & NOCs</a></li>
             </ul>
 
             <!-- 4. QUALITY & REPORTS -->
             <span class="menu-section-title">Quality & Analytics</span>
             <ul class="sidebar-menu">
-                <li><a href="#" class="menu-item" data-target="page-coming-soon"><i class="fa-solid fa-vial-circle-check"></i> Lab Tests & Quality <span class="badge new">New</span></a></li>
-                <li><a href="#" class="menu-item" data-target="page-dashboard"><i class="fa-solid fa-clipboard-list"></i> Daily Site Reports</a></li>
+                <li><a href="#" class="menu-item" data-target="page-labtests"><i class="fa-solid fa-vial-circle-check"></i> Lab Tests & Quality <span class="badge new">New</span></a></li>
+                <li><a href="#" class="menu-item" data-target="page-reports"><i class="fa-solid fa-clipboard-list"></i> Daily Site Reports</a></li>
                 <li><a href="#" class="menu-item" data-target="page-dashboard"><i class="fa-solid fa-robot"></i> AI Analytics Engine</a></li>
             </ul>
 
@@ -249,16 +249,202 @@
             </div>
         </div>
 
-        <!-- COMING SOON VIEW (modules not yet built) -->
-        <div id="page-coming-soon" class="page-content">
-            <div class="panel-card" style="text-align:center; padding: 50px 20px;">
-                <i class="fa-solid fa-screwdriver-wrench" style="font-size: 2.5rem; color: var(--accent-cyan); margin-bottom: 15px;"></i>
-                <div class="panel-title" style="justify-content:center;">Module In Development</div>
-                <p style="color: var(--text-secondary); font-size: 0.9rem; max-width: 420px; margin: 0 auto;">
-                    This section is planned for a future release of BuildTrack Engine.
-                    In this version, try <strong>Site Dashboard</strong>, <strong>Budget & Escrow</strong>,
-                    or <strong>Security Controls</strong> in the sidebar — those are fully functional.
+        <!-- INVOICES & PAYMENTS VIEW (auto-generated from material ledger) -->
+        <div id="page-invoices" class="page-content">
+            <div class="panel-card">
+                <div class="panel-title"><i class="fa-solid fa-file-invoice-dollar"></i> Invoices & Payments</div>
+                <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px;">
+                    Auto-generated from your Material Procurement ledger — every material you log on the
+                    Site Dashboard instantly becomes a payable invoice here.
                 </p>
+                <div class="active-phase-banner">
+                    <div>
+                        <span>Total Invoiced</span>
+                        <strong id="invoices-total-amount">PKR 0</strong>
+                    </div>
+                    <span id="invoices-held-count" style="font-weight:bold;">0 Held</span>
+                </div>
+                <div id="invoices-list-container"></div>
+            </div>
+        </div>
+
+        <!-- WORKFORCE & LABOR LOGS VIEW -->
+        <div id="page-workforce" class="page-content">
+            <div class="panel-card">
+                <div class="panel-title"><i class="fa-solid fa-users-gear"></i> Log Workforce Attendance</div>
+                <form id="workforce-form">
+                    <div class="form-grid-inputs">
+                        <div class="form-group">
+                            <label>Worker Name</label>
+                            <input type="text" id="worker-name" placeholder="e.g., Ali Raza" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Role</label>
+                            <select id="worker-role">
+                                <option>Mason</option>
+                                <option>Laborer</option>
+                                <option>Electrician</option>
+                                <option>Plumber</option>
+                                <option>Site Supervisor</option>
+                                <option>Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-grid-inputs">
+                        <div class="form-group">
+                            <label>Daily Wage (PKR)</label>
+                            <input type="number" id="worker-wage" placeholder="e.g., 1800" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Attendance</label>
+                            <select id="worker-attendance">
+                                <option value="Present">Present</option>
+                                <option value="Absent">Absent</option>
+                                <option value="Half Day">Half Day</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="submit-btn-node">Log Attendance Entry</button>
+                </form>
+            </div>
+            <div class="panel-card">
+                <div class="panel-title"><i class="fa-solid fa-list-ul"></i> Today's Labor Log <span id="workforce-total-badge" class="badge new">0 workers</span></div>
+                <div id="workforce-log-container"></div>
+            </div>
+        </div>
+
+        <!-- PERMITS & NOCs VIEW -->
+        <div id="page-permits" class="page-content">
+            <div class="panel-card">
+                <div class="panel-title"><i class="fa-solid fa-file-signature"></i> Log Permit / NOC</div>
+                <form id="permit-form">
+                    <div class="form-grid-inputs">
+                        <div class="form-group">
+                            <label>Permit / NOC Name</label>
+                            <input type="text" id="permit-name" placeholder="e.g., Building Construction Permit" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Issuing Authority</label>
+                            <input type="text" id="permit-authority" placeholder="e.g., RDA / TMA" required>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom:20px;">
+                        <label>Status</label>
+                        <select id="permit-status">
+                            <option value="Approved">Approved</option>
+                            <option value="Pending">Pending Review</option>
+                            <option value="Rejected">Rejected</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="submit-btn-node">Log Permit Entry</button>
+                </form>
+            </div>
+            <div class="panel-card">
+                <div class="panel-title"><i class="fa-solid fa-list-ul"></i> Permits & NOC Register</div>
+                <div id="permits-list-container"></div>
+            </div>
+        </div>
+
+        <!-- LAB TESTS & QUALITY VIEW -->
+        <div id="page-labtests" class="page-content">
+            <div class="panel-card">
+                <div class="panel-title"><i class="fa-solid fa-vial-circle-check"></i> Log Lab Test Result</div>
+                <form id="labtest-form">
+                    <div class="form-grid-inputs">
+                        <div class="form-group">
+                            <label>Test Name</label>
+                            <input type="text" id="labtest-name" placeholder="e.g., Concrete Cube Compressive Test" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Material Tested</label>
+                            <input type="text" id="labtest-material" placeholder="e.g., M-20 Grade Concrete" required>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom:20px;">
+                        <label>Result</label>
+                        <select id="labtest-result">
+                            <option value="Pass">Pass</option>
+                            <option value="Fail">Fail</option>
+                            <option value="Pending">Pending</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="submit-btn-node">Log Test Result</button>
+                </form>
+            </div>
+            <div class="panel-card">
+                <div class="panel-title"><i class="fa-solid fa-clipboard-check"></i> Quality Test Register</div>
+                <div id="labtests-list-container"></div>
+            </div>
+        </div>
+
+        <!-- DAILY SITE REPORTS VIEW -->
+        <div id="page-reports" class="page-content">
+            <div class="panel-card">
+                <div class="panel-title"><i class="fa-solid fa-clipboard-list"></i> File Daily Site Report</div>
+                <form id="dailyreport-form">
+                    <div class="form-grid-inputs">
+                        <div class="form-group">
+                            <label>Weather Condition</label>
+                            <select id="report-weather">
+                                <option>Sunny</option>
+                                <option>Cloudy</option>
+                                <option>Rainy</option>
+                                <option>Extreme Heat</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Workers Present</label>
+                            <input type="number" id="report-workers" placeholder="e.g., 24" required>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom:20px;">
+                        <label>Site Summary</label>
+                        <input type="text" id="report-summary" placeholder="e.g., Foundation excavation completed on north wing" required>
+                    </div>
+                    <button type="submit" class="submit-btn-node">Submit Report</button>
+                </form>
+            </div>
+            <div class="panel-card">
+                <div class="panel-title"><i class="fa-solid fa-clock-rotate-left"></i> Report History</div>
+                <div id="dailyreports-list-container"></div>
+            </div>
+        </div>
+
+        <!-- HEAVY MACHINERY & LOGISTICS VIEW -->
+        <div id="page-machinery" class="page-content">
+            <div class="panel-card">
+                <div class="panel-title"><i class="fa-solid fa-truck-monster"></i> Log Machinery / Delivery</div>
+                <form id="machinery-form">
+                    <div class="form-grid-inputs">
+                        <div class="form-group">
+                            <label>Item Name</label>
+                            <input type="text" id="machinery-name" placeholder="e.g., Concrete Mixer / Steel Rebar Delivery" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select id="machinery-category">
+                                <option value="Heavy Machinery">Heavy Machinery</option>
+                                <option value="Logistics Delivery">Logistics Delivery</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom:20px;">
+                        <label>Status</label>
+                        <select id="machinery-status">
+                            <option>Operational</option>
+                            <option>Idle</option>
+                            <option>Under Maintenance</option>
+                            <option>In Transit</option>
+                            <option>Delivered</option>
+                            <option>Delayed</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="submit-btn-node">Log Entry</button>
+                </form>
+            </div>
+            <div class="panel-card">
+                <div class="panel-title"><i class="fa-solid fa-truck-field"></i> Machinery & Logistics Register</div>
+                <div id="machinery-list-container"></div>
             </div>
         </div>
 
@@ -270,7 +456,5 @@
     
     <!-- Custom JS  -->
     <script src="script.js"></script>
-</body>
-</html>
 </body>
 </html>
