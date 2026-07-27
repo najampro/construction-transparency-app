@@ -417,7 +417,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Auth logic
+   // Auth logic
     const loginTriggerBtn = document.getElementById('login-trigger-btn');
     const accountAuthModal = document.getElementById('account-auth-modal');
     const closeAuthModal = document.getElementById('close-auth-modal');
@@ -449,17 +449,31 @@ document.addEventListener("DOMContentLoaded", () => {
     if (modalAuthForm) {
         modalAuthForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            appState.isLoggedIn = true;
-            if (userDisplayName) userDisplayName.textContent = "Najam (Supervisor)";
-            if (authActionText) {
-                authActionText.textContent = "Click to Logout";
-                authActionText.style.color = "#f87171";
-            }
-            if (avatarLetters) avatarLetters.textContent = "N";
-            if (accountAuthModal) accountAuthModal.classList.remove('active');
             
+            // Yahan hum password get kar rahe hain
             const pinInput = document.getElementById('auth-pin-input');
-            if (pinInput) pinInput.value = "";
+            const enteredPassword = pinInput.value;
+            
+            // APNA SECRET PASSWORD YAHAN SET KAREIN (Misal ke taur par "1234")
+            const correctPassword = "1234";
+
+            if (enteredPassword === correctPassword) {
+                // Agar password sahi hai toh login successful
+                appState.isLoggedIn = true;
+                if (userDisplayName) userDisplayName.textContent = "Najam (Supervisor)";
+                if (authActionText) {
+                    authActionText.textContent = "Click to Logout";
+                    authActionText.style.color = "#f87171";
+                }
+                if (avatarLetters) avatarLetters.textContent = "N";
+                if (accountAuthModal) accountAuthModal.classList.remove('active');
+                
+                pinInput.value = ""; // Input box khali kar dein
+            } else {
+                // Agar password ghalat hai toh Error show karein
+                alert("Incorrect PIN! Access Denied.");
+                pinInput.value = ""; // Input box khali kar dein
+            }
         });
     }
 
