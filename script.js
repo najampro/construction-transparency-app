@@ -242,34 +242,32 @@ function toggleSubmenu(element) {
     }
 }
 
-// ================= PROFESSIONAL AI ASSISTANT BRAIN (SECURE) =================
+// ================= PROFESSIONAL AI ASSISTANT BRAIN (DEBUG MODE) =================
 async function handleAIBrain(userInput) {
     try {
-        // Vercel backend ko call karega
         const response = await fetch('/api/gemini', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message: userInput })
         });
         
+        // Agar Vercel ka masla hoga toh yeh screen par error dikhayega
+        if (!response.ok) {
+            return `[SYSTEM ERROR ${response.status}]: Agar error 404 hai, toh aapka 'api' folder ghalat jagah par hai. Agar error 500 ہے toh aapne Vercel mein GEMINI_API_KEY sahi se save kar ke Redeploy nahi kiya.`;
+        }
+
         const data = await response.json();
+        
+        // Agar data mein masla hoga
+        if (data.reply.includes("Error") || data.reply.includes("failed")) {
+            return `[API ERROR]: ${data.reply} - Apni Gemini API key check karein.`;
+        }
+
         return data.reply;
         
     } catch (error) {
         console.error("AI API Error:", error);
-        
-        // Agar API fail ho jaye toh Fallback (Dummy) response dega
-        const query = userInput.toLowerCase().trim();
-        if (query.includes('escrow') || query.includes('balance') || query.includes('paisa')) {
-            let currentBal = appState.totalEscrowPool - appState.totalExpensesLogged;
-            return `[Financial Audit]: Current available escrow balance is PKR ${currentBal.toLocaleString()}.`;
-        } 
-        else if (query.includes('expense') || query.includes('spend')) {
-            return `[Expenditure Report]: Cumulative procurement expenditure is PKR ${appState.totalExpensesLogged.toLocaleString()}.`;
-        }
-        else {
-            return `[AI Assistance]: Real AI connection failed. Command recognized but dummy response active.`;
-        }
+        return `[CONNECTION ERROR]: ${error.message}. (Note: Yeh chatbot sirf Vercel ke live link par chalega, computer par double-click karne se nahi).`;
     }
 }
 // ================= LIFE-CYCLE STATE LOADER & TRIGGER REGISTRY =================
