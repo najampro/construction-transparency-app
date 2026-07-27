@@ -1,15 +1,19 @@
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
-        return res.status(405).send('Method Not Allowed');
+        return res.status(405).json({ reply: "Method Not Allowed" });
     }
 
-    const userMessage = req.body.message;
-    // Yeh line Vercel Hosting se aapka Environment Variable uthaye gi
+    const userMessage = req.body.message || "Hello";
     const apiKey = process.env.GEMINI_API_KEY; 
 
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
-    const systemPrompt = `You are BuildTrack AI, a professional construction operational assistant. You help supervisors manage construction phases, optimize costs, and track escrow budgets. Reply concisely in a mix of English and Roman Urdu. The user just said: ${userMessage}`;
+    // Agar Vercel mein key save nahi hui hogi toh yeh error aayega
+    if (!apiKey) {
+        return res.status(500).json({ reply: "[VERCEL ERROR]: API Key is missing! Environment variable Vercel mein nahi mila." });
+    }
+
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const systemPrompt = `You are BuildTrack AI, a professional construction operational assistant. Reply concisely. The user just said: ${userMessage}`;
 
     try {
         const response = await fetch(endpoint, {
@@ -20,12 +24,19 @@ export default async function handler(req, res) {
         
         const data = await response.json();
         
+        // Agar Google Gemini API key ya data reject karta hai
+        if (data.error) {
+            return res.status(500).json({ reply: `[GOOGLE API ERROR]: ${data.error.message}` });
+        }
+
+        // Agar response theek aata hai
         if (data.candidates && data.candidates.length > 0) {
-            res.status(200).json({ reply: data.candidates[0].content.parts[0].text });
+            return res.status(200).json({ reply: data.candidates[0].content.parts[0].text });
         } else {
-            res.status(500).json({ reply: "Error reading API data." });
+            return res.status(500).json({ reply: "[API ERROR]: No reply from Google." });
         }
     } catch (error) {
-        res.status(500).json({ reply: "Backend connection failed." });
+        // Agar Vercel ka server crash ho
+        return res.status(500).json({ reply: `[BACKEND CRASH]: ${error.message}` });
     }
 }
