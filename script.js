@@ -235,13 +235,32 @@ function toggleSubmenu(element) {
     }
 }
 
+// ================= LIVE PROJECT CONTEXT SNAPSHOT (FOR AI GROUNDING) =================
+function buildAIContext() {
+    const remainingBalance = appState.totalEscrowPool - appState.totalExpensesLogged;
+    return {
+        escrowPoolTotal: appState.totalEscrowPool,
+        totalExpensesLogged: appState.totalExpensesLogged,
+        remainingEscrowBalance: remainingBalance,
+        overallProgressPercent: appState.progressPercentage,
+        currentActivePhase: constructionPhases[appState.currentPhaseIndex]?.name || "N/A",
+        allPhases: constructionPhases.map(p => ({ name: p.name, status: p.status })),
+        recentMaterialLogs: reportsData.slice(0, 6).map(r => ({
+            name: r.name, cost: r.cost, qualityStatus: r.status
+        })),
+        recentSecurityEvents: securityIncidents.slice(0, 5).map(s => ({
+            time: s.time, message: s.msg, type: s.type
+        }))
+    };
+}
+
 // ================= PROFESSIONAL AI ASSISTANT BRAIN (DEBUG MODE) =================
 async function handleAIBrain(userInput) {
     try {
         const response = await fetch('/api/gemini', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: userInput })
+            body: JSON.stringify({ message: userInput, context: buildAIContext() })
         });
         
         // Agar Vercel ka masla hoga toh yeh screen par error dikhayega
