@@ -14,13 +14,6 @@ const firebaseConfig = {
     measurementId: "G-DTQJR1LP0X"
 };
 
-// Initialize Firebase Network Connectivity Safely
-if (typeof firebase !== 'undefined') {
-    firebase.initializeApp(firebaseConfig);
-    var db = firebase.firestore();
-} else {
-    console.warn("Firebase SDK not detected. Operating inside Local Sandbox Mode configuration.");
-}
 
 
 // Initialize Firebase Network Connectivity Safely
