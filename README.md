@@ -123,10 +123,10 @@ in the JSON the model was given.
 ![Site Dashboard](./screenshots/DASHBOARD.png)
 *Site Dashboard — live camera feed, milestone tracker, and material ledger*
 
-![AI Ops Assistant](./screenshots/AI OPS ASSISTANT.png)
+![AI Ops Assistant](./screenshots/AI_OPS_ASSISTANT.png)
 *BuildTrack AI answering a question grounded in live project data*
 
-![Invoices & Payments](./screenshots/INVOICES AND PAYMENTS .png)
+![Invoices & Payments](./screenshots/AI_OPS_ASSISTANT.png)
 *Invoices auto-generated from the material procurement ledger*
 
 ## g. How to run this project
