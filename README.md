@@ -54,7 +54,7 @@ security controls).
 
 **Administration**
 - **Security Controls** — remote toggles for RFID vehicle barrier and perimeter laser array, with a live, timestamped security incident log
-- **Supervisor Login** — PIN-gated authentication modal
+- **Supervisor Login** — PIN-gated authentication modal (1234)
 - **System Settings** — app configuration view
 
 Data for the Material Ledger and Security Logs is persisted in **Firebase
