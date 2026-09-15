@@ -110,6 +110,7 @@ if (typeof db !== 'undefined') {
           let tempTotalCost = 0;
           snapshot.forEach((doc) => {
               const data = doc.data();
+              data.docId = doc.id; // NEW: har entry ka unique cloud ID save — delete ke liye zaroori
               reportsData.push(data);
               tempTotalCost += (parseInt(data.cost) || 0);
           });
@@ -130,6 +131,204 @@ if (typeof db !== 'undefined') {
       }, (err) => console.error("Firestore security sync failed:", err));
 }
 
+// ================= ENTRY REVERSAL ENGINE (DELETE / CORRECTION MODULE) =================
+// Maqsad: agar galat entry ho jaye to usay remove kar ke dobara sahi entry ki ja sakay.
+
+// Chhota sa reusable delete button — har list item ke sath lagta hai.
+function buildDeleteButton(onclickExpression) {
+    return `<button onclick="${onclickExpression}" title="Remove this entry"
+        style="background:rgba(248,113,113,0.12); border:1px solid rgba(248,113,113,0.35);
+               color:#f87171; border-radius:6px; padding:5px 9px; cursor:pointer;
+               font-size:0.75rem; line-height:1;">
+        <i class="fa-solid fa-trash"></i>
+    </button>`;
+}
+
+// Edit button — entry ko form me wapas load karta hai taake dobara type na karna pade.
+function buildEditButton(onclickExpression) {
+    return `<button onclick="${onclickExpression}" title="Edit this entry"
+        style="background:rgba(251,191,36,0.12); border:1px solid rgba(251,191,36,0.35);
+               color:#fbbf24; border-radius:6px; padding:5px 9px; cursor:pointer;
+               font-size:0.75rem; line-height:1; margin-right:2px;">
+        <i class="fa-solid fa-pen"></i>
+    </button>`;
+}
+
+// --- LOCAL MODULE REGISTRY: aik jagah har module ka form, fields aur render function ---
+// Is registry ki wajah se delete, edit aur submit — teeno ka logic aik hi generic code se chalta hai.
+const LOCAL_MODULES = {
+    workforce: {
+        formId: 'workforce-form',
+        data: () => workforceData,
+        render: () => renderWorkforceLog(),
+        fields: { name: 'worker-name', role: 'worker-role', wage: 'worker-wage', attendance: 'worker-attendance' },
+        numericFields: ['wage']
+    },
+    permits: {
+        formId: 'permit-form',
+        data: () => permitsData,
+        render: () => renderPermits(),
+        fields: { name: 'permit-name', authority: 'permit-authority', status: 'permit-status' },
+        numericFields: []
+    },
+    labtests: {
+        formId: 'labtest-form',
+        data: () => labTestsData,
+        render: () => renderLabTests(),
+        fields: { name: 'labtest-name', material: 'labtest-material', result: 'labtest-result' },
+        numericFields: []
+    },
+    dailyreports: {
+        formId: 'dailyreport-form',
+        data: () => dailyReportsData,
+        render: () => renderDailyReports(),
+        fields: { weather: 'report-weather', workers: 'report-workers', summary: 'report-summary' },
+        numericFields: ['workers'],
+        autoDate: true
+    },
+    machinery: {
+        formId: 'machinery-form',
+        data: () => machineryData,
+        render: () => renderMachinery(),
+        fields: { name: 'machinery-name', category: 'machinery-category', status: 'machinery-status' },
+        numericFields: []
+    }
+};
+
+// Kaun si entry abhi edit ho rahi hai — ye do variables "edit mode" ka switch hain.
+let editingExpense = null;   // { docId, index } ya null
+let editingLocal = null;     // { key, index } ya null
+
+// --- 1. MATERIAL / EXPENSE ENTRY DELETE (cloud + local dono modes) ---
+async function deleteExpenseEntry(docId, fallbackIndex) {
+    if (!confirm("Kya aap ye entry remove karna chahte hain? Expense total aur phase progress dobara calculate ho jayega.")) return;
+
+    if (editingExpense && editingExpense.index === fallbackIndex) cancelEditExpense();
+
+    if (typeof db !== 'undefined' && docId) {
+        try {
+            await db.collection("expenses").doc(docId).delete();
+            // onSnapshot listener khud hi totals aur UI refresh kar dega — manual render ki zaroorat nahi.
+        } catch (err) {
+            alert("Cloud delete failure: " + err.message);
+        }
+    } else {
+        // Local Sandbox Mode: array se nikal kar total minus karo
+        const removed = reportsData.splice(fallbackIndex, 1)[0];
+        appState.totalExpensesLogged -= (parseInt(removed && removed.cost) || 0);
+        if (appState.totalExpensesLogged < 0) appState.totalExpensesLogged = 0;
+
+        syncGlobalDOMStats();   // totals + phase % dobara calculate
+        renderReports();
+        renderPhaseTracker();
+        renderInvoices();
+    }
+}
+
+// --- 2. GENERIC LOCAL LIST DELETE (workforce, permits, lab tests, reports, machinery) ---
+function deleteLocalEntry(collectionKey, index) {
+    const mod = LOCAL_MODULES[collectionKey];
+    if (!mod) return;
+    if (!confirm("Kya aap ye entry remove karna chahte hain?")) return;
+
+    // Agar wahi entry abhi edit ho rahi thi, to edit mode band kar do
+    if (editingLocal && editingLocal.key === collectionKey && editingLocal.index === index) {
+        cancelEditLocal();
+    }
+
+    mod.data().splice(index, 1); // index par mojood aik item nikal do
+    mod.render();                // list dobara draw
+}
+
+// ================= EDIT MODE ENGINE (ENTRY CORRECTION WITHOUT RE-TYPING) =================
+
+// Form ko "Add" se "Update" look me badalta hai + Cancel button lagata hai.
+function setFormEditMode(formId, isEditing, onCancel) {
+    const form = document.getElementById(formId);
+    if (!form) return;
+
+    const submitBtn = form.querySelector('button[type="submit"], input[type="submit"], button:not([type])');
+    if (submitBtn) {
+        if (isEditing) {
+            // Asli label yaad rakho taake cancel par wapas laga sakein
+            if (!submitBtn.dataset.originalLabel) submitBtn.dataset.originalLabel = submitBtn.innerHTML;
+            submitBtn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Update Entry`;
+            submitBtn.style.background = "#f59e0b";
+        } else {
+            if (submitBtn.dataset.originalLabel) submitBtn.innerHTML = submitBtn.dataset.originalLabel;
+            submitBtn.style.background = "";
+        }
+    }
+
+    let cancelBtn = form.querySelector('.edit-cancel-btn');
+    if (isEditing) {
+        if (!cancelBtn) {
+            cancelBtn = document.createElement('button');
+            cancelBtn.type = 'button';
+            cancelBtn.className = 'edit-cancel-btn';
+            cancelBtn.textContent = "Cancel Edit";
+            cancelBtn.style.cssText = "margin-top:8px; width:100%; background:transparent; border:1px solid #475569; color:#94a3b8; padding:8px; border-radius:6px; cursor:pointer; font-size:0.8rem;";
+            form.appendChild(cancelBtn);
+        }
+        cancelBtn.onclick = onCancel;
+        form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else if (cancelBtn) {
+        cancelBtn.remove();
+    }
+}
+
+// --- EXPENSE / MATERIAL EDIT ---
+function startEditExpense(docId, index) {
+    const entry = reportsData[index];
+    if (!entry) return;
+
+    const nameDOM = document.getElementById('material-name');
+    const costDOM = document.getElementById('material-cost');
+    const qualityDOM = document.getElementById('material-quality');
+
+    if (nameDOM) nameDOM.value = entry.name || '';
+    if (costDOM) costDOM.value = entry.cost || 0;
+    if (qualityDOM) qualityDOM.value = entry.status || qualityDOM.value;
+
+    editingExpense = { docId: docId || null, index: index };
+    setFormEditMode('log-form', true, cancelEditExpense);
+}
+
+function cancelEditExpense() {
+    editingExpense = null;
+    const form = document.getElementById('log-form');
+    if (form) form.reset();
+    setFormEditMode('log-form', false);
+}
+
+// --- LOCAL MODULES EDIT ---
+function startEditLocal(collectionKey, index) {
+    const mod = LOCAL_MODULES[collectionKey];
+    if (!mod) return;
+    const entry = mod.data()[index];
+    if (!entry) return;
+
+    // Har field ki purani value form me wapas bhar do
+    Object.keys(mod.fields).forEach(dataKey => {
+        const input = document.getElementById(mod.fields[dataKey]);
+        if (input) input.value = entry[dataKey] !== undefined ? entry[dataKey] : '';
+    });
+
+    editingLocal = { key: collectionKey, index: index };
+    setFormEditMode(mod.formId, true, cancelEditLocal);
+}
+
+function cancelEditLocal() {
+    if (!editingLocal) return;
+    const mod = LOCAL_MODULES[editingLocal.key];
+    editingLocal = null;
+    if (mod) {
+        const form = document.getElementById(mod.formId);
+        if (form) form.reset();
+        setFormEditMode(mod.formId, false);
+    }
+}
+
 // ================= UI RENDER IMPLEMENTATION PATTERNS =================
 
 function renderReports() {
@@ -141,15 +340,18 @@ function renderReports() {
         return;
     }
 
-    container.innerHTML = reportsData.map(r => `
+    container.innerHTML = reportsData.map((r, idx) => `
         <div class="report-item ${r.type || 'passed'}">
             <div>
                 <strong style="color: #fff; display:block; font-size:0.9rem;">${r.name}</strong>
-                <span style="font-size:0.75rem; color:#94a3b8;">Cloud Sync Verified</span>
+                <span style="font-size:0.75rem; color:#94a3b8;">PKR ${Number(r.cost || 0).toLocaleString()} — Cloud Sync Verified</span>
             </div>
-            <span style="padding:4px 8px; border-radius:4px; font-size:0.75rem; font-weight:600; ${
-                (r.type === 'passed' || r.status === 'Passed') ? 'background:rgba(16,185,129,0.15); color:#34d399;' : 'background:rgba(245,158,11,0.15); color:#fbbf24;'
-            }">${r.status}</span>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span style="padding:4px 8px; border-radius:4px; font-size:0.75rem; font-weight:600; ${
+                    (r.type === 'passed' || r.status === 'Passed') ? 'background:rgba(16,185,129,0.15); color:#34d399;' : 'background:rgba(245,158,11,0.15); color:#fbbf24;'
+                }">${r.status}</span>
+                ${buildEditButton(`startEditExpense('${r.docId || ''}', ${idx})`)}${buildDeleteButton(`deleteExpenseEntry('${r.docId || ''}', ${idx})`)}
+            </div>
         </div>
     `).join('');
 }
@@ -248,9 +450,12 @@ function renderInvoices() {
                     <strong style="color:#fff; display:block; font-size:0.9rem;">${invoiceNo} — ${r.name}</strong>
                     <span style="font-size:0.75rem; color:#94a3b8;">PKR ${Number(r.cost || 0).toLocaleString()}</span>
                 </div>
-                <span style="padding:4px 8px; border-radius:4px; font-size:0.75rem; font-weight:600; ${
-                    isHeld ? 'background:rgba(245,158,11,0.15); color:#fbbf24;' : 'background:rgba(16,185,129,0.15); color:#34d399;'
-                }">${isHeld ? 'Payment Held' : 'Paid'}</span>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="padding:4px 8px; border-radius:4px; font-size:0.75rem; font-weight:600; ${
+                        isHeld ? 'background:rgba(245,158,11,0.15); color:#fbbf24;' : 'background:rgba(16,185,129,0.15); color:#34d399;'
+                    }">${isHeld ? 'Payment Held' : 'Paid'}</span>
+                    ${buildEditButton(`startEditExpense('${r.docId || ''}', ${idx})`)}${buildDeleteButton(`deleteExpenseEntry('${r.docId || ''}', ${idx})`)}
+                </div>
             </div>`;
     }).join('');
 
@@ -270,17 +475,20 @@ function renderWorkforceLog() {
         return;
     }
 
-    container.innerHTML = workforceData.map(w => `
+    container.innerHTML = workforceData.map((w, idx) => `
         <div class="report-item">
             <div>
                 <strong style="color:#fff; display:block; font-size:0.9rem;">${w.name} <span style="color:#64748b; font-weight:400;">— ${w.role}</span></strong>
                 <span style="font-size:0.75rem; color:#94a3b8;">Daily Wage: PKR ${Number(w.wage).toLocaleString()}</span>
             </div>
-            <span style="padding:4px 8px; border-radius:4px; font-size:0.75rem; font-weight:600; ${
-                w.attendance === 'Present' ? 'background:rgba(16,185,129,0.15); color:#34d399;' :
-                w.attendance === 'Half Day' ? 'background:rgba(245,158,11,0.15); color:#fbbf24;' :
-                'background:rgba(248,113,113,0.15); color:#f87171;'
-            }">${w.attendance}</span>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span style="padding:4px 8px; border-radius:4px; font-size:0.75rem; font-weight:600; ${
+                    w.attendance === 'Present' ? 'background:rgba(16,185,129,0.15); color:#34d399;' :
+                    w.attendance === 'Half Day' ? 'background:rgba(245,158,11,0.15); color:#fbbf24;' :
+                    'background:rgba(248,113,113,0.15); color:#f87171;'
+                }">${w.attendance}</span>
+                ${buildEditButton(`startEditLocal('workforce', ${idx})`)}${buildDeleteButton(`deleteLocalEntry('workforce', ${idx})`)}
+            </div>
         </div>
     `).join('');
 }
@@ -295,17 +503,20 @@ function renderPermits() {
         return;
     }
 
-    container.innerHTML = permitsData.map(p => `
+    container.innerHTML = permitsData.map((p, idx) => `
         <div class="report-item">
             <div>
                 <strong style="color:#fff; display:block; font-size:0.9rem;">${p.name}</strong>
                 <span style="font-size:0.75rem; color:#94a3b8;">Authority: ${p.authority}</span>
             </div>
-            <span style="padding:4px 8px; border-radius:4px; font-size:0.75rem; font-weight:600; ${
-                p.status === 'Approved' ? 'background:rgba(16,185,129,0.15); color:#34d399;' :
-                p.status === 'Pending' ? 'background:rgba(245,158,11,0.15); color:#fbbf24;' :
-                'background:rgba(248,113,113,0.15); color:#f87171;'
-            }">${p.status}</span>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span style="padding:4px 8px; border-radius:4px; font-size:0.75rem; font-weight:600; ${
+                    p.status === 'Approved' ? 'background:rgba(16,185,129,0.15); color:#34d399;' :
+                    p.status === 'Pending' ? 'background:rgba(245,158,11,0.15); color:#fbbf24;' :
+                    'background:rgba(248,113,113,0.15); color:#f87171;'
+                }">${p.status}</span>
+                ${buildEditButton(`startEditLocal('permits', ${idx})`)}${buildDeleteButton(`deleteLocalEntry('permits', ${idx})`)}
+            </div>
         </div>
     `).join('');
 }
@@ -320,17 +531,20 @@ function renderLabTests() {
         return;
     }
 
-    container.innerHTML = labTestsData.map(t => `
+    container.innerHTML = labTestsData.map((t, idx) => `
         <div class="report-item">
             <div>
                 <strong style="color:#fff; display:block; font-size:0.9rem;">${t.name}</strong>
                 <span style="font-size:0.75rem; color:#94a3b8;">Material: ${t.material}</span>
             </div>
-            <span style="padding:4px 8px; border-radius:4px; font-size:0.75rem; font-weight:600; ${
-                t.result === 'Pass' ? 'background:rgba(16,185,129,0.15); color:#34d399;' :
-                t.result === 'Pending' ? 'background:rgba(245,158,11,0.15); color:#fbbf24;' :
-                'background:rgba(248,113,113,0.15); color:#f87171;'
-            }">${t.result}</span>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span style="padding:4px 8px; border-radius:4px; font-size:0.75rem; font-weight:600; ${
+                    t.result === 'Pass' ? 'background:rgba(16,185,129,0.15); color:#34d399;' :
+                    t.result === 'Pending' ? 'background:rgba(245,158,11,0.15); color:#fbbf24;' :
+                    'background:rgba(248,113,113,0.15); color:#f87171;'
+                }">${t.result}</span>
+                ${buildEditButton(`startEditLocal('labtests', ${idx})`)}${buildDeleteButton(`deleteLocalEntry('labtests', ${idx})`)}
+            </div>
         </div>
     `).join('');
 }
@@ -345,13 +559,16 @@ function renderDailyReports() {
         return;
     }
 
-    container.innerHTML = dailyReportsData.map(r => `
+    container.innerHTML = dailyReportsData.map((r, idx) => `
         <div class="report-item" style="align-items:flex-start;">
             <div>
                 <strong style="color:#fff; display:block; font-size:0.9rem;">${r.date} — ${r.weather}</strong>
                 <span style="font-size:0.8rem; color:#94a3b8; display:block; margin-top:4px;">${r.summary}</span>
             </div>
-            <span style="padding:4px 8px; border-radius:4px; font-size:0.75rem; font-weight:600; background:rgba(34,211,238,0.15); color:#22d3ee; white-space:nowrap;">${r.workers} workers</span>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span style="padding:4px 8px; border-radius:4px; font-size:0.75rem; font-weight:600; background:rgba(34,211,238,0.15); color:#22d3ee; white-space:nowrap;">${r.workers} workers</span>
+                ${buildEditButton(`startEditLocal('dailyreports', ${idx})`)}${buildDeleteButton(`deleteLocalEntry('dailyreports', ${idx})`)}
+            </div>
         </div>
     `).join('');
 }
@@ -369,17 +586,20 @@ function renderMachinery() {
     const goodStatuses = ['Operational', 'Delivered'];
     const warnStatuses = ['Idle', 'In Transit'];
 
-    container.innerHTML = machineryData.map(m => `
+    container.innerHTML = machineryData.map((m, idx) => `
         <div class="report-item">
             <div>
                 <strong style="color:#fff; display:block; font-size:0.9rem;">${m.name}</strong>
                 <span style="font-size:0.75rem; color:#94a3b8;">${m.category}</span>
             </div>
-            <span style="padding:4px 8px; border-radius:4px; font-size:0.75rem; font-weight:600; ${
-                goodStatuses.includes(m.status) ? 'background:rgba(16,185,129,0.15); color:#34d399;' :
-                warnStatuses.includes(m.status) ? 'background:rgba(245,158,11,0.15); color:#fbbf24;' :
-                'background:rgba(248,113,113,0.15); color:#f87171;'
-            }">${m.status}</span>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span style="padding:4px 8px; border-radius:4px; font-size:0.75rem; font-weight:600; ${
+                    goodStatuses.includes(m.status) ? 'background:rgba(16,185,129,0.15); color:#34d399;' :
+                    warnStatuses.includes(m.status) ? 'background:rgba(245,158,11,0.15); color:#fbbf24;' :
+                    'background:rgba(248,113,113,0.15); color:#f87171;'
+                }">${m.status}</span>
+                ${buildEditButton(`startEditLocal('machinery', ${idx})`)}${buildDeleteButton(`deleteLocalEntry('machinery', ${idx})`)}
+            </div>
         </div>
     `).join('');
 }
@@ -589,9 +809,35 @@ document.addEventListener("DOMContentLoaded", () => {
                 name: nameInput,
                 cost: costInput,
                 status: qualityInput,
-                type: qualityInput.toLowerCase().includes('warning') ? 'warning' : 'passed',
-                timestamp: typeof firebase !== 'undefined' ? firebase.firestore.FieldValue.serverTimestamp() : new Date()
+                type: qualityInput.toLowerCase().includes('warning') ? 'warning' : 'passed'
             };
+
+            // ---------- UPDATE PATH (edit mode on hai) ----------
+            if (editingExpense) {
+                if (typeof db !== 'undefined' && editingExpense.docId) {
+                    try {
+                        // .update() sirf ye fields badalta hai — timestamp waisa hi rehta hai
+                        await db.collection("expenses").doc(editingExpense.docId).update(payload);
+                        cancelEditExpense();
+                    } catch (err) {
+                        alert("Cloud update failure: " + err.message);
+                    }
+                } else {
+                    const old = reportsData[editingExpense.index] || {};
+                    reportsData[editingExpense.index] = Object.assign({}, old, payload);
+                    // total ko poori list se dobara jorho — safest tareeqa
+                    appState.totalExpensesLogged = reportsData.reduce((sum, r) => sum + (parseInt(r.cost) || 0), 0);
+                    cancelEditExpense();
+                    syncGlobalDOMStats();
+                    renderReports();
+                    renderPhaseTracker();
+                    renderInvoices();
+                }
+                return;
+            }
+
+            // ---------- ADD PATH (normal nayi entry) ----------
+            payload.timestamp = typeof firebase !== 'undefined' ? firebase.firestore.FieldValue.serverTimestamp() : new Date();
 
             if (typeof db !== 'undefined') {
                 try {
@@ -612,82 +858,40 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Workforce & Labor Log Form
-    const workforceForm = document.getElementById('workforce-form');
-    if (workforceForm) {
-        workforceForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            workforceData.unshift({
-                name: document.getElementById('worker-name').value,
-                role: document.getElementById('worker-role').value,
-                wage: parseInt(document.getElementById('worker-wage').value) || 0,
-                attendance: document.getElementById('worker-attendance').value
-            });
-            renderWorkforceLog();
-            workforceForm.reset();
-        });
-    }
+    // ---------- GENERIC FORM HANDLER FOR ALL LOCAL MODULES ----------
+    // Pehle har module ka apna alag submit handler tha. Ab aik hi handler
+    // LOCAL_MODULES registry padh kar sab ke liye add + update dono karta hai.
+    Object.keys(LOCAL_MODULES).forEach(key => {
+        const mod = LOCAL_MODULES[key];
+        const form = document.getElementById(mod.formId);
+        if (!form) return;
 
-    // Permits & NOCs Form
-    const permitForm = document.getElementById('permit-form');
-    if (permitForm) {
-        permitForm.addEventListener('submit', (e) => {
+        form.addEventListener('submit', (e) => {
             e.preventDefault();
-            permitsData.unshift({
-                name: document.getElementById('permit-name').value,
-                authority: document.getElementById('permit-authority').value,
-                status: document.getElementById('permit-status').value
-            });
-            renderPermits();
-            permitForm.reset();
-        });
-    }
 
-    // Lab Tests & Quality Form
-    const labtestForm = document.getElementById('labtest-form');
-    if (labtestForm) {
-        labtestForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            labTestsData.unshift({
-                name: document.getElementById('labtest-name').value,
-                material: document.getElementById('labtest-material').value,
-                result: document.getElementById('labtest-result').value
+            // Form ke inputs se aik object banao
+            const entry = {};
+            Object.keys(mod.fields).forEach(dataKey => {
+                const input = document.getElementById(mod.fields[dataKey]);
+                const raw = input ? input.value : '';
+                entry[dataKey] = mod.numericFields.includes(dataKey) ? (parseInt(raw) || 0) : raw;
             });
-            renderLabTests();
-            labtestForm.reset();
-        });
-    }
 
-    // Daily Site Reports Form
-    const dailyReportForm = document.getElementById('dailyreport-form');
-    if (dailyReportForm) {
-        dailyReportForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            dailyReportsData.unshift({
-                date: new Date().toLocaleDateString(),
-                weather: document.getElementById('report-weather').value,
-                workers: parseInt(document.getElementById('report-workers').value) || 0,
-                summary: document.getElementById('report-summary').value
-            });
-            renderDailyReports();
-            dailyReportForm.reset();
-        });
-    }
+            if (editingLocal && editingLocal.key === key) {
+                // UPDATE: purani entry ki jagah nayi values rakho (date jaisi auto fields bacha kar)
+                const old = mod.data()[editingLocal.index] || {};
+                mod.data()[editingLocal.index] = Object.assign({}, old, entry);
+                cancelEditLocal();
+            } else {
+                // ADD: nayi entry list ke shuru me
+                if (mod.autoDate) entry.date = new Date().toLocaleDateString();
+                mod.data().unshift(entry);
+                form.reset();
+            }
 
-    // Heavy Machinery & Logistics Form
-    const machineryForm = document.getElementById('machinery-form');
-    if (machineryForm) {
-        machineryForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            machineryData.unshift({
-                name: document.getElementById('machinery-name').value,
-                category: document.getElementById('machinery-category').value,
-                status: document.getElementById('machinery-status').value
-            });
-            renderMachinery();
-            machineryForm.reset();
+            mod.render();
         });
-    }
+    });
 
     // Export Daily Report Button
     const btnExportReport = document.getElementById('btn-export-report');
