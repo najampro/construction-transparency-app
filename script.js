@@ -134,8 +134,9 @@ if (typeof db !== 'undefined') {
 // ================= ENTRY REVERSAL ENGINE (DELETE / CORRECTION MODULE) =================
 // Maqsad: agar galat entry ho jaye to usay remove kar ke dobara sahi entry ki ja sakay.
 
-// Chhota sa reusable delete button — har list item ke sath lagta hai.
+// Chhota sa reusable delete button — sirf Supervisor Mode me nazar aata hai.
 function buildDeleteButton(onclickExpression) {
+    if (!appState.isLoggedIn) return ''; // Guest ko button hi nahi dikhega
     return `<button onclick="${onclickExpression}" title="Remove this entry"
         style="background:rgba(248,113,113,0.12); border:1px solid rgba(248,113,113,0.35);
                color:#f87171; border-radius:6px; padding:5px 9px; cursor:pointer;
@@ -144,14 +145,38 @@ function buildDeleteButton(onclickExpression) {
     </button>`;
 }
 
-// Edit button — entry ko form me wapas load karta hai taake dobara type na karna pade.
+// Edit button — ye bhi sirf Supervisor Mode me nazar aata hai.
 function buildEditButton(onclickExpression) {
+    if (!appState.isLoggedIn) return '';
     return `<button onclick="${onclickExpression}" title="Edit this entry"
         style="background:rgba(251,191,36,0.12); border:1px solid rgba(251,191,36,0.35);
                color:#fbbf24; border-radius:6px; padding:5px 9px; cursor:pointer;
                font-size:0.75rem; line-height:1; margin-right:2px;">
         <i class="fa-solid fa-pen"></i>
     </button>`;
+}
+
+// Second line of defense: chahe button kisi tarah click ho bhi jaye (ya console se function
+// seedha call kiya jaye), asli kaam sirf logged-in supervisor ke liye chalega.
+function requireSupervisorAccess() {
+    if (!appState.isLoggedIn) {
+        alert("Access Denied: Sirf logged-in Supervisor hi entries edit ya remove kar sakta hai. Pehle top-right se login karein.");
+        return false;
+    }
+    return true;
+}
+
+// Login/logout hone par saari lists dobara draw karo taake edit/delete buttons
+// foran nazar aayein ya ghayab ho jayein.
+function renderAllLists() {
+    renderReports();
+    renderPhaseTracker();
+    renderInvoices();
+    renderWorkforceLog();
+    renderPermits();
+    renderLabTests();
+    renderDailyReports();
+    renderMachinery();
 }
 
 // --- LOCAL MODULE REGISTRY: aik jagah har module ka form, fields aur render function ---
@@ -201,6 +226,7 @@ let editingLocal = null;     // { key, index } ya null
 
 // --- 1. MATERIAL / EXPENSE ENTRY DELETE (cloud + local dono modes) ---
 async function deleteExpenseEntry(docId, fallbackIndex) {
+    if (!requireSupervisorAccess()) return;
     if (!confirm("Kya aap ye entry remove karna chahte hain? Expense total aur phase progress dobara calculate ho jayega.")) return;
 
     if (editingExpense && editingExpense.index === fallbackIndex) cancelEditExpense();
@@ -227,6 +253,7 @@ async function deleteExpenseEntry(docId, fallbackIndex) {
 
 // --- 2. GENERIC LOCAL LIST DELETE (workforce, permits, lab tests, reports, machinery) ---
 function deleteLocalEntry(collectionKey, index) {
+    if (!requireSupervisorAccess()) return;
     const mod = LOCAL_MODULES[collectionKey];
     if (!mod) return;
     if (!confirm("Kya aap ye entry remove karna chahte hain?")) return;
@@ -279,6 +306,7 @@ function setFormEditMode(formId, isEditing, onCancel) {
 
 // --- EXPENSE / MATERIAL EDIT ---
 function startEditExpense(docId, index) {
+    if (!requireSupervisorAccess()) return;
     const entry = reportsData[index];
     if (!entry) return;
 
@@ -303,6 +331,7 @@ function cancelEditExpense() {
 
 // --- LOCAL MODULES EDIT ---
 function startEditLocal(collectionKey, index) {
+    if (!requireSupervisorAccess()) return;
     const mod = LOCAL_MODULES[collectionKey];
     if (!mod) return;
     const entry = mod.data()[index];
@@ -814,6 +843,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // ---------- UPDATE PATH (edit mode on hai) ----------
             if (editingExpense) {
+                if (!requireSupervisorAccess()) { cancelEditExpense(); return; }
                 if (typeof db !== 'undefined' && editingExpense.docId) {
                     try {
                         // .update() sirf ye fields badalta hai — timestamp waisa hi rehta hai
@@ -878,6 +908,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             if (editingLocal && editingLocal.key === key) {
+                if (!requireSupervisorAccess()) { cancelEditLocal(); return; }
                 // UPDATE: purani entry ki jagah nayi values rakho (date jaisi auto fields bacha kar)
                 const old = mod.data()[editingLocal.index] || {};
                 mod.data()[editingLocal.index] = Object.assign({}, old, entry);
@@ -973,6 +1004,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     authActionText.style.color = "#22d3ee";
                 }
                 if (avatarLetters) avatarLetters.textContent = "G";
+
+                // Logout ke waqt agar koi edit chal raha ho to cancel karo,
+                // aur saari lists dobara draw karo taake edit/delete buttons ghayab ho jayein.
+                if (editingExpense) cancelEditExpense();
+                if (editingLocal) cancelEditLocal();
+                renderAllLists();
             }
         });
     }
@@ -1000,6 +1037,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (accountAuthModal) accountAuthModal.classList.remove('active');
                 
                 pinInput.value = "";
+                renderAllLists(); // login ho gaya — ab edit/delete buttons nazar aayein
             } else {
                 alert("Access Denied: The PIN entered is incorrect. Please try again.");
                 pinInput.value = "";
