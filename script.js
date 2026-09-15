@@ -184,6 +184,7 @@ function renderAllLists() {
 const LOCAL_MODULES = {
     workforce: {
         formId: 'workforce-form',
+        pageId: 'page-workforce',
         data: () => workforceData,
         render: () => renderWorkforceLog(),
         fields: { name: 'worker-name', role: 'worker-role', wage: 'worker-wage', attendance: 'worker-attendance' },
@@ -191,6 +192,7 @@ const LOCAL_MODULES = {
     },
     permits: {
         formId: 'permit-form',
+        pageId: 'page-permits',
         data: () => permitsData,
         render: () => renderPermits(),
         fields: { name: 'permit-name', authority: 'permit-authority', status: 'permit-status' },
@@ -198,6 +200,7 @@ const LOCAL_MODULES = {
     },
     labtests: {
         formId: 'labtest-form',
+        pageId: 'page-labtests',
         data: () => labTestsData,
         render: () => renderLabTests(),
         fields: { name: 'labtest-name', material: 'labtest-material', result: 'labtest-result' },
@@ -205,6 +208,7 @@ const LOCAL_MODULES = {
     },
     dailyreports: {
         formId: 'dailyreport-form',
+        pageId: 'page-reports',
         data: () => dailyReportsData,
         render: () => renderDailyReports(),
         fields: { weather: 'report-weather', workers: 'report-workers', summary: 'report-summary' },
@@ -213,6 +217,7 @@ const LOCAL_MODULES = {
     },
     machinery: {
         formId: 'machinery-form',
+        pageId: 'page-machinery',
         data: () => machineryData,
         render: () => renderMachinery(),
         fields: { name: 'machinery-name', category: 'machinery-category', status: 'machinery-status' },
@@ -223,6 +228,45 @@ const LOCAL_MODULES = {
 // Kaun si entry abhi edit ho rahi hai — ye do variables "edit mode" ka switch hain.
 let editingExpense = null;   // { docId, index } ya null
 let editingLocal = null;     // { key, index } ya null
+
+// ================= PAGE ROUTING (GLOBAL — sidebar click aur edit-jump dono is se guzarte hain) =================
+// Pehle ye routing logic sirf sidebar ke andar (DOMContentLoaded closure me) thi. Ab isay bahar
+// nikala hai taake startEditExpense/startEditLocal bhi "sahi page par le jao" wala kaam kar sakein.
+let navMenuItems = null;
+let navPageContents = null;
+let navCurrentViewTitle = null;
+let navCurrentViewDesc = null;
+
+const navViewMeta = {
+    'page-dashboard': { title: "Site Overview & Logs", desc: "Real-time construction operational stream" },
+    'page-security': { title: "Site Security & Perimeter Node", desc: "Access control systems and automated breach management" },
+    'page-escrow': { title: "Escrow Financial Pools", desc: "Automated funds release tracking and milestone verification" },
+    'page-invoices': { title: "Invoices & Payments", desc: "Auto-generated payables from the material procurement ledger" },
+    'page-workforce': { title: "Workforce & Labor Logs", desc: "Daily attendance and wage tracking for site labor" },
+    'page-permits': { title: "Permits & NOCs", desc: "Regulatory approvals and no-objection certificate register" },
+    'page-labtests': { title: "Lab Tests & Quality", desc: "Material quality verification and lab test results" },
+    'page-reports': { title: "Daily Site Reports", desc: "Field reports covering weather, manpower, and site progress" },
+    'page-machinery': { title: "Heavy Machinery & Logistics", desc: "Equipment status and incoming delivery tracking" },
+    'page-settings': { title: "System Settings", desc: "Configure preferences and core parameters for BuildTrack App" }
+};
+
+// Sidebar ka data-target jis page par navigate karta hai
+function activatePage(targetPageId) {
+    if (!targetPageId) return;
+
+    if (navMenuItems) {
+        navMenuItems.forEach(i => i.classList.remove('active'));
+        const matchingMenuItem = Array.from(navMenuItems).find(i => i.getAttribute('data-target') === targetPageId);
+        if (matchingMenuItem) matchingMenuItem.classList.add('active');
+    }
+
+    if (navPageContents) navPageContents.forEach(page => page.classList.remove('active'));
+    const activePage = document.getElementById(targetPageId);
+    if (activePage) activePage.classList.add('active');
+
+    if (navCurrentViewTitle && navViewMeta[targetPageId]) navCurrentViewTitle.textContent = navViewMeta[targetPageId].title;
+    if (navCurrentViewDesc && navViewMeta[targetPageId]) navCurrentViewDesc.textContent = navViewMeta[targetPageId].desc;
+}
 
 // --- 1. MATERIAL / EXPENSE ENTRY DELETE (cloud + local dono modes) ---
 async function deleteExpenseEntry(docId, fallbackIndex) {
@@ -310,6 +354,10 @@ function startEditExpense(docId, index) {
     const entry = reportsData[index];
     if (!entry) return;
 
+    // NEW: form 'page-dashboard' par hai — chahe aap kisi bhi page (Invoices, etc.) par ho,
+    // pehle wahan jump karo warna form values chhupi hui screen par bharti rahengi.
+    activatePage('page-dashboard');
+
     const nameDOM = document.getElementById('material-name');
     const costDOM = document.getElementById('material-cost');
     const qualityDOM = document.getElementById('material-quality');
@@ -336,6 +384,10 @@ function startEditLocal(collectionKey, index) {
     if (!mod) return;
     const entry = mod.data()[index];
     if (!entry) return;
+
+    // NEW: har module ka apna page hai (Workforce, Permits, waghera) —
+    // agar aap kisi doosre page par ho to pehle us module ke page par jump karo.
+    activatePage(mod.pageId);
 
     // Har field ki purani value form me wapas bhar do
     Object.keys(mod.fields).forEach(dataKey => {
@@ -780,35 +832,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const currentViewTitle = document.getElementById('current-view-title');
     const currentViewDesc = document.getElementById('current-view-desc');
 
-    const viewMeta = {
-        'page-dashboard': { title: "Site Overview & Logs", desc: "Real-time construction operational stream" },
-        'page-security': { title: "Site Security & Perimeter Node", desc: "Access control systems and automated breach management" },
-        'page-escrow': { title: "Escrow Financial Pools", desc: "Automated funds release tracking and milestone verification" },
-        'page-invoices': { title: "Invoices & Payments", desc: "Auto-generated payables from the material procurement ledger" },
-        'page-workforce': { title: "Workforce & Labor Logs", desc: "Daily attendance and wage tracking for site labor" },
-        'page-permits': { title: "Permits & NOCs", desc: "Regulatory approvals and no-objection certificate register" },
-        'page-labtests': { title: "Lab Tests & Quality", desc: "Material quality verification and lab test results" },
-        'page-reports': { title: "Daily Site Reports", desc: "Field reports covering weather, manpower, and site progress" },
-        'page-machinery': { title: "Heavy Machinery & Logistics", desc: "Equipment status and incoming delivery tracking" },
-        'page-settings': { title: "System Settings", desc: "Configure preferences and core parameters for BuildTrack App" }
-    };
+    // Global routing helpers (activatePage) ko in refs ka pata dedo taake
+    // edit-jump (startEditExpense/startEditLocal) bhi inhi ko istemal kar sakein.
+    navMenuItems = menuItems;
+    navPageContents = pageContents;
+    navCurrentViewTitle = currentViewTitle;
+    navCurrentViewDesc = currentViewDesc;
 
     if (menuItems.length > 0) {
         menuItems.forEach(item => {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
-                menuItems.forEach(i => i.classList.remove('active'));
-                item.classList.add('active');
-                
                 const targetPageId = item.getAttribute('data-target');
-                if(!targetPageId) return;
-
-                pageContents.forEach(page => page.classList.remove('active'));
-                const activePage = document.getElementById(targetPageId);
-                if (activePage) activePage.classList.add('active');
-                
-                if (currentViewTitle && viewMeta[targetPageId]) currentViewTitle.textContent = viewMeta[targetPageId].title;
-                if (currentViewDesc && viewMeta[targetPageId]) currentViewDesc.textContent = viewMeta[targetPageId].desc;
+                activatePage(targetPageId); // ab poori routing logic yahi function karta hai
             });
         });
     }
