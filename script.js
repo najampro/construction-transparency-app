@@ -30,13 +30,15 @@ let appState = {
 };
 
 // 6-POINT CONSTRUCTION PHASES SEQUENCE MATRIX ARRAY
+// NOTE: "manualStatus" flag — jab supervisor kisi phase ka status haath se edit kare to
+// ye true ho jata hai, taake auto-calculator (expense-based) usay overwrite na kare.
 const constructionPhases = [
-    { name: "Phase 1: Excavation & Layout", targetProgress: 16, status: "In Progress" },
-    { name: "Phase 2: Foundation Wall Pouring", targetProgress: 33, status: "Pending" },
-    { name: "Phase 3: Plinth Beam & DPC Level", targetProgress: 50, status: "Pending" },
-    { name: "Phase 4: Brickwork & Lintel Structure", targetProgress: 66, status: "Pending" },
-    { name: "Phase 5: Roofing & Concrete Slab", targetProgress: 83, status: "Pending" },
-    { name: "Phase 6: Finishing & Infrastructure", targetProgress: 100, status: "Pending" }
+    { name: "Phase 1: Excavation & Layout", targetProgress: 16, status: "In Progress", manualStatus: false },
+    { name: "Phase 2: Foundation Wall Pouring", targetProgress: 33, status: "Pending", manualStatus: false },
+    { name: "Phase 3: Plinth Beam & DPC Level", targetProgress: 50, status: "Pending", manualStatus: false },
+    { name: "Phase 4: Brickwork & Lintel Structure", targetProgress: 66, status: "Pending", manualStatus: false },
+    { name: "Phase 5: Roofing & Concrete Slab", targetProgress: 83, status: "Pending", manualStatus: false },
+    { name: "Phase 6: Finishing & Infrastructure", targetProgress: 100, status: "Pending", manualStatus: false }
 ];
 
 let reportsData = [];
@@ -78,6 +80,7 @@ function evaluateConstructionPhaseMetrics() {
     }
 
     constructionPhases.forEach((phase, idx) => {
+        if (phase.manualStatus) return; // Supervisor ne manually set kiya hai — auto-calc isay chhor dega
         if (idx < appState.currentPhaseIndex) {
             phase.status = "Completed";
         } else if (idx === appState.currentPhaseIndex) {
@@ -97,9 +100,46 @@ function syncGlobalDOMStats() {
     const expenseDOM = document.getElementById('stat-total-expense');
     const progressDOM = document.getElementById('stat-total-progress');
 
-    if (balanceDOM) balanceDOM.textContent = remainingBalance.toLocaleString();
+    if (balanceDOM) {
+        // Guest ko sirf number dikhta hai. Supervisor (logged-in) ko number ke saath
+        // aik chhota pencil/edit icon bhi dikhta hai jo Total Escrow Pool edit karne deta hai.
+        if (appState.isLoggedIn) {
+            balanceDOM.innerHTML = `${remainingBalance.toLocaleString()}
+                <button onclick="editEscrowPool()" title="Edit Total Escrow Pool"
+                    style="background:rgba(251,191,36,0.12); border:1px solid rgba(251,191,36,0.35);
+                           color:#fbbf24; border-radius:6px; padding:2px 7px; cursor:pointer;
+                           font-size:0.7rem; line-height:1; margin-left:8px; vertical-align:middle;">
+                    <i class="fa-solid fa-pen"></i>
+                </button>`;
+        } else {
+            balanceDOM.textContent = remainingBalance.toLocaleString();
+        }
+    }
     if (expenseDOM) expenseDOM.textContent = appState.totalExpensesLogged.toLocaleString();
     if (progressDOM) progressDOM.textContent = `${appState.progressPercentage}%`;
+}
+
+// ================= ESCROW POOL MANUAL EDIT (SUPERVISOR ONLY, POST-LOGIN) =================
+// Escrow Balance khud "totalEscrowPool - totalExpensesLogged" se nikalta hai, isliye
+// isay seedha edit karne ki bajaye hum Total Escrow Pool ko edit karte hain — balance
+// khud-ba-khud dobara calculate ho jata hai.
+function editEscrowPool() {
+    if (!requireSupervisorAccess()) return;
+
+    const rawInput = prompt(
+        `Naya Total Escrow Pool amount darj karein (PKR):`,
+        appState.totalEscrowPool
+    );
+    if (rawInput === null) return; // Supervisor ne cancel kar diya
+
+    const parsedAmount = parseInt(String(rawInput).replace(/[^0-9]/g, ''), 10);
+    if (isNaN(parsedAmount) || parsedAmount < 0) {
+        alert("Ghalat amount. Meherbani kar ke aik valid, positive number darj karein.");
+        return;
+    }
+
+    appState.totalEscrowPool = parsedAmount;
+    syncGlobalDOMStats();
 }
 
 // ================= DYNAMIC DATA INGESTION NODES (REAL-TIME DB LISTENERS) =================
@@ -169,6 +209,7 @@ function requireSupervisorAccess() {
 // Login/logout hone par saari lists dobara draw karo taake edit/delete buttons
 // foran nazar aayein ya ghayab ho jayein.
 function renderAllLists() {
+    syncGlobalDOMStats(); // Escrow Balance ka edit-pencil login/logout par foran show/hide ho
     renderReports();
     renderPhaseTracker();
     renderInvoices();
@@ -488,19 +529,88 @@ function renderPhaseTracker() {
                 iconColor = '#22d3ee'; 
             }
 
+            // Login se pehle ye milestone row sirf "read-only" nazar aati hai.
+            // Login ke baad hi name (pencil icon) aur status (badge par click) editable hote hain.
+            const nameEditBtn = appState.isLoggedIn
+                ? `<button onclick="editMilestoneName(${idx})" title="Edit milestone name"
+                        style="background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.3);
+                               color:#fbbf24; border-radius:5px; padding:2px 6px; cursor:pointer;
+                               font-size:0.65rem; line-height:1; margin-left:8px;">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>`
+                : '';
+
+            const statusBadgeAttrs = appState.isLoggedIn
+                ? `onclick="editMilestoneStatus(${idx})" title="Click to edit status" style="cursor:pointer;"`
+                : '';
+
             return `
                 <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #0f172a; border-radius: 6px; margin-bottom: 6px; border: 1px solid ${idx === appState.currentPhaseIndex ? '#22d3ee' : '#1e293b'}">
                     <div style="display:flex; align-items:center; gap:10px;">
                         <i class="fa-solid ${iconClass}" style="color: ${iconColor}"></i>
                         <span style="color: ${idx === appState.currentPhaseIndex ? '#fff' : '#94a3b8'}; font-size: 0.85rem; font-weight: ${idx === appState.currentPhaseIndex ? '600' : '400'}">${phase.name}</span>
+                        ${nameEditBtn}
                     </div>
-                    <span style="font-size: 0.75rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; ${
+                    <span ${statusBadgeAttrs} style="font-size: 0.75rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; ${
                         phase.status === 'Completed' ? 'color:#34d399; background:rgba(52,211,153,0.1);' : phase.status === 'In Progress' ? 'color:#fbbf24; background:rgba(251,191,36,0.1);' : 'color:#64748b;'
                     }">${phase.status}</span>
                 </div>
             `;
         }).join('');
     }
+}
+
+// ================= MILESTONE TRACKER MANUAL EDIT (SUPERVISOR ONLY, POST-LOGIN) =================
+// Milestone ka naam edit karna
+function editMilestoneName(idx) {
+    if (!requireSupervisorAccess()) return;
+    const phase = constructionPhases[idx];
+    if (!phase) return;
+
+    const newName = prompt("Milestone ka naya naam darj karein:", phase.name);
+    if (newName === null) return;
+    const trimmed = newName.trim();
+    if (!trimmed) {
+        alert("Naam khali nahi ho sakta.");
+        return;
+    }
+
+    phase.name = trimmed;
+    renderPhaseTracker();
+}
+
+// Milestone ka status manually edit karna (auto-calculator ko override karta hai)
+function editMilestoneStatus(idx) {
+    if (!requireSupervisorAccess()) return;
+    const phase = constructionPhases[idx];
+    if (!phase) return;
+
+    const validStatuses = ["Pending", "In Progress", "Completed"];
+    const choice = prompt(
+        `"${phase.name}" ka status set karein.\n` +
+        `Type karein: Pending, In Progress, ya Completed\n` +
+        `(Auto-calculation par wapas jane ke liye "Auto" type karein)`,
+        phase.status
+    );
+    if (choice === null) return;
+
+    const trimmedChoice = choice.trim();
+    if (trimmedChoice.toLowerCase() === 'auto') {
+        phase.manualStatus = false;
+        evaluateConstructionPhaseMetrics();
+        renderPhaseTracker();
+        return;
+    }
+
+    const matched = validStatuses.find(s => s.toLowerCase() === trimmedChoice.toLowerCase());
+    if (!matched) {
+        alert("Ghalat status. Sirf Pending, In Progress, Completed, ya Auto likhein.");
+        return;
+    }
+
+    phase.status = matched;
+    phase.manualStatus = true;
+    renderPhaseTracker();
 }
 
 // ================= INVOICES & PAYMENTS (AUTO-DERIVED FROM MATERIAL LEDGER) =================
