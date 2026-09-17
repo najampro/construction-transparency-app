@@ -58,37 +58,49 @@ const cameraFeeds = [
 // ================= AUTOMATED 6-PHASE CONSTRUCTION CALCULATOR ENGINE =================
 function evaluateConstructionPhaseMetrics() {
     const expenseSum = appState.totalExpensesLogged;
-    
+    let autoPhaseIndex;
+
     if (expenseSum <= 500000) {
-        appState.currentPhaseIndex = 0;
-        appState.progressPercentage = 16;
+        autoPhaseIndex = 0;
     } else if (expenseSum > 500000 && expenseSum <= 1200000) {
-        appState.currentPhaseIndex = 1;
-        appState.progressPercentage = 33;
+        autoPhaseIndex = 1;
     } else if (expenseSum > 1200000 && expenseSum <= 2200000) {
-        appState.currentPhaseIndex = 2;
-        appState.progressPercentage = 50;
+        autoPhaseIndex = 2;
     } else if (expenseSum > 2200000 && expenseSum <= 3200000) {
-        appState.currentPhaseIndex = 3;
-        appState.progressPercentage = 66;
+        autoPhaseIndex = 3;
     } else if (expenseSum > 3200000 && expenseSum <= 4200000) {
-        appState.currentPhaseIndex = 4;
-        appState.progressPercentage = 83;
+        autoPhaseIndex = 4;
     } else {
-        appState.currentPhaseIndex = 5;
-        appState.progressPercentage = 100;
+        autoPhaseIndex = 5;
     }
 
+    // Pehle pass: sirf un phases ka status expense-based auto-calc se set karo
+    // jinhein supervisor ne manually edit nahi kiya (manualStatus === false).
     constructionPhases.forEach((phase, idx) => {
         if (phase.manualStatus) return; // Supervisor ne manually set kiya hai — auto-calc isay chhor dega
-        if (idx < appState.currentPhaseIndex) {
+        if (idx < autoPhaseIndex) {
             phase.status = "Completed";
-        } else if (idx === appState.currentPhaseIndex) {
+        } else if (idx === autoPhaseIndex) {
             phase.status = "In Progress";
         } else {
             phase.status = "Pending";
         }
     });
+
+    // Doosra pass: "Overall Progress" aur active phase ab final resolved statuses
+    // (manual overrides samet) se nikalte hain — is se manual edit ke baad bhi
+    // Overall Progress % foran update hota hai.
+    let resolvedIndex = -1;
+    let resolvedProgress = 0;
+    constructionPhases.forEach((phase, idx) => {
+        if (phase.status === "Completed" || phase.status === "In Progress") {
+            resolvedIndex = idx;
+            resolvedProgress = phase.targetProgress;
+        }
+    });
+
+    appState.currentPhaseIndex = resolvedIndex >= 0 ? resolvedIndex : 0;
+    appState.progressPercentage = resolvedIndex >= 0 ? resolvedProgress : 0;
 }
 
 // ================= GLOBAL METRICS SYNCHRONIZER (DOM COUPLING) =================
@@ -140,6 +152,78 @@ function editEscrowPool() {
 
     appState.totalEscrowPool = parsedAmount;
     syncGlobalDOMStats();
+    persistEscrowPool(); // Firestore (ya local sandbox) me save — refresh ke baad bhi qaim rahega
+}
+
+// ================= SETTINGS PERSISTENCE (ESCROW POOL + MILESTONES) =================
+// Maqsad: Escrow Pool aur Milestone edits page refresh ke baad bhi save/restore rahein.
+// Agar Firebase available hai to Firestore ("settings" collection) me save hota hai,
+// warna Local Sandbox Mode me browser ke localStorage me save hota hai.
+function persistEscrowPool() {
+    if (typeof db !== 'undefined') {
+        db.collection("settings").doc("escrowConfig")
+          .set({ totalEscrowPool: appState.totalEscrowPool }, { merge: true })
+          .catch(err => console.error("Escrow pool cloud save failed:", err));
+    } else {
+        try {
+            localStorage.setItem('buildtrack_totalEscrowPool', String(appState.totalEscrowPool));
+        } catch (err) {
+            console.warn("Escrow pool local save failed:", err);
+        }
+    }
+}
+
+function persistMilestonePhases() {
+    const simplifiedPhases = constructionPhases.map(p => ({
+        name: p.name,
+        status: p.status,
+        manualStatus: p.manualStatus,
+        targetProgress: p.targetProgress
+    }));
+
+    if (typeof db !== 'undefined') {
+        db.collection("settings").doc("milestonesConfig")
+          .set({ phases: simplifiedPhases }, { merge: true })
+          .catch(err => console.error("Milestone cloud save failed:", err));
+    } else {
+        try {
+            localStorage.setItem('buildtrack_milestonePhases', JSON.stringify(simplifiedPhases));
+        } catch (err) {
+            console.warn("Milestone local save failed:", err);
+        }
+    }
+}
+
+// Local Sandbox Mode me (jab Firebase available nahi) page-load par pichli saved
+// settings wapas load karo, taake refresh ke baad data ghayab na ho.
+function loadLocalPersistedSettings() {
+    try {
+        const savedPool = localStorage.getItem('buildtrack_totalEscrowPool');
+        if (savedPool !== null) {
+            const parsedPool = parseInt(savedPool, 10);
+            if (!isNaN(parsedPool)) appState.totalEscrowPool = parsedPool;
+        }
+
+        const savedPhasesRaw = localStorage.getItem('buildtrack_milestonePhases');
+        if (savedPhasesRaw) {
+            const savedPhases = JSON.parse(savedPhasesRaw);
+            savedPhases.forEach((saved, idx) => {
+                if (constructionPhases[idx]) {
+                    constructionPhases[idx].name = saved.name;
+                    constructionPhases[idx].status = saved.status;
+                    constructionPhases[idx].manualStatus = !!saved.manualStatus;
+                    if (typeof saved.targetProgress === 'number') {
+                        constructionPhases[idx].targetProgress = saved.targetProgress;
+                    }
+                }
+            });
+        }
+    } catch (err) {
+        console.warn("Local settings restore failed:", err);
+    }
+}
+if (typeof db === 'undefined') {
+    loadLocalPersistedSettings();
 }
 
 // ================= DYNAMIC DATA INGESTION NODES (REAL-TIME DB LISTENERS) =================
@@ -169,6 +253,40 @@ if (typeof db !== 'undefined') {
           });
           renderSecurityLogs();
       }, (err) => console.error("Firestore security sync failed:", err));
+
+    // Escrow Pool aur Milestone settings — refresh/dusre device par bhi sync rahein
+    db.collection("settings").doc("escrowConfig")
+      .onSnapshot((docSnap) => {
+          if (docSnap.exists) {
+              const data = docSnap.data();
+              if (typeof data.totalEscrowPool === 'number') {
+                  appState.totalEscrowPool = data.totalEscrowPool;
+                  syncGlobalDOMStats();
+              }
+          }
+      }, (err) => console.error("Escrow config sync failed:", err));
+
+    db.collection("settings").doc("milestonesConfig")
+      .onSnapshot((docSnap) => {
+          if (docSnap.exists) {
+              const data = docSnap.data();
+              if (Array.isArray(data.phases)) {
+                  data.phases.forEach((saved, idx) => {
+                      if (constructionPhases[idx]) {
+                          constructionPhases[idx].name = saved.name;
+                          constructionPhases[idx].status = saved.status;
+                          constructionPhases[idx].manualStatus = !!saved.manualStatus;
+                          if (typeof saved.targetProgress === 'number') {
+                              constructionPhases[idx].targetProgress = saved.targetProgress;
+                          }
+                      }
+                  });
+                  evaluateConstructionPhaseMetrics();
+                  renderPhaseTracker();
+                  syncGlobalDOMStats();
+              }
+          }
+      }, (err) => console.error("Milestones config sync failed:", err));
 }
 
 // ================= ENTRY REVERSAL ENGINE (DELETE / CORRECTION MODULE) =================
@@ -577,6 +695,7 @@ function editMilestoneName(idx) {
 
     phase.name = trimmed;
     renderPhaseTracker();
+    persistMilestonePhases(); // refresh ke baad bhi naya naam save rahega
 }
 
 // Milestone ka status manually edit karna (auto-calculator ko override karta hai)
@@ -599,6 +718,8 @@ function editMilestoneStatus(idx) {
         phase.manualStatus = false;
         evaluateConstructionPhaseMetrics();
         renderPhaseTracker();
+        syncGlobalDOMStats(); // Overall Progress bhi foran update ho
+        persistMilestonePhases();
         return;
     }
 
@@ -610,7 +731,10 @@ function editMilestoneStatus(idx) {
 
     phase.status = matched;
     phase.manualStatus = true;
+    evaluateConstructionPhaseMetrics(); // Overall Progress ko naye status ke hisab se resolve karo
     renderPhaseTracker();
+    syncGlobalDOMStats(); // Overall Progress stat foran update ho
+    persistMilestonePhases(); // refresh ke baad bhi status save rahega
 }
 
 // ================= INVOICES & PAYMENTS (AUTO-DERIVED FROM MATERIAL LEDGER) =================
